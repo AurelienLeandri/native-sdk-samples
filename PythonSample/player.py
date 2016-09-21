@@ -138,7 +138,9 @@ class Player:
 
     def _dz_player_init(self):
         """Initialize the player ID, mandatory before activation."""
-        self.dz_player = libdeezer.dz_player_new(c_void_p(self.connection.connect_handle))
+        print hex(self.connection.connect_handle)
+        self.dz_player = libdeezer.dz_player_new(self.connection.connect_handle)
+        print hex(self.dz_player)
         if not self.dz_player:
             raise PlayerInitFailedError("Player failed to init. Check that connection is established.")
 
@@ -188,7 +190,7 @@ class Player:
         if libdeezer.dz_player_load(self.dz_player, cb, delegate, self.track):
             raise PlayerRequestFailedError("load: Unable to load selected track. Check connection and tracklist data.")
 
-    def play(self, command=1, mode=1, index=0, activity_operation_cb=None, operation_user_data=None):
+    def play(self, command=1, index=0, activity_operation_cb=None, operation_user_data=None):
         """Play the current track if loaded.
             The player gets data and renders it.
 
@@ -196,7 +198,6 @@ class Player:
         :param index: Index of the track to play
         :param activity_operation_cb: Called when async result is available
         :param operation_user_data: A reference to user's data
-        :param mode: Deprecated
         :type command: PlayerCommand
         :type index: int
         :type activity_operation_cb: function
