@@ -34,36 +34,35 @@
     functions. Here is a description of their parameters:
 
         dz_connect_on_event_cb:
-        Called after connection activation and when the connection state
-        changes.
-        The callback must take 3 parameters:
-        -   The connection handle (same as Connection.connect_handle)
-        -   An event object used to get the event that has been caught. In your
-            callback, use the static method get_event to convert the event
-            object to a ConnectionEvent index.
-        -   A user_data that is an object you can pass through some functions
-            and that can be manipulated by the callback.
+            Called after connection activation and when the connection state changes.
+            The callback must take 3 parameters:
+            -   The connection handle (same as Connection.connect_handle)
+            -   An event object used to get the event that has been caught.
+                In your callback, use the static method get_event to convert the event
+                object to a ConnectionEvent index.
+            -   A user_data that is an object you can pass through some functions
+                and that can be manipulated by the callback.
 
         dz_activity_operation_cb:
-        Can be set in some functions of Connection class to be called after
-        the operation.
-        The callback must take 4 parameters:
-        -   A delegate that is the context object to store and change
-            info in the callback.
-        -   An operation_userdata that is the object you can pass to
-            the calling function
-        -   The error status used to get the index of the error enum
-        -   An event object used to get the event that has been caught
+            Can be set in some functions of Connection class to be called after the operation.
+            The callback must take 4 parameters:
+            -   A delegate that is the context object to store and change info in the callback.
+            -   An operation_userdata that is the object you can pass to the calling function
+            -   The error status used to get the index of the error enum
+            -   An event object used to get the event that has been caught
 
         dz_connect_crash_reporting_delegate:
-        Takes nothing an returns a boolean.
-        Use this to call your own crash reporting system. If left to None, the
-        SDK will use its own crash reporting system (Breakpad).
+            Takes nothing an returns a boolean.
+            Use this to call your own crash reporting system. If left to None, the
+            SDK will use its own crash reporting system (Breakpad).
 
 """
 
 from ctypes import *
 import platform
+
+import sys
+from types import NoneType
 
 lib_name = 'libdeezer.so'
 if platform.system() == 'Darwin':
@@ -71,10 +70,20 @@ if platform.system() == 'Darwin':
 if platform.system() == 'Windows':
     lib_name = 'libdeezer.x86.dll'
 libdeezer = cdll.LoadLibrary(lib_name)
+p_type = c_uint64 if sys.maxsize > 2**32 else c_uint32
 
 dz_on_event_cb_func = CFUNCTYPE(c_int, c_void_p, c_void_p, c_void_p)
 dz_connect_crash_reporting_delegate_func = CFUNCTYPE(c_bool)
 dz_activity_operation_cb_func = CFUNCTYPE(c_int, c_void_p, c_void_p, c_int, c_int)
+
+libdeezer.dz_connect_new.restype = p_type
+libdeezer.dz_connect_get_device_id.argtypes = [p_type]
+libdeezer.dz_connect_debug_log_disable.argtypes = [p_type]
+libdeezer.dz_connect_activate.argtypes = [p_type, py_object]
+libdeezer.dz_connect_cache_path_set.argtypes = [p_type, c_void_p, py_object, c_char_p]
+libdeezer.dz_connect_set_access_token.argtypes = [p_type, c_void_p, py_object, c_char_p]
+libdeezer.dz_connect_offline_mode.argtypes = [p_type, c_void_p, py_object, c_bool]
+libdeezer.dz_connect_deactivate.argtypes = [p_type, c_void_p, c_int]
 
 
 class DZConnectConfiguration(Structure):
@@ -236,13 +245,13 @@ class Connection:
         """
         :return: The device ID for logs
         """
-        return libdeezer.dz_connect_get_device_id(c_void_p(self.connect_handle))
+        return libdeezer.dz_connect_get_device_id(self.connect_handle)
 
     def debug_log_disable(self):
         """
         Mute all API logs for readability's sake
         """
-        if libdeezer.dz_connect_debug_log_disable(c_void_p(self.connect_handle)):
+        if libdeezer.dz_connect_debug_log_disable(self.connect_handle):
             raise ConnectionRequestFailedError('debug_log_disable: Request failed.')
 
     def activate(self, user_data=None):
@@ -257,7 +266,7 @@ class Connection:
         :type user_data: The type of the object you want to manipulate
         """
         delegate = py_object(user_data) if user_data else c_void_p(0)
-        if libdeezer.dz_connect_activate(c_void_p(self.connect_handle), delegate):
+        if libdeezer.dz_connect_activate(self.connect_handle, delegate):
             raise ConnectionActivationError('Failed to activate connection. Check your network connection.')
         self.active = True
 
@@ -277,7 +286,7 @@ class Connection:
         delegate = byref(operation_userdata) if operation_userdata else c_void_p(0)
         cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
         # TODO: convert activity_operation_cb before passing to libdeezer
-        if libdeezer.dz_connect_cache_path_set(c_void_p(self.connect_handle), cb, delegate,
+        if libdeezer.dz_connect_cache_path_set(self.connect_handle, cb, delegate,
                                                c_char_p(user_cache_path.encode('utf8'))):
             raise ConnectionRequestFailedError('cache_path_set: Request failed. Check connection and/or path validity.')
 
@@ -298,7 +307,7 @@ class Connection:
         # TODO: convert activity_operation_cb before passing to libdeezer
         delegate = byref(operation_user_data) if operation_user_data else c_void_p(0)
         cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
-        if libdeezer.dz_connect_set_access_token(c_void_p(self.connect_handle), cb, delegate,
+        if libdeezer.dz_connect_set_access_token(self.connect_handle, cb, delegate,
                                                  c_char_p(user_access_token.encode('utf8'))):
             raise ConnectionRequestFailedError('set_access_token: Request failed. Check access token or update it.')
 
@@ -318,14 +327,14 @@ class Connection:
         """
         delegate = byref(operation_user_data) if operation_user_data else c_void_p(0)
         cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
-        if libdeezer.dz_connect_offline_mode(c_void_p(self.connect_handle), cb, delegate, c_bool(offline_mode_forced)):
+        if libdeezer.dz_connect_offline_mode(self.connect_handle, cb, delegate, c_bool(offline_mode_forced)):
             raise ConnectionRequestFailedError(
                 'connect_offline_mode: Request failed. Check connection and callbacks if used.')
 
     def shutdown(self):
         """Deactivate connection associated to the handle."""
         if self.connect_handle:
-            libdeezer.dz_connect_deactivate(c_void_p(self.connect_handle), c_void_p(0), None)
+            libdeezer.dz_connect_deactivate(self.connect_handle, c_void_p(0), None)
             self.active = False
 
     @staticmethod
