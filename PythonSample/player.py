@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# coding: utf8
 
 """
     Deezer ``player`` module for NativeSDK
@@ -138,11 +139,9 @@ class Player:
 
     def _dz_player_init(self):
         """Initialize the player ID, mandatory before activation."""
-        print hex(self.connection.connect_handle)
         self.dz_player = libdeezer.dz_player_new(self.connection.connect_handle)
-        print hex(self.dz_player)
         if not self.dz_player:
-            raise PlayerInitFailedError("Player failed to init. Check that connection is established.")
+            raise PlayerInitFailedError(u"Player failed to init. Check that connection is established.")
 
     def activate(self, supervisor=None):
         """Activate the player.
@@ -153,7 +152,7 @@ class Player:
         """
         delegate = py_object(supervisor) if supervisor else c_void_p(0)
         if libdeezer.dz_player_activate(self.dz_player, delegate):
-            raise PlayerActivationError("Player activation failed. Check player info and your network connection.")
+            raise PlayerActivationError(u"Player activation failed. Check player info and your network connection.")
         self.active = True
 
     def set_event_cb(self, cb):
@@ -166,7 +165,7 @@ class Player:
         """
         if libdeezer.dz_player_set_event_cb(self.dz_player, cb):
             raise PlayerRequestFailedError(
-                "set_event_cb: Request failed. Check the given callback arguments and return types and/or the player.")
+                u"set_event_cb: Request failed. Check the given callback arguments and return types and/or the player.")
 
     def load(self, tracklist_data=None, activity_operation_cb=None, operation_user_data=None):
         """Load the given track or the current track.
@@ -188,7 +187,7 @@ class Player:
         delegate = byref(operation_user_data) if operation_user_data else c_void_p(0)
         cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_player_load(self.dz_player, cb, delegate, self.track):
-            raise PlayerRequestFailedError("load: Unable to load selected track. Check connection and tracklist data.")
+            raise PlayerRequestFailedError(u"load: Unable to load selected track. Check connection and tracklist data.")
 
     def play(self, command=1, index=0, activity_operation_cb=None, operation_user_data=None):
         """Play the current track if loaded.
@@ -207,7 +206,7 @@ class Player:
         delegate = byref(operation_user_data) if operation_user_data else c_void_p(0)
         cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_player_play(self.dz_player, cb, delegate, command, index) not in range(0, 2):
-            raise PlayerRequestFailedError("play: Unable to play selected track. Check player commands and info.")
+            raise PlayerRequestFailedError(u"play: Unable to play selected track. Check player commands and info.")
 
     def shutdown(self):
         """

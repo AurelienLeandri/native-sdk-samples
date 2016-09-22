@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# coding: utf8
 
 class Error:
     def __init__(self):

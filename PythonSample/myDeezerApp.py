@@ -1,4 +1,6 @@
 #!/usr/bin/python
+# coding: utf8
+
 import time
 
 from player import *
@@ -19,14 +21,14 @@ class MyDeezerApp(object):
     def __init__(self, debug_mode=False):
         self.debug_mode = debug_mode
         # Identifiers
-        self.user_access_token = "frOxVGZdmtWbW1pzgHfMPzaMSNNCyVvbRdmtfrzu8IHfFbzsCev"  # SET your user access token
-        self.your_application_id = "190262"  # SET your application id
-        self.your_application_name = "PythonSampleApp"  # SET your application name
-        self.your_application_version = "00001"  # SET your application version
-        if platform.system() == 'Windows':
-            self.user_cache_path = "c:\\dzr\\dzrcache_NDK_SAMPLE"  # SET the user cache path, the path must exist
+        self.user_access_token = u"frOxVGZdmtWbW1pzgHfMPzaMSNNCyVvbRdmtfrzu8IHfFbzsCev"  # SET your user access token
+        self.your_application_id = u"190262"  # SET your application id
+        self.your_application_name = u"PythonSampleApp"  # SET your application name
+        self.your_application_version = u"00001"  # SET your application version
+        if platform.system() == u'Windows':
+            self.user_cache_path = u"c:\\dzr\\dzrcache_NDK_SAMPLE"  # SET the user cache path, the path must exist
         else:
-            self.user_cache_path = "/var/tmp/dzrcache_NDK_SAMPLE"  # SET the user cache path, the path must exist
+            self.user_cache_path = u"/var/tmp/dzrcache_NDK_SAMPLE"  # SET the user cache path, the path must exist
         self.connection = Connection(self.your_application_id, self.your_application_name,
                                      self.your_application_version, self.user_cache_path, 0, 0, 0)
         self.player = None
@@ -48,7 +50,7 @@ class MyDeezerApp(object):
         if not self.debug_mode:
             self.connection.debug_log_disable()
         else:
-            print "Device ID:", self.connection.get_device_id()
+            print u"Device ID:", self.connection.get_device_id()
 
     def _activate_connection(self):
         """
@@ -102,25 +104,25 @@ class MyDeezerApp(object):
     def player_event_callback(handle, event, delegate):
         app = cast(delegate, py_object).value
         event_names = [
-            'UNKNOWN',
-            'LIMITATION_FORCED_PAUSE',
-            'QUEUELIST_LOADED',
-            'QUEUELIST_TRACK_NO_RIGHT',
-            'QUEUELIST_TRACK_NOT_AVAILABLE_OFFLINE',
-            'QUEUELIST_TRACK_RIGHTS_AFTER_AUDIOADS',
-            'QUEUELIST_SKIP_NO_RIGHT',
-            'QUEUELIST_TRACK_SELECTED',
-            'QUEUELIST_NEED_NATURAL_NEXT',
-            'MEDIASTREAM_DATA_READY',
-            'MEDIASTREAM_DATA_READY_AFTER_SEEK',
-            'RENDER_TRACK_START_FAILURE',
-            'RENDER_TRACK_START',
-            'RENDER_TRACK_END',
-            'RENDER_TRACK_PAUSED',
-            'RENDER_TRACK_SEEKING',
-            'RENDER_TRACK_UNDERFLOW',
-            'RENDER_TRACK_RESUMED',
-            'RENDER_TRACK_REMOVED'
+            u'UNKNOWN',
+            u'LIMITATION_FORCED_PAUSE',
+            u'QUEUELIST_LOADED',
+            u'QUEUELIST_TRACK_NO_RIGHT',
+            u'QUEUELIST_TRACK_NOT_AVAILABLE_OFFLINE',
+            u'QUEUELIST_TRACK_RIGHTS_AFTER_AUDIOADS',
+            u'QUEUELIST_SKIP_NO_RIGHT',
+            u'QUEUELIST_TRACK_SELECTED',
+            u'QUEUELIST_NEED_NATURAL_NEXT',
+            u'MEDIASTREAM_DATA_READY',
+            u'MEDIASTREAM_DATA_READY_AFTER_SEEK',
+            u'RENDER_TRACK_START_FAILURE',
+            u'RENDER_TRACK_START',
+            u'RENDER_TRACK_END',
+            u'RENDER_TRACK_PAUSED',
+            u'RENDER_TRACK_SEEKING',
+            u'RENDER_TRACK_UNDERFLOW',
+            u'RENDER_TRACK_RESUMED',
+            u'RENDER_TRACK_REMOVED'
         ]
         streaming_mode = c_int()
         idx = c_int()
@@ -139,20 +141,20 @@ class MyDeezerApp(object):
             )
             selected_dz_api_info = libdeezer.dz_player_event_track_selected_dzapiinfo(c_void_p(event))
             next_dz_api_info = libdeezer.dz_player_event_track_selected_next_track_dzapiinfo(c_void_p(event))
-            app.log("==== PLAYER_EVENT ==== {0} for idx: {1} - is_preview: {2}"
+            app.log(u"==== PLAYER_EVENT ==== {0} for idx: {1} - is_preview: {2}"
                     .format(event_names[event_type], idx.value, is_preview))
-            app.log("\tcan_pause_unpause: {0} - can_seek: {1}"
+            app.log(u"\tcan_pause_unpause: {0} - can_seek: {1}"
                     .format(can_pause_unpause.value, can_seek.value))
             if selected_dz_api_info:
-                app.log("\tnow:{0}".format(selected_dz_api_info))
+                app.log(u"\tnow:{0}".format(selected_dz_api_info))
             if next_dz_api_info:
-                app.log("\tnext:{0}".format(next_dz_api_info))
+                app.log(u"\tnext:{0}".format(next_dz_api_info))
             app.player.nb_tracks_played += 1
             return 0
-        app.log("==== PLAYER_EVENT ==== {0} for idx: {1}".format(event_names[event_type], idx.value))
+        app.log(u"==== PLAYER_EVENT ==== {0} for idx: {1}".format(event_names[event_type], idx.value))
         # Will stop execution after the track is finished
         if event_type == PlayerEvent.RENDER_TRACK_END:
-            app.log("\tnb_track_to_play: {0}\tnb_track_played: {1}"
+            app.log(u"\tnb_track_to_play: {0}\tnb_track_played: {1}"
                     .format(app.player.nb_tracks_to_play, app.player.nb_tracks_played))
             if app.player.nb_tracks_played != -1 and app.player.nb_tracks_to_play == app.player.nb_tracks_played:
                 app.player.shutdown()
@@ -167,21 +169,21 @@ class MyDeezerApp(object):
     def connection_event_callback(handle, event, delegate):
         app = cast(delegate, py_object).value
         event_names = [
-            'UNKNOWN',
-            'USER_OFFLINE_AVAILABLE',
-            'USER_ACCESS_TOKEN_OK',
-            'USER_ACCESS_TOKEN_FAILED',
-            'USER_LOGIN_OK',
-            'USER_LOGIN_FAIL_NETWORK_ERROR',
-            'USER_LOGIN_FAIL_BAD_CREDENTIALS',
-            'USER_LOGIN_FAIL_USER_INFO',
-            'USER_LOGIN_FAIL_OFFLINE_MODE',
-            'USER_NEW_OPTIONS',
-            'ADVERTISEMENT_START',
-            'ADVERTISEMENT_STOP'
+            u'UNKNOWN',
+            u'USER_OFFLINE_AVAILABLE',
+            u'USER_ACCESS_TOKEN_OK',
+            u'USER_ACCESS_TOKEN_FAILED',
+            u'USER_LOGIN_OK',
+            u'USER_LOGIN_FAIL_NETWORK_ERROR',
+            u'USER_LOGIN_FAIL_BAD_CREDENTIALS',
+            u'USER_LOGIN_FAIL_USER_INFO',
+            u'USER_LOGIN_FAIL_OFFLINE_MODE',
+            u'USER_NEW_OPTIONS',
+            u'ADVERTISEMENT_START',
+            u'ADVERTISEMENT_STOP'
         ]
         event_type = Connection.get_event(event)
-        app.log("++++ CONNECT_EVENT ++++ {0}".format(event_names[event_type]))
+        app.log(u"++++ CONNECT_EVENT ++++ {0}".format(event_names[event_type]))
         # After User is authenticated we can start the player
         if event_type == ConnectionEvent.USER_LOGIN_OK:
             app.player.launch_play()
@@ -189,6 +191,6 @@ class MyDeezerApp(object):
 
     @staticmethod
     def operation_cb(delegate, operation_userdata, status, result):
-        print "This is an example of an activity_operation_cb"
+        print u"This is an example of an activity_operation_cb"
         return 0
 

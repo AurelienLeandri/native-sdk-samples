@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
+# coding: utf8
 
 
 """
@@ -64,11 +64,11 @@ import platform
 import sys
 from types import NoneType
 
-lib_name = 'libdeezer.so'
-if platform.system() == 'Darwin':
-    lib_name = 'libdeezer'
-if platform.system() == 'Windows':
-    lib_name = 'libdeezer.x86.dll'
+lib_name = u'libdeezer.so'
+if platform.system() == u'Darwin':
+    lib_name = u'libdeezer'
+if platform.system() == u'Windows':
+    lib_name = u'libdeezer.x86.dll'
 libdeezer = cdll.LoadLibrary(lib_name)
 p_type = c_uint64 if sys.maxsize > 2**32 else c_uint32
 
@@ -104,13 +104,13 @@ class DZConnectConfiguration(Structure):
         for this structure.
     """
     _pack_ = 1
-    _fields_ = [('app_id', c_char_p),
-                ('product_id', c_char_p),
-                ('product_build_id', c_char_p),
-                ('user_profile_path', c_char_p),
-                ('dz_connect_on_event_cb', dz_on_event_cb_func),
-                ('anonymous_blob', c_void_p),
-                ('dz_connect_crash_reporting_delegate', dz_connect_crash_reporting_delegate_func)]
+    _fields_ = [(u'app_id', c_char_p),
+                (u'product_id', c_char_p),
+                (u'product_build_id', c_char_p),
+                (u'user_profile_path', c_char_p),
+                (u'dz_connect_on_event_cb', dz_on_event_cb_func),
+                (u'anonymous_blob', c_void_p),
+                (u'dz_connect_crash_reporting_delegate', dz_connect_crash_reporting_delegate_func)]
 
 
 class ConnectionInitFailedError(Exception):
@@ -194,7 +194,7 @@ class Connection:
                                      after given connection info
     """
 
-    def __init__(self, app_id='', product_id='', product_build_id='', user_profile_path='/var/tmp/dzrcache_NDK_SAMPLE',
+    def __init__(self, app_id='', product_id='', product_build_id='', user_profile_path=u'/var/tmp/dzrcache_NDK_SAMPLE',
                  dz_connect_on_event_cb=None, anonymous_blob=None, dz_connect_crash_reporting_delegate=None):
         """
         :param app_id: The ID of the application
@@ -211,10 +211,10 @@ class Connection:
         :type dz_connect_on_event_cb: function
         :type dz_connect_crash_reporting_delegate: function
         """
-        self.app_id = app_id.encode('utf8')
-        self.product_id = product_id.encode('utf8')
-        self.product_build_id = product_build_id.encode('utf8')
-        self.user_profile_path = user_profile_path.encode('utf8')
+        self.app_id = app_id
+        self.product_id = product_id
+        self.product_build_id = product_build_id
+        self.user_profile_path = user_profile_path
         self.dz_connect_on_event_cb = dz_on_event_cb_func(dz_connect_on_event_cb)
         self.anonymous_blob = anonymous_blob
         self.dz_connect_crash_reporting_delegate = dz_connect_crash_reporting_delegate_func(
@@ -238,7 +238,7 @@ class Connection:
                                         self.dz_connect_crash_reporting_delegate)
         self.connect_handle = libdeezer.dz_connect_new(byref(config))
         if not self.connect_handle:
-            raise ConnectionInitFailedError('Connection handle failed to initialize. Check connection info you gave.')
+            raise ConnectionInitFailedError(u'Connection handle failed to initialize. Check connection info you gave.')
 
     def set_event_cb(self, callback):
         """
@@ -261,7 +261,7 @@ class Connection:
         Mute all API logs for readability's sake
         """
         if libdeezer.dz_connect_debug_log_disable(self.connect_handle):
-            raise ConnectionRequestFailedError('debug_log_disable: Request failed.')
+            raise ConnectionRequestFailedError(u'debug_log_disable: Request failed.')
 
     def activate(self, user_data=None):
         """Launch the connection. Call this after init_handle.
@@ -276,7 +276,7 @@ class Connection:
         """
         delegate = py_object(user_data) if user_data else c_void_p(0)
         if libdeezer.dz_connect_activate(self.connect_handle, delegate):
-            raise ConnectionActivationError('Failed to activate connection. Check your network connection.')
+            raise ConnectionActivationError(u'Failed to activate connection. Check your network connection.')
         self.active = True
 
     def cache_path_set(self, user_cache_path, activity_operation_cb=None, operation_userdata=None):
@@ -296,8 +296,9 @@ class Connection:
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
         # TODO: convert activity_operation_cb before passing to libdeezer
         if libdeezer.dz_connect_cache_path_set(self.connect_handle, cb, delegate,
-                                               c_char_p(user_cache_path.encode('utf8'))):
-            raise ConnectionRequestFailedError('cache_path_set: Request failed. Check connection and/or path validity.')
+                                               c_char_p(user_cache_path)):
+            raise ConnectionRequestFailedError(
+                u'cache_path_set: Request failed. Check connection and/or path validity.')
 
     def set_access_token(self, user_access_token, activity_operation_cb=None, operation_user_data=None):
         """
@@ -317,8 +318,8 @@ class Connection:
         delegate = py_object(operation_user_data) if operation_user_data else c_void_p(0)
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_connect_set_access_token(self.connect_handle, cb, delegate,
-                                                 c_char_p(user_access_token.encode('utf8'))):
-            raise ConnectionRequestFailedError('set_access_token: Request failed. Check access token or update it.')
+                                                 c_char_p(user_access_token)):
+            raise ConnectionRequestFailedError(u'set_access_token: Request failed. Check access token or update it.')
 
     def connect_offline_mode(self, activity_operation_cb=None, operation_user_data=None, offline_mode_forced=False):
         """Force offline mode in lib.
@@ -338,7 +339,7 @@ class Connection:
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_connect_offline_mode(self.connect_handle, cb, delegate, c_bool(offline_mode_forced)):
             raise ConnectionRequestFailedError(
-                'connect_offline_mode: Request failed. Check connection and callbacks if used.')
+                u'connect_offline_mode: Request failed. Check connection and callbacks if used.')
 
     def shutdown(self):
         """Deactivate connection associated to the handle."""
