@@ -164,7 +164,7 @@ class Player:
         :param cb: The event callback to give.
         :type cb: function
         """
-        if libdeezer.dz_player_set_event_cb(self.dz_player, dz_on_event_cb_func(cb)):
+        if libdeezer.dz_player_set_event_cb(self.dz_player, cb):
             raise PlayerRequestFailedError(
                 "set_event_cb: Request failed. Check the given callback arguments and return types and/or the player.")
 
