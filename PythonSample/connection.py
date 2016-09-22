@@ -34,27 +34,29 @@
     functions. Here is a description of their parameters:
 
         dz_connect_on_event_cb:
-            Called after connection activation and when the connection state changes.
-            The callback must take 3 parameters:
+            Called after connection activation and when the connection state
+            changes. The callback must take 3 parameters:
             -   The connection handle (same as Connection.connect_handle)
             -   An event object used to get the event that has been caught.
-                In your callback, use the static method get_event to convert the event
-                object to a ConnectionEvent index.
-            -   A user_data that is an object you can pass through some functions
-                and that can be manipulated by the callback.
+                In your callback, use the static method get_event to convert the
+                event object to a ConnectionEvent index.
+            -   A user_data that is an object you can pass through some
+                functions and that can be manipulated by the callback.
 
         dz_activity_operation_cb:
-            Can be set in some functions of Connection class to be called after the operation.
-            The callback must take 4 parameters:
-            -   A delegate that is the context object to store and change info in the callback.
-            -   An operation_userdata that is the object you can pass to the calling function
+            Can be set in some functions of Connection class to be called after
+            the operation. The callback must take 4 parameters:
+            -   A delegate that is the context object to store and change info
+                in the callback.
+            -   An operation_userdata that is the object you can pass to the
+                calling function
             -   The error status used to get the index of the error enum
             -   An event object used to get the event that has been caught
 
         dz_connect_crash_reporting_delegate:
             Takes nothing an returns a boolean.
-            Use this to call your own crash reporting system. If left to None, the
-            SDK will use its own crash reporting system (Breakpad).
+            Use this to call your own crash reporting system. If left to None,
+            the SDK will use its own crash reporting system (Breakpad).
 
 """
 
@@ -62,7 +64,6 @@ from ctypes import *
 import platform
 
 import sys
-from types import NoneType
 
 lib_name = u'libdeezer.so'
 if platform.system() == u'Darwin':
@@ -194,20 +195,22 @@ class Connection:
                                      after given connection info
     """
 
-    def __init__(self, app_id='', product_id='', product_build_id='', user_profile_path=u'/var/tmp/dzrcache_NDK_SAMPLE',
-                 dz_connect_on_event_cb=None, anonymous_blob=None, dz_connect_crash_reporting_delegate=None):
+    def __init__(self, app_id=u'', product_id=u'', product_build_id=u'',
+                 user_profile_path=u'/var/tmp/dzrcache_NDK_SAMPLE', dz_connect_on_event_cb=None, anonymous_blob=None,
+                 dz_connect_crash_reporting_delegate=None):
         """
         :param app_id: The ID of the application
         :param product_id: The name of your application
         :param product_build_id: The version number
         :param user_profile_path: The cache path of the user. Deprecated.
-        :param dz_connect_on_event_cb: The event listener to connection operations
+        :param dz_connect_on_event_cb: The event listener to connection
+            operations
         :param anonymous_blob: Deprecated
         :param dz_connect_crash_reporting_delegate: The error callback
-        :type app_id: str
-        :type product_id: str
-        :type product_build_id: str
-        :type user_profile_path: str
+        :type app_id: unicode
+        :type product_id: unicode
+        :type product_build_id: unicode
+        :type user_profile_path: unicode
         :type dz_connect_on_event_cb: function
         :type dz_connect_crash_reporting_delegate: function
         """
@@ -270,8 +273,7 @@ class Connection:
         object you want through user_data as long as it is managed by this
         callback.
 
-        :param user_data: A reference to an object you want to pass to
-            dz_connect_on_event_cb.
+        :param user_data: An object you want to pass to dz_connect_on_event_cb.
         :type user_data: The type of the object you want to manipulate
         """
         delegate = py_object(user_data) if user_data else c_void_p(0)
@@ -287,14 +289,14 @@ class Connection:
 
         :param user_cache_path: The desired path
         :param activity_operation_cb: The callback to this function.
-        :param operation_userdata: A reference to an object you want to pass to activity_operation_cb.
+        :param operation_userdata: An object you want to pass to
+            activity_operation_cb.
         :type user_cache_path: str
-        :type activity_operation_cb: function
+        :type activity_operation_cb: dz_activity_operation_cb_func
         :type operation_userdata: The type of the object you want to manipulate
         """
         delegate = py_object(operation_userdata) if operation_userdata else c_void_p(0)
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
-        # TODO: convert activity_operation_cb before passing to libdeezer
         if libdeezer.dz_connect_cache_path_set(self.connect_handle, cb, delegate,
                                                c_char_p(user_cache_path)):
             raise ConnectionRequestFailedError(
@@ -308,13 +310,12 @@ class Connection:
         :param user_access_token: The token given by OAuth 2 process.
             Refer to the API documentation.
         :param activity_operation_cb: The callback to this function.
-        :param operation_user_data: A reference to an object you want to pass to
+        :param operation_user_data: An object you want to pass to
             activity_operation_cb.
-        :type user_access_token: str
-        :type activity_operation_cb: function
+        :type user_access_token: unicode
+        :type activity_operation_cb: dz_activity_operation_cb_func
         :type operation_user_data: The type of the object you want to manipulate
         """
-        # TODO: convert activity_operation_cb before passing to libdeezer
         delegate = py_object(operation_user_data) if operation_user_data else c_void_p(0)
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_connect_set_access_token(self.connect_handle, cb, delegate,
@@ -327,11 +328,11 @@ class Connection:
         Calling this function is mandatory to force user login.
 
         :param activity_operation_cb: The callback of the operation.
-        :param operation_user_data: A reference to an object you want to pass to
+        :param operation_user_data: An object you want to pass to
             activity_operation_cb.
         :param offline_mode_forced: Force offline mode. Leave to False
             if just to allow connection.
-        :type activity_operation_cb: function
+        :type activity_operation_cb: dz_activity_operation_cb_func
         :type operation_user_data: The type of the object you want to manipulate
         :type offline_mode_forced: bool
         """

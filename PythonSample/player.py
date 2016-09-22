@@ -38,7 +38,6 @@
 """
 
 from connection import *
-import ctypes
 
 
 class PlayerInitFailedError(Exception):
@@ -161,7 +160,7 @@ class Player:
         state changes.
 
         :param cb: The event callback to give.
-        :type cb: function
+        :type cb: dz_on_event_cb_func
         """
         if libdeezer.dz_player_set_event_cb(self.dz_player, cb):
             raise PlayerRequestFailedError(
@@ -178,7 +177,7 @@ class Player:
         :param operation_user_data:  Any object your operation_callback can
         manipulate. Must inherit from Structure class.
         :type tracklist_data: str
-        :type activity_operation_cb: function
+        :type activity_operation_cb: dz_activity_operation_cb_func
         :type operation_user_data: Same as operation_user_data in your
         callback. Must inherit from Structure as it is used by ctypes
         """
@@ -199,7 +198,7 @@ class Player:
         :param operation_user_data: A reference to user's data
         :type command: PlayerCommand
         :type index: int
-        :type activity_operation_cb: function
+        :type activity_operation_cb: dz_activity_operation_cb_func
         :type operation_user_data: Same as operation_user_data in your callback.
             Must inherit from structure as it is used by ctypes.
         """

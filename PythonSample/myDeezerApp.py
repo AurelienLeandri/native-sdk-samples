@@ -21,7 +21,7 @@ class MyDeezerApp(object):
     def __init__(self, debug_mode=False):
         self.debug_mode = debug_mode
         # Identifiers
-        self.user_access_token = u"frOxVGZdmtWbW1pzgHfMPzaMSNNCyVvbRdmtfrzu8IHfFbzsCev"  # SET your user access token
+        self.user_access_token = u"frtnmlb2InzjnEwn8y9ymiF58qcXGYDAKVDgZYaEb3GDCcdceTB"  # SET your user access token
         self.your_application_id = u"190262"  # SET your application id
         self.your_application_name = u"PythonSampleApp"  # SET your application name
         self.your_application_version = u"00001"  # SET your application version
@@ -41,9 +41,6 @@ class MyDeezerApp(object):
     def _initialize_connection(self):
         """
         Set up connection
-        :param event_callback: The event listener triggered when the connection
-            state change.
-        :param debug_mode: Set to true to mute API and callback logs.
         """
         self.connection.set_event_cb(self.connection_event_callback)
         self.connection.init_handle()
@@ -55,19 +52,16 @@ class MyDeezerApp(object):
     def _activate_connection(self):
         """
         Activate the connection. Must be used after initialization.
-        :param user_access_token: The token given by OAuth 2 process.
-            Refer to the API documentation.
         """
         self.connection.activate(self)
-        self.connection.cache_path_set(self.connection.user_profile_path, activity_operation_cb=self.cache_path_set_cb, operation_userdata=self)
+        self.connection.cache_path_set(self.connection.user_profile_path, activity_operation_cb=self.cache_path_set_cb,
+                                       operation_userdata=self)
         self.connection.set_access_token(self.user_access_token)
         self.connection.connect_offline_mode()
 
     def _initialize_player(self):
         """
         Set up the player
-        :param event_callback: The event listener triggered when the connection
-            state change.
         """
         self.player = Player(self.connection)
         self.player.set_event_cb(self.player_cb)
@@ -76,7 +70,6 @@ class MyDeezerApp(object):
         """
         Activate the player. Must be used after calling initialize_player
         Sets the track that will be played using start_player.
-        :param track: The track to be played.
         """
         self.player.activate(self)
 
@@ -102,6 +95,7 @@ class MyDeezerApp(object):
     # We set the callback for player events, to print various logs and listen to events
     @staticmethod
     def player_event_callback(handle, event, delegate):
+        # We retrieve our deezer app
         app = cast(delegate, py_object).value
         event_names = [
             u'UNKNOWN',
@@ -124,7 +118,6 @@ class MyDeezerApp(object):
             u'RENDER_TRACK_RESUMED',
             u'RENDER_TRACK_REMOVED'
         ]
-        streaming_mode = c_int()
         idx = c_int()
         event_type = Player.get_event(event)
         # Print track info after the track is loaded and selected
@@ -167,6 +160,7 @@ class MyDeezerApp(object):
     # We set the connection callback to launch the player after connection is established
     @staticmethod
     def connection_event_callback(handle, event, delegate):
+        # We retrieve our deezerApp
         app = cast(delegate, py_object).value
         event_names = [
             u'UNKNOWN',
