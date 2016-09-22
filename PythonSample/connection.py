@@ -74,7 +74,7 @@ p_type = c_uint64 if sys.maxsize > 2**32 else c_uint32
 
 dz_on_event_cb_func = CFUNCTYPE(c_int, p_type, c_void_p, c_void_p)
 dz_connect_crash_reporting_delegate_func = CFUNCTYPE(c_bool)
-dz_activity_operation_cb_func = CFUNCTYPE(c_int, c_void_p, c_void_p, c_int, c_int)
+dz_activity_operation_cb_func = CFUNCTYPE(c_int, c_void_p, c_void_p, p_type, p_type)
 
 libdeezer.dz_connect_new.restype = p_type
 libdeezer.dz_connect_get_device_id.argtypes = [p_type]
@@ -292,8 +292,8 @@ class Connection:
         :type activity_operation_cb: function
         :type operation_userdata: The type of the object you want to manipulate
         """
-        delegate = byref(operation_userdata) if operation_userdata else c_void_p(0)
-        cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
+        delegate = py_object(operation_userdata) if operation_userdata else c_void_p(0)
+        cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
         # TODO: convert activity_operation_cb before passing to libdeezer
         if libdeezer.dz_connect_cache_path_set(self.connect_handle, cb, delegate,
                                                c_char_p(user_cache_path.encode('utf8'))):
@@ -314,8 +314,8 @@ class Connection:
         :type operation_user_data: The type of the object you want to manipulate
         """
         # TODO: convert activity_operation_cb before passing to libdeezer
-        delegate = byref(operation_user_data) if operation_user_data else c_void_p(0)
-        cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
+        delegate = py_object(operation_user_data) if operation_user_data else c_void_p(0)
+        cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_connect_set_access_token(self.connect_handle, cb, delegate,
                                                  c_char_p(user_access_token.encode('utf8'))):
             raise ConnectionRequestFailedError('set_access_token: Request failed. Check access token or update it.')
@@ -334,8 +334,8 @@ class Connection:
         :type operation_user_data: The type of the object you want to manipulate
         :type offline_mode_forced: bool
         """
-        delegate = byref(operation_user_data) if operation_user_data else c_void_p(0)
-        cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
+        delegate = py_object(operation_user_data) if operation_user_data else c_void_p(0)
+        cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_connect_offline_mode(self.connect_handle, cb, delegate, c_bool(offline_mode_forced)):
             raise ConnectionRequestFailedError(
                 'connect_offline_mode: Request failed. Check connection and callbacks if used.')

@@ -19,7 +19,7 @@ class MyDeezerApp(object):
     def __init__(self, debug_mode=False):
         self.debug_mode = debug_mode
         # Identifiers
-        self.user_access_token = "frhJrShmPKIAQgaRZPrCNfV6I2KxLkxlAjgGcaManylyIzEIBeX"  # SET your user access token
+        self.user_access_token = "frOxVGZdmtWbW1pzgHfMPzaMSNNCyVvbRdmtfrzu8IHfFbzsCev"  # SET your user access token
         self.your_application_id = "190262"  # SET your application id
         self.your_application_name = "PythonSampleApp"  # SET your application name
         self.your_application_version = "00001"  # SET your application version
@@ -31,6 +31,7 @@ class MyDeezerApp(object):
                                      self.your_application_version, self.user_cache_path, 0, 0, 0)
         self.player = None
         self.player_cb = dz_on_event_cb_func(self.player_event_callback)
+        self.cache_path_set_cb = dz_activity_operation_cb_func(self.operation_cb)
         self._initialize_connection()
         self._activate_connection()
         self._initialize_player()
@@ -56,7 +57,7 @@ class MyDeezerApp(object):
             Refer to the API documentation.
         """
         self.connection.activate(self)
-        self.connection.cache_path_set(self.connection.user_profile_path)
+        self.connection.cache_path_set(self.connection.user_profile_path, activity_operation_cb=self.cache_path_set_cb, operation_userdata=self)
         self.connection.set_access_token(self.user_access_token)
         self.connection.connect_offline_mode()
 
@@ -184,5 +185,10 @@ class MyDeezerApp(object):
         # After User is authenticated we can start the player
         if event_type == ConnectionEvent.USER_LOGIN_OK:
             app.player.launch_play()
+        return 0
+
+    @staticmethod
+    def operation_cb(delegate, operation_userdata, status, result):
+        print "This is an example of an activity_operation_cb"
         return 0
 
