@@ -69,7 +69,8 @@ lib_name = u'libdeezer.so'
 if platform.system() == u'Darwin':
     lib_name = u'libdeezer'
 if platform.system() == u'Windows':
-    lib_name = u'libdeezer.x86.dll'
+    lib_name = u'libdeezer.'
+    lib_name += u'x64.dll' if sys.maxsize > 2**32 else u'x86.dll'
 libdeezer = cdll.LoadLibrary(lib_name)
 p_type = c_uint64 if sys.maxsize > 2**32 else c_uint32
 
