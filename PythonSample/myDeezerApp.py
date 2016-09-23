@@ -21,7 +21,7 @@ class MyDeezerApp(object):
     def __init__(self, debug_mode=False):
         self.debug_mode = debug_mode
         # Identifiers
-        self.user_access_token = u"frJEGVdcADH52e2g0IFXZkX8Ai7Tnds2mGMIbQey1F0vCtYsLgp"  # SET your user access token
+        self.user_access_token = u"frHYsS50q2d7BRC4S7iyLS72s7q1pkoSlaZH8GWihhfDdJue69z"  # SET your user access token
         self.your_application_id = u"190262"  # SET your application id
         self.your_application_name = u"PythonSampleApp"  # SET your application name
         self.your_application_version = u"00001"  # SET your application version
@@ -35,8 +35,8 @@ class MyDeezerApp(object):
         self.player_cb = dz_on_event_cb_func(self.player_event_callback)
         self.cache_path_set_cb = dz_activity_operation_cb_func(self.operation_cb)
         self._initialize_connection()
-        self._activate_connection()
         self._initialize_player()
+        self._activate_connection()
 
     def _initialize_connection(self):
         """
