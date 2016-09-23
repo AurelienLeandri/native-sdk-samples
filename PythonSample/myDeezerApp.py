@@ -21,7 +21,7 @@ class MyDeezerApp(object):
     def __init__(self, debug_mode=False):
         self.debug_mode = debug_mode
         # Identifiers
-        self.user_access_token = u"frtnmlb2InzjnEwn8y9ymiF58qcXGYDAKVDgZYaEb3GDCcdceTB"  # SET your user access token
+        self.user_access_token = u"frJEGVdcADH52e2g0IFXZkX8Ai7Tnds2mGMIbQey1F0vCtYsLgp"  # SET your user access token
         self.your_application_id = u"190262"  # SET your application id
         self.your_application_name = u"PythonSampleApp"  # SET your application name
         self.your_application_version = u"00001"  # SET your application version
@@ -185,6 +185,9 @@ class MyDeezerApp(object):
 
     @staticmethod
     def operation_cb(delegate, operation_userdata, status, result):
-        print u"This is an example of an activity_operation_cb"
+        app = cast(delegate, py_object).value
+        app2 = cast(operation_userdata, py_object).value
+        app.log(u"This is an example of")
+        app2.log(u"an activity operation callback.")
         return 0
 
