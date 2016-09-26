@@ -3,6 +3,10 @@
 
 
 class Error:
+    """Represent error values that will be caught by error callbacks
+    Warning: If you happen to change the values, make sure they correspond
+    to the values of the corresponding C enum
+    """
     def __init__(self):
         pass
 
