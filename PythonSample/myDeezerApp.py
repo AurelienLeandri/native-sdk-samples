@@ -17,11 +17,19 @@ class MyDeezerApp(object):
         player      A Player instance to store the player's data
         debug_mode  When True displays event and API logs
     """
+    class AppContext(object):
+        def __init__(self):
+            self.nb_track_played = 0
+            self.is_playing = False
+            self.dz_content_url = ""
+            self.dz_index_in_queue_list = 0
+            self.repeat_mode = 0
+            self.is_shuffle_mode = False
 
     def __init__(self, debug_mode=False):
         self.debug_mode = debug_mode
         # Identifiers
-        self.user_access_token = u"frHYsS50q2d7BRC4S7iyLS72s7q1pkoSlaZH8GWihhfDdJue69z"  # SET your user access token
+        self.user_access_token = u""  # SET your user access token
         self.your_application_id = u"190262"  # SET your application id
         self.your_application_name = u"PythonSampleApp"  # SET your application name
         self.your_application_version = u"00001"  # SET your application version
@@ -29,6 +37,7 @@ class MyDeezerApp(object):
             self.user_cache_path = u"c:\\dzr\\dzrcache_NDK_SAMPLE"  # SET the user cache path, the path must exist
         else:
             self.user_cache_path = u"/var/tmp/dzrcache_NDK_SAMPLE"  # SET the user cache path, the path must exist
+        self.context = self.AppContext()
         self.connection = Connection(self.your_application_id, self.your_application_name,
                                      self.your_application_version, self.user_cache_path, 0, 0, 0)
         self.player = None
@@ -47,7 +56,7 @@ class MyDeezerApp(object):
         else:
             print u"Device ID:", self.connection.get_device_id()
 
-    def log_info(self):
+    def log_connect_info(self):
         """Print connection info"""
         if self.debug_mode:
             print "<-- Deezer NativeSDK version: {}".format(libdeezer.dz_connect_get_build_id())
@@ -56,13 +65,28 @@ class MyDeezerApp(object):
             print "--> Product BUILD ID: {}".format(self.your_application_version)
             print "--> User Profile Path: {}".format(self.your_application_version)
 
-    def argv_error(self):
+    @staticmethod
+    def argv_error():
         print "Please give the content as argument like:"
         print """\t"dzmedia:///track/10287076"\t(Single track example)"""
         print """\t"dzmedia:///album/607845"\t(Album example)"""
         print """\t"dzmedia:///playlist/1363560485"\t(Playlist example)"""
         print """\t"dzradio:///radio-223"\t(Radio example)"""
         print """\t"dzradio:///user-743548285"\t(User Mix example)"""
+
+    @staticmethod
+    def log_command_info():
+        print "######### MENU #########"
+        print "- Please enter keys for command -"
+        print "\tS : START/STOP"
+        print "\tP : PLAY/PAUSE"
+        print "\t+ : NEXT"
+        print "\t- : PREVIOUS"
+        print "\tR : NEXT REPEAT MODE"
+        print "\t? : TOGGLE SHUFFLE MODE"
+        print "\tQ : QUIT"
+        print "\t[1-4] : LOAD CONTENT [1-4]"
+        print "########################"
 
     def _activate_connection(self):
         """
@@ -92,7 +116,12 @@ class MyDeezerApp(object):
         """
         Load the current track and play it.
         """
+        # TODO: remove track from player
+        self.context.dz_content_url = track
         self.player.track = track
+
+    def process_command(self, command):
+        print "lol"
 
     def start(self):
         self._activate_player()
@@ -197,6 +226,8 @@ class MyDeezerApp(object):
         # After User is authenticated we can start the player
         if event_type == ConnectionEvent.USER_LOGIN_OK:
             app.player.launch_play()
+        if event_type == ConnectionEvent.USER_LOGIN_FAIL_USER_INFO:
+            exit(1)
         return 0
 
     @staticmethod
