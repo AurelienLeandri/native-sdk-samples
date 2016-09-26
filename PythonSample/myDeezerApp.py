@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # coding: utf8
-
+import inspect
 import time
 
 from player import *
@@ -39,15 +39,30 @@ class MyDeezerApp(object):
         self._activate_connection()
 
     def _initialize_connection(self):
-        """
-        Set up connection
-        """
+        """Set up connection"""
         self.connection.set_event_cb(self.connection_event_callback)
         self.connection.init_handle()
         if not self.debug_mode:
             self.connection.debug_log_disable()
         else:
             print u"Device ID:", self.connection.get_device_id()
+
+    def log_info(self):
+        """Print connection info"""
+        if self.debug_mode:
+            print "<-- Deezer NativeSDK version: {}".format(libdeezer.dz_connect_get_build_id())
+            print "--> Application ID: {}".format(self.your_application_id)
+            print "--> Product ID: {}".format(self.your_application_name)
+            print "--> Product BUILD ID: {}".format(self.your_application_version)
+            print "--> User Profile Path: {}".format(self.your_application_version)
+
+    def argv_error(self):
+        print "Please give the content as argument like:"
+        print """\t"dzmedia:///track/10287076"\t(Single track example)"""
+        print """\t"dzmedia:///album/607845"\t(Album example)"""
+        print """\t"dzmedia:///playlist/1363560485"\t(Playlist example)"""
+        print """\t"dzradio:///radio-223"\t(Radio example)"""
+        print """\t"dzradio:///user-743548285"\t(User Mix example)"""
 
     def _activate_connection(self):
         """
@@ -81,14 +96,15 @@ class MyDeezerApp(object):
 
     def start(self):
         self._activate_player()
-        while self.connection.active and self.player.active:
-            time.sleep(1)
 
     def log(self, message):
         """
         Print a log message unless debug_mode is False
         :param message: The message to display
         """
+        frame_record = inspect.stack()[1]
+        frame = frame_record[0]
+        info = inspect.getframeinfo(frame)
         if self.debug_mode:
             print message
 
