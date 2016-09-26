@@ -29,7 +29,7 @@ class MyDeezerApp(object):
     def __init__(self, debug_mode=False):
         self.debug_mode = debug_mode
         # Identifiers
-        self.user_access_token = u""  # SET your user access token
+        self.user_access_token = u"frIzsKhKMgn7okIdzTP3fTE7ZF2DahQveSJ89cpmmthOxlUpAhS"  # SET your user access token
         self.your_application_id = u"190262"  # SET your application id
         self.your_application_name = u"PythonSampleApp"  # SET your application name
         self.your_application_version = u"00001"  # SET your application version
@@ -59,34 +59,11 @@ class MyDeezerApp(object):
     def log_connect_info(self):
         """Print connection info"""
         if self.debug_mode:
-            print "<-- Deezer NativeSDK version: {}".format(libdeezer.dz_connect_get_build_id())
-            print "--> Application ID: {}".format(self.your_application_id)
-            print "--> Product ID: {}".format(self.your_application_name)
-            print "--> Product BUILD ID: {}".format(self.your_application_version)
-            print "--> User Profile Path: {}".format(self.your_application_version)
-
-    @staticmethod
-    def argv_error():
-        print "Please give the content as argument like:"
-        print """\t"dzmedia:///track/10287076"\t(Single track example)"""
-        print """\t"dzmedia:///album/607845"\t(Album example)"""
-        print """\t"dzmedia:///playlist/1363560485"\t(Playlist example)"""
-        print """\t"dzradio:///radio-223"\t(Radio example)"""
-        print """\t"dzradio:///user-743548285"\t(User Mix example)"""
-
-    @staticmethod
-    def log_command_info():
-        print "######### MENU #########"
-        print "- Please enter keys for command -"
-        print "\tS : START/STOP"
-        print "\tP : PLAY/PAUSE"
-        print "\t+ : NEXT"
-        print "\t- : PREVIOUS"
-        print "\tR : NEXT REPEAT MODE"
-        print "\t? : TOGGLE SHUFFLE MODE"
-        print "\tQ : QUIT"
-        print "\t[1-4] : LOAD CONTENT [1-4]"
-        print "########################"
+            print "---- Deezer NativeSDK version: {}".format(libdeezer.dz_connect_get_build_id())
+            print "---- Application ID: {}".format(self.your_application_id)
+            print "---- Product ID: {}".format(self.your_application_name)
+            print "---- Product BUILD ID: {}".format(self.your_application_version)
+            print "---- User Profile Path: {}".format(self.your_application_version)
 
     def _activate_connection(self):
         """
@@ -120,12 +97,6 @@ class MyDeezerApp(object):
         self.context.dz_content_url = track
         self.player.track = track
 
-    def process_command(self, command):
-        print "lol"
-
-    def start(self):
-        self._activate_player()
-
     def log(self, message):
         """
         Print a log message unless debug_mode is False
@@ -136,6 +107,103 @@ class MyDeezerApp(object):
         info = inspect.getframeinfo(frame)
         if self.debug_mode:
             print message
+
+    def process_command(self, command):
+        c = ''.join(command.splitlines())
+        call = {
+            'S': self.playback_start_stop,
+            'P': self.playback_play_pause,
+            '+': self.playback_next,
+            '-': self.playback_previous,
+            'R': self.playback_toggle_repeat,
+            '?': self.playback_toggle_random,
+            'Q': self.shutdown
+        }
+        if c not in call.keys():
+            print "Invalid command, try again"
+            self.log_command_info()
+            return
+        call.get(c)()
+
+    @staticmethod
+    def log_command_info():
+        print "######### MENU #########"
+        print "- Please enter keys for command -"
+        print "\tS : START/STOP"
+        print "\tP : PLAY/PAUSE"
+        print "\t+ : NEXT"
+        print "\t- : PREVIOUS"
+        print "\tR : NEXT REPEAT MODE"
+        print "\t? : TOGGLE SHUFFLE MODE"
+        print "\tQ : QUIT"
+        print "########################"
+
+    # TODO: Streaming mode enum
+    # TODO: Index enum
+    # TODO: Add player and connect handles to context class
+    def playback_start_stop(self):
+        if not self.context.is_playing:
+            if self.context.streaming_mode == PlayerStreamingMode.ONDEMAND:
+                # TODO: Check arguments for play
+                self.player.play(self.context.player_handle, None, None, PlayerCommand.START_TRACKLIST,
+                                 PlayerIndex.IN_QUEUELIST_CURRENT)
+        elif self.context.streaming_mode ==  PlayerStreamingMode.RADIO:
+            self.player.play(self.context.player_handle, None, None, PlayerCommand.START_TRACKLIST,
+                             PlayerIndex.IN_QUEUELIST_CURRENT)
+        else:
+            self.log("STOP => {}".format(self.context.dz_content_url))
+            # TODO: Add function stop
+            self.player.stop(self.context.player_handle, None, None)
+
+    def playback_play_pause(self):
+        if self.context.is_playing:
+            self.log("PAUSE track n° {} of => {}".format(self.context.nb_track_played, self.context.dz_content_url))
+            # TODO: Add function pause
+            self.player.pause(self.context.player_handle, None, None)
+        else:
+            self.log("RESUME track n° {} of => {}".format(self.context.nb_track_played, self.context.dz_content_url))
+            # TODO: Add function resume
+            self.player.resume(self.context.player_handle, None, None)
+
+    def playback_next(self):
+        self.log("NEXT => {}".format(self.context.dz_content_url))
+        self.player.play(self.context.player_handle, None, None, PlayerCommand.START_TRACKLIST,
+                         PlayerIndex.IN_QUEUELIST_NEXT)
+
+    def playback_previous(self):
+        self.log("PREVIOUS => {}".format(self.context.dz_content_url))
+        self.player.play(self.context.player_handle, None, None, PlayerCommand.START_TRACKLIST,
+                         PlayerIndex.IN_QUEUELIST_PREVIOUS)
+
+    def playback_toggle_repeat(self):
+        self.context.repeat_mode += 1
+        if self.context.repeat_mode > PlayerRepeatMode.ALL:
+            self.context.repeat_mode = PlayerRepeatMode.OFF
+        self.log("REPEAT mode => {}".format(self.context.repeat_mode))
+        # TODO: Add function set_repeat_mode
+        self.player.set_repeat_mode(self.context.player_handle, None, None, self.context.repeat_mode)
+
+    def playback_toggle_random(self):
+        self.context.is_shuffle_mode = not self.context.is_shuffle_mode
+        self.log("SHUFFLE mode => {}".format("ON" if self.context.is_shuffle_mode else "OFF"))
+        # TODO: Add function enable_shuffle_mode
+        self.player.enable_shuffle_mode(self.context.player_handle, None, None, self.context.is_shuffle_mode)
+
+    def load_content(self):
+        self.log("LOAD => {}".format(self.context.dz_content_url))
+        self.player.load(self.context.player_handle, None, None, self.context.dz_content_url)
+
+    # TODO: Add arguments to player and connection shutdown functions
+    def shutdown(self):
+        self.log("SHUTDOWN (1/2) - dzplayer = {}".format(self.context.player_handle))
+        if self.context.player_handle:
+            self.player.shutdown()
+        self.log("SHUTDOWN (2/2) - dzconnect = {}".format(self.context.connect_handle))
+        if self.context.connect_handle:
+            self.connection.shutdown()
+
+    def start(self):
+        self._activate_player()
 
     # We set the callback for player events, to print various logs and listen to events
     @staticmethod

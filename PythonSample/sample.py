@@ -22,11 +22,20 @@ def process_input(app):
             app.process_command(input_queue.get())
 
 
+def argv_error():
+    print "Please give the content as argument like:"
+    print """\t"dzmedia:///track/10287076"        (Single track example)"""
+    print """\t"dzmedia:///album/607845"          (Album example)"""
+    print """\t"dzmedia:///playlist/1363560485"   (Playlist example)"""
+    print """\t"dzradio:///radio-223"             (Radio example)"""
+    print """\t"dzradio:///user-743548285"        (User Mix example)"""
+
+
 def main():
     app = MyDeezerApp(True)
     app.log_connect_info()
     if len(sys.argv) != 2:
-        app.argv_error()
+        argv_error()
         return 1
     app.set_song(sys.argv[1])
     app.log_command_info()
