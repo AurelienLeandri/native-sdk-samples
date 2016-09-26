@@ -6,7 +6,7 @@
     Deezer ``connection`` module for NativeSDK
     ==========================================
 
-    Manage connection operation with the REST API and the connection info.
+    Manage connection operations and the session info.
 
     This is a part of the Python wrapper for the NativeSDK. This module wraps
     the deezer-connect functions into several python classes. The calls to the
@@ -56,7 +56,7 @@
         dz_connect_crash_reporting_delegate:
             Takes nothing an returns a boolean.
             Use this to call your own crash reporting system. If left to None,
-            the SDK will use its own crash reporting system (Breakpad).
+            the SDK will use its own crash reporting system.
 
 """
 
@@ -65,6 +65,7 @@ import platform
 
 import sys
 
+# TODO: Move to sdk import file, taking the path as parameters
 lib_name = u'libdeezer.so'
 if platform.system() == u'Darwin':
     lib_name = u'libdeezer'
@@ -97,15 +98,9 @@ libdeezer.dz_player_event_get_type.argtypes = [c_void_p]
 libdeezer.dz_player_event_get_type.restype = c_int
 
 
+# TODO: Check if it works without pack
 class DZConnectConfiguration(Structure):
-    """Contains the connection info used by the sdk.
-
-        .. warning:: This is a wrapper the C struct dz_connect_configuration of
-        the NativeSDK. Unless you know what you are doing, use the Connection
-        class constructor instead since it works as an pythonesque interface
-        for this structure.
-    """
-    _pack_ = 1
+    """Contains the connection info used by the sdk."""
     _fields_ = [(u'app_id', c_char_p),
                 (u'product_id', c_char_p),
                 (u'product_build_id', c_char_p),
@@ -143,6 +138,9 @@ class ConnectionEvent:
     """Defines values associated to connection events.
         In the on_event_callbacks you define, you can convert the event object
         to an integer corresponding to a value of this class using get_event
+
+        Warning: If you happen to change the values, make sure they correspond
+        to the values of the corresponding C enum
     """
 
     def __init__(self):
@@ -165,7 +163,11 @@ class ConnectionEvent:
 
 
 class StreamingMode:
-    """Defines values associated to the streaming mode"""
+    """Defines values associated to the streaming mode
+
+    Warning: If you happen to change the values, make sure they correspond
+    to the values of the corresponding C enum
+    """
 
     def __init__(self):
         pass

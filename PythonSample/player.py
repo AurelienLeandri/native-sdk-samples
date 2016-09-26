@@ -68,6 +68,9 @@ class PlayerEvent:
     """
         Defines values associated to player events returned by get_event.
         Use it for your callbacks.
+
+        Warning: If you happen to change the values, make sure they correspond
+        to the values of the corresponding C enum
     """
     def __init__(self):
         pass
@@ -96,7 +99,12 @@ class PlayerEvent:
 
 
 class PlayerCommand:
-    """Defines commands to update player's state"""
+    """Defines commands to update player's state
+
+    Warning: If you happen to change the values, make sure they correspond
+    to the values of the corresponding C enum
+    """
+
     def __init__(self):
         pass
 
