@@ -216,7 +216,7 @@ class Connection:
     """
 
     # TODO: change profile path according to platform
-    def __init__(self, app_id, product_id, product_build_id,
+    def __init__(self, context, app_id, product_id, product_build_id,
                  user_profile_path=u'/var/tmp/dzrcache_NDK_SAMPLE', dz_connect_on_event_cb=None, anonymous_blob=None,
                  dz_connect_crash_reporting_delegate=None):
         """
@@ -235,6 +235,7 @@ class Connection:
         :type dz_connect_on_event_cb: function
         :type dz_connect_crash_reporting_delegate: function
         """
+        self.context = context
         self.app_id = app_id
         self.product_id = product_id
         self.product_build_id = product_build_id
@@ -256,6 +257,7 @@ class Connection:
         self.connect_handle = libdeezer.dz_connect_new(byref(config))
         if not self.connect_handle:
             raise ConnectionInitFailedError(u'Connection handle failed to initialize. Check connection info you gave.')
+        self._activate(context)
 
     def set_event_cb(self, callback):
         """
@@ -280,7 +282,7 @@ class Connection:
         if libdeezer.dz_connect_debug_log_disable(self.connect_handle):
             raise ConnectionRequestFailedError(u'debug_log_disable: Request failed.')
 
-    def activate(self, user_data=None):
+    def _activate(self, user_data=None):
         """Launch the connection. Call this after init_handle.
 
         Calls self.dz_connect_on_event_cb after activation. You can provide any

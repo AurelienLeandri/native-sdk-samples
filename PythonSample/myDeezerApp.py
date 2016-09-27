@@ -16,6 +16,7 @@ class MyDeezerApp(object):
         player      A Player instance to store the player's data
         debug_mode  When True displays event and API logs
     """
+
     class AppContext(object):
         def __init__(self):
             self.nb_track_played = 0
@@ -28,7 +29,7 @@ class MyDeezerApp(object):
     def __init__(self, debug_mode=False):
         self.debug_mode = debug_mode
         # Identifiers
-        self.user_access_token = u"frglBrm4qzcaC1IspVEFPXAnVe4APOmWk7kNPCjwg0Hw3uWM0bO"  # SET your user access token
+        self.user_access_token = u"fr8VDJgNPRCk6k55W8sEM1hX4iqDlFUXw3FAU04AK3Hbq4PU9Xt"  # SET your user access token
         self.your_application_id = u"190262"  # SET your application id
         self.your_application_name = u"PythonSampleApp"  # SET your application name
         self.your_application_version = u"00001"  # SET your application version
@@ -37,22 +38,30 @@ class MyDeezerApp(object):
         else:
             self.user_cache_path = u"/var/tmp/dzrcache_NDK_SAMPLE"  # SET the user cache path, the path must exist
         self.context = self.AppContext()
-        self.connection = Connection(self.your_application_id, self.your_application_name,
+        self.connection = Connection(self, self.your_application_id, self.your_application_name,
                                      self.your_application_version, self.user_cache_path,
                                      self.connection_event_callback, 0, 0)
         self.player = None
         self.player_cb = dz_on_event_cb_func(self.player_event_callback)
         self.cache_path_set_cb = dz_activity_operation_cb_func(self.operation_cb)
-        self._initialize_connection()
-        self._initialize_player()
-        self._activate_connection()
-
-    def _initialize_connection(self):
-        """Set up connection"""
         if not self.debug_mode:
             self.connection.debug_log_disable()
         else:
             print u"Device ID:", self.connection.get_device_id()
+        self.player = Player(self, self.connection)
+        self.player.set_event_cb(self.player_cb)
+        self.connection.cache_path_set(self.connection.user_profile_path, activity_operation_cb=self.cache_path_set_cb,
+                                       operation_userdata=self)
+        self.connection.set_access_token(self.user_access_token)
+        self.connection.set_offline_mode(False)
+
+    def log(self, message):
+        """
+        Print a log message unless debug_mode is False
+        :param message: The message to display
+        """
+        if self.debug_mode:
+            print message
 
     def log_connect_info(self):
         """Print connection info"""
@@ -63,29 +72,6 @@ class MyDeezerApp(object):
 
     # TODO: Hid that in connection
     # TODO: Put all init ant activate in connection and player constructors
-    def _activate_connection(self):
-        """
-        Activate the connection. Must be used after initialization.
-        """
-        self.connection.activate(self)
-        self.connection.cache_path_set(self.connection.user_profile_path, activity_operation_cb=self.cache_path_set_cb,
-                                       operation_userdata=self)
-        self.connection.set_access_token(self.user_access_token)
-        self.connection.set_offline_mode(False)
-
-    def _initialize_player(self):
-        """
-        Set up the player
-        """
-        self.player = Player(self.connection)
-        self.player.set_event_cb(self.player_cb)
-
-    def _activate_player(self):
-        """
-        Activate the player. Must be used after calling initialize_player
-        Sets the track that will be played using start_player.
-        """
-        self.player.activate(self)
 
     def set_song(self, track):
         """
@@ -94,17 +80,6 @@ class MyDeezerApp(object):
         # TODO: remove track from player
         self.context.dz_content_url = track
         self.player.track = track
-
-    def log(self, message):
-        """
-        Print a log message unless debug_mode is False
-        :param message: The message to display
-        """
-        frame_record = inspect.stack()[1]
-        frame = frame_record[0]
-        info = inspect.getframeinfo(frame)
-        if self.debug_mode:
-            print message
 
     def process_command(self, command):
         c = ''.join(command.splitlines())
@@ -200,9 +175,6 @@ class MyDeezerApp(object):
         if self.context.connect_handle:
             self.connection.shutdown()
 
-    def start(self):
-        self._activate_player()
-
     # We set the callback for player events, to print various logs and listen to events
     @staticmethod
     def player_event_callback(handle, event, delegate):
@@ -239,7 +211,7 @@ class MyDeezerApp(object):
         # Will stop execution after the track is finished
         # TODO: when to stop execution if no nb_track_to_play ?
         if event_type == PlayerEvent.RENDER_TRACK_END:
-            app.player.launch_play()
+            context.player.launch_play()
         return 0
 
     # We set the connection callback to launch the player after connection is established

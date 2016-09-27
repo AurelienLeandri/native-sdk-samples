@@ -39,7 +39,6 @@ def main():
         return 1
     app.set_song(sys.argv[1])
     app.log_command_info()
-    app.start()
     process_input(app)
     return 0
 
