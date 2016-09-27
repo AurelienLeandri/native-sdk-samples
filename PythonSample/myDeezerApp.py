@@ -29,7 +29,7 @@ class MyDeezerApp(object):
     def __init__(self, debug_mode=False):
         self.debug_mode = debug_mode
         # Identifiers
-        self.user_access_token = u"frIzsKhKMgn7okIdzTP3fTE7ZF2DahQveSJ89cpmmthOxlUpAhS"  # SET your user access token
+        self.user_access_token = u"frglBrm4qzcaC1IspVEFPXAnVe4APOmWk7kNPCjwg0Hw3uWM0bO"  # SET your user access token
         self.your_application_id = u"190262"  # SET your application id
         self.your_application_name = u"PythonSampleApp"  # SET your application name
         self.your_application_version = u"00001"  # SET your application version
@@ -39,7 +39,8 @@ class MyDeezerApp(object):
             self.user_cache_path = u"/var/tmp/dzrcache_NDK_SAMPLE"  # SET the user cache path, the path must exist
         self.context = self.AppContext()
         self.connection = Connection(self.your_application_id, self.your_application_name,
-                                     self.your_application_version, self.user_cache_path, 0, 0, 0)
+                                     self.your_application_version, self.user_cache_path,
+                                     self.connection_event_callback, 0, 0)
         self.player = None
         self.player_cb = dz_on_event_cb_func(self.player_event_callback)
         self.cache_path_set_cb = dz_activity_operation_cb_func(self.operation_cb)
@@ -49,8 +50,6 @@ class MyDeezerApp(object):
 
     def _initialize_connection(self):
         """Set up connection"""
-        self.connection.set_event_cb(self.connection_event_callback)
-        self.connection.init_handle()
         if not self.debug_mode:
             self.connection.debug_log_disable()
         else:
@@ -143,11 +142,11 @@ class MyDeezerApp(object):
     # TODO: Add player and connect handles to context class
     def playback_start_stop(self):
         if not self.context.is_playing:
-            if self.context.streaming_mode == PlayerStreamingMode.ONDEMAND:
+            if self.context.streaming_mode == ConnectionStreamingMode.ONDEMAND:
                 # TODO: Check arguments for play
                 self.player.play(self.context.player_handle, None, None, PlayerCommand.START_TRACKLIST,
                                  PlayerIndex.IN_QUEUELIST_CURRENT)
-        elif self.context.streaming_mode ==  PlayerStreamingMode.RADIO:
+        elif self.context.streaming_mode == ConnectionStreamingMode.RADIO:
             self.player.play(self.context.player_handle, None, None, PlayerCommand.START_TRACKLIST,
                              PlayerIndex.IN_QUEUELIST_CURRENT)
         else:

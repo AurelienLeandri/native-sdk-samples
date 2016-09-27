@@ -37,7 +37,7 @@
 
 """
 
-from connection import *
+from wrapper.connection import *
 
 
 class PlayerInitFailedError(Exception):

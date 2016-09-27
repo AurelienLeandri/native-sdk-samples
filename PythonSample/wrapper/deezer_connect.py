@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # coding: utf8
 
+# TODO: !/usr/bin/env python instead of #!/usr/bin/python
+
 
 """
     Deezer ``connection`` module for NativeSDK
@@ -180,10 +182,7 @@ class StreamingMode:
 
 
 class Connection:
-    """Manage and initiate connection to the API.
-
-        Represents a connection to the API. Stores connection info, event
-        callbacks and wrappers to the NativeSDK.
+    """Manage connection and user session
 
         Attributes:
             app_id                   The ID of the application
@@ -198,7 +197,8 @@ class Connection:
                                      after given connection info
     """
 
-    def __init__(self, app_id=u'', product_id=u'', product_build_id=u'',
+    # TODO: change profile path according to platform
+    def __init__(self, app_id, product_id, product_build_id,
                  user_profile_path=u'/var/tmp/dzrcache_NDK_SAMPLE', dz_connect_on_event_cb=None, anonymous_blob=None,
                  dz_connect_crash_reporting_delegate=None):
         """
@@ -227,14 +227,7 @@ class Connection:
             dz_connect_crash_reporting_delegate)
         self.connect_handle = 0
         self.active = False
-
-    def init_handle(self):
-        """Initialize connection info and return the connection handler
-
-            Build a DZConnectConfiguration object that wraps
-            dz_connect_configuration from the C SDK and fill it with the
-            connection instance info. To be called after initializing instance.
-        """
+        self.set_event_cb(dz_connect_on_event_cb)
         config = DZConnectConfiguration(c_char_p(self.app_id),
                                         c_char_p(self.product_id),
                                         c_char_p(self.product_build_id),
@@ -345,6 +338,7 @@ class Connection:
             raise ConnectionRequestFailedError(
                 u'connect_offline_mode: Request failed. Check connection and callbacks if used.')
 
+    # TODO: call that in a callback dz_connect_on_deactivate
     def shutdown(self):
         """Deactivate connection associated to the handle."""
         if self.connect_handle:
