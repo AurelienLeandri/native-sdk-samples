@@ -163,6 +163,24 @@ class ConnectionEvent:
         ADVERTISEMENT_STOP
     ) = range(0, 12)
 
+    @staticmethod
+    def event_name(event):
+        event_names = [
+            u'UNKNOWN',
+            u'USER_OFFLINE_AVAILABLE',
+            u'USER_ACCESS_TOKEN_OK',
+            u'USER_ACCESS_TOKEN_FAILED',
+            u'USER_LOGIN_OK',
+            u'USER_LOGIN_FAIL_NETWORK_ERROR',
+            u'USER_LOGIN_FAIL_BAD_CREDENTIALS',
+            u'USER_LOGIN_FAIL_USER_INFO',
+            u'USER_LOGIN_FAIL_OFFLINE_MODE',
+            u'USER_NEW_OPTIONS',
+            u'ADVERTISEMENT_START',
+            u'ADVERTISEMENT_STOP'
+        ]
+        return event_names[event]
+
 
 class StreamingMode:
     """Defines values associated to the streaming mode
@@ -318,7 +336,7 @@ class Connection:
                                                  c_char_p(user_access_token)):
             raise ConnectionRequestFailedError(u'set_access_token: Request failed. Check access token or update it.')
 
-    def connect_offline_mode(self, activity_operation_cb=None, operation_user_data=None, offline_mode_forced=False):
+    def set_offline_mode(self, offline_mode_forced, activity_operation_cb=None, operation_user_data=None):
         """Force offline mode in lib.
 
         Calling this function is mandatory to force user login.

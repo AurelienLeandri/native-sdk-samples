@@ -1,10 +1,9 @@
 #!/usr/bin/python
 # coding: utf8
 import inspect
-import time
 
-from player import *
-from connection import *
+from wrapper.deezer_connect import *
+from wrapper.deezer_player import *
 
 
 class MyDeezerApp(object):
@@ -61,9 +60,9 @@ class MyDeezerApp(object):
             print "---- Deezer NativeSDK version: {}".format(libdeezer.dz_connect_get_build_id())
             print "---- Application ID: {}".format(self.your_application_id)
             print "---- Product ID: {}".format(self.your_application_name)
-            print "---- Product BUILD ID: {}".format(self.your_application_version)
-            print "---- User Profile Path: {}".format(self.your_application_version)
 
+    # TODO: Hid that in connection
+    # TODO: Put all init ant activate in connection and player constructors
     def _activate_connection(self):
         """
         Activate the connection. Must be used after initialization.
@@ -72,7 +71,7 @@ class MyDeezerApp(object):
         self.connection.cache_path_set(self.connection.user_profile_path, activity_operation_cb=self.cache_path_set_cb,
                                        operation_userdata=self)
         self.connection.set_access_token(self.user_access_token)
-        self.connection.connect_offline_mode()
+        self.connection.set_offline_mode(False)
 
     def _initialize_player(self):
         """
@@ -209,27 +208,7 @@ class MyDeezerApp(object):
     def player_event_callback(handle, event, delegate):
         # We retrieve our deezer app
         app = cast(delegate, py_object).value
-        event_names = [
-            u'UNKNOWN',
-            u'LIMITATION_FORCED_PAUSE',
-            u'QUEUELIST_LOADED',
-            u'QUEUELIST_TRACK_NO_RIGHT',
-            u'QUEUELIST_TRACK_NOT_AVAILABLE_OFFLINE',
-            u'QUEUELIST_TRACK_RIGHTS_AFTER_AUDIOADS',
-            u'QUEUELIST_SKIP_NO_RIGHT',
-            u'QUEUELIST_TRACK_SELECTED',
-            u'QUEUELIST_NEED_NATURAL_NEXT',
-            u'MEDIASTREAM_DATA_READY',
-            u'MEDIASTREAM_DATA_READY_AFTER_SEEK',
-            u'RENDER_TRACK_START_FAILURE',
-            u'RENDER_TRACK_START',
-            u'RENDER_TRACK_END',
-            u'RENDER_TRACK_PAUSED',
-            u'RENDER_TRACK_SEEKING',
-            u'RENDER_TRACK_UNDERFLOW',
-            u'RENDER_TRACK_RESUMED',
-            u'RENDER_TRACK_REMOVED'
-        ]
+        # TODO: idx use ??
         idx = c_int()
         event_type = Player.get_event(event)
         # Print track info after the track is loaded and selected
@@ -237,6 +216,7 @@ class MyDeezerApp(object):
             can_pause_unpause = c_bool()
             can_seek = c_bool()
             no_skip_allowed = c_int()
+            # TODO wrap these libdeezer calls
             is_preview = libdeezer.dz_player_event_track_selected_is_preview(c_void_p(event))
             libdeezer.dz_player_event_track_selected_rights(
                 c_void_p(event),
@@ -247,25 +227,18 @@ class MyDeezerApp(object):
             selected_dz_api_info = libdeezer.dz_player_event_track_selected_dzapiinfo(c_void_p(event))
             next_dz_api_info = libdeezer.dz_player_event_track_selected_next_track_dzapiinfo(c_void_p(event))
             app.log(u"==== PLAYER_EVENT ==== {0} for idx: {1} - is_preview: {2}"
-                    .format(event_names[event_type], idx.value, is_preview))
+                    .format(PlayerEvent.event_name(event_type), idx.value, is_preview))
             app.log(u"\tcan_pause_unpause: {0} - can_seek: {1}"
                     .format(can_pause_unpause.value, can_seek.value))
             if selected_dz_api_info:
                 app.log(u"\tnow:{0}".format(selected_dz_api_info))
             if next_dz_api_info:
                 app.log(u"\tnext:{0}".format(next_dz_api_info))
-            app.player.nb_tracks_played += 1
             return 0
-        app.log(u"==== PLAYER_EVENT ==== {0} for idx: {1}".format(event_names[event_type], idx.value))
+        app.log(u"==== PLAYER_EVENT ==== {0} for idx: {1}".format(PlayerEvent.event_name(event_type), idx.value))
         # Will stop execution after the track is finished
+        # TODO: when to stop execution if no nb_track_to_play ?
         if event_type == PlayerEvent.RENDER_TRACK_END:
-            app.log(u"\tnb_track_to_play: {0}\tnb_track_played: {1}"
-                    .format(app.player.nb_tracks_to_play, app.player.nb_tracks_played))
-            if app.player.nb_tracks_played != -1 and app.player.nb_tracks_to_play == app.player.nb_tracks_played:
-                app.player.shutdown()
-            else:
-                app.player.launch_play()
-        if event_type == PlayerEvent.QUEUELIST_NEED_NATURAL_NEXT:
             app.player.launch_play()
         return 0
 
@@ -274,22 +247,8 @@ class MyDeezerApp(object):
     def connection_event_callback(handle, event, delegate):
         # We retrieve our deezerApp
         app = cast(delegate, py_object).value
-        event_names = [
-            u'UNKNOWN',
-            u'USER_OFFLINE_AVAILABLE',
-            u'USER_ACCESS_TOKEN_OK',
-            u'USER_ACCESS_TOKEN_FAILED',
-            u'USER_LOGIN_OK',
-            u'USER_LOGIN_FAIL_NETWORK_ERROR',
-            u'USER_LOGIN_FAIL_BAD_CREDENTIALS',
-            u'USER_LOGIN_FAIL_USER_INFO',
-            u'USER_LOGIN_FAIL_OFFLINE_MODE',
-            u'USER_NEW_OPTIONS',
-            u'ADVERTISEMENT_START',
-            u'ADVERTISEMENT_STOP'
-        ]
         event_type = Connection.get_event(event)
-        app.log(u"++++ CONNECT_EVENT ++++ {0}".format(event_names[event_type]))
+        app.log(u"++++ CONNECT_EVENT ++++ {0}".format(ConnectionEvent.event_name(event_type)))
         # After User is authenticated we can start the player
         if event_type == ConnectionEvent.USER_LOGIN_OK:
             app.player.launch_play()
@@ -297,11 +256,8 @@ class MyDeezerApp(object):
             exit(1)
         return 0
 
+    # This is an example of a usable operation callback
     @staticmethod
     def operation_cb(delegate, operation_userdata, status, result):
-        app = cast(delegate, py_object).value
-        app2 = cast(operation_userdata, py_object).value
-        app.log(u"This is an example of")
-        app2.log(u"an activity operation callback.")
         return 0
 

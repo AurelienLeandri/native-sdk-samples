@@ -37,7 +37,7 @@
 
 """
 
-from wrapper.connection import *
+from wrapper.deezer_connect import *
 
 
 class PlayerInitFailedError(Exception):
@@ -97,6 +97,31 @@ class PlayerEvent:
         RENDER_TRACK_REMOVED
     ) = range(0, 19)
 
+    @staticmethod
+    def event_name(event):
+        event_names = [
+            u'UNKNOWN',
+            u'LIMITATION_FORCED_PAUSE',
+            u'QUEUELIST_LOADED',
+            u'QUEUELIST_TRACK_NO_RIGHT',
+            u'QUEUELIST_TRACK_NOT_AVAILABLE_OFFLINE',
+            u'QUEUELIST_TRACK_RIGHTS_AFTER_AUDIOADS',
+            u'QUEUELIST_SKIP_NO_RIGHT',
+            u'QUEUELIST_TRACK_SELECTED',
+            u'QUEUELIST_NEED_NATURAL_NEXT',
+            u'MEDIASTREAM_DATA_READY',
+            u'MEDIASTREAM_DATA_READY_AFTER_SEEK',
+            u'RENDER_TRACK_START_FAILURE',
+            u'RENDER_TRACK_START',
+            u'RENDER_TRACK_END',
+            u'RENDER_TRACK_PAUSED',
+            u'RENDER_TRACK_SEEKING',
+            u'RENDER_TRACK_UNDERFLOW',
+            u'RENDER_TRACK_RESUMED',
+            u'RENDER_TRACK_REMOVED'
+        ]
+        return event_names[event]
+
 
 class PlayerCommand:
     """Defines commands to update player's state
@@ -128,8 +153,6 @@ class Player:
             dz_player           The ID of the player
             current_track       The track currently played
             active              True if the player has been activated
-            nb_tracks_played    The number of tracks played
-            nb_tracks_to_play   The number of tracks to play in total
     """
     def __init__(self, connection):
         """
@@ -140,8 +163,6 @@ class Player:
         self.dz_player = 0
         self.track = None
         self.active = False
-        self.nb_tracks_played = 0
-        self.nb_tracks_to_play = 1
         self._dz_player_init()
 
     def _dz_player_init(self):
