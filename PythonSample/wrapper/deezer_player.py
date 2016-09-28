@@ -285,11 +285,29 @@ class Player:
         self.load()
         self.play()
 
-    def stop(self, activity_operation_cb, operation_user_data):
+    def stop(self, activity_operation_cb=None, operation_user_data=None):
         context = byref(operation_user_data) if operation_user_data else c_void_p(0)
         cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_player_stop(self.dz_player_handle, cb, context):
             raise PlayerRequestFailedError(u"play: Unable to stop track. Check player commands and info.")
+
+    def pause(self, activity_operation_cb=None, operation_user_data=None):
+        context = byref(operation_user_data) if operation_user_data else c_void_p(0)
+        cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
+        if libdeezer.dz_player_pause(self.dz_player_handle, cb, context):
+            raise PlayerRequestFailedError(u"play: Unable to pause track. Check player commands and info.")
+
+    def resume(self, activity_operation_cb=None, operation_user_data=None):
+        context = byref(operation_user_data) if operation_user_data else c_void_p(0)
+        cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
+        if libdeezer.dz_player_resume(self.dz_player_handle, cb, context):
+            raise PlayerRequestFailedError(u"play: Unable to resume track. Check player commands and info.")
+
+    def set_repeat_mode(self, repeat_mode, activity_operation_cb=None, operation_user_data=None):
+        context = byref(operation_user_data) if operation_user_data else c_void_p(0)
+        cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
+        if libdeezer.dz_player_set_repeat_mode(self.dz_player_handle, cb, context, repeat_mode):
+            raise PlayerRequestFailedError(u"play: Unable to set repeat mode. Check player commands and info.")
 
     @staticmethod
     def get_event(event_obj):
