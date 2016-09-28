@@ -142,8 +142,8 @@ class PlayerEvent:
 class PlayerCommand:
     """Defines commands to update player's state
 
-    Warning: If you happen to change the values, make sure they correspond
-    to the values of the corresponding C enum
+        Warning: If you happen to change the values, make sure they correspond
+        to the values of the corresponding C enum
     """
 
     def __init__(self):
@@ -159,6 +159,23 @@ class PlayerCommand:
         NATURAL_END,
         RESUMED_AFTER_ADS
     ) = range(0, 8)
+
+
+class PlayerRepeatMode:
+    """Defines repeat mode to apply after a track
+
+        Warning: If you happen to change the values, make sure they correspond
+        to the values of the corresponding C enum
+    """
+
+    def __init__(self):
+        pass
+
+    (
+        OFF,
+        ON,
+        ALL
+    ) = range(0, 3)
 
 
 class Player:
