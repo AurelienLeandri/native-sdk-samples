@@ -89,15 +89,6 @@ libdeezer.dz_connect_cache_path_set.argtypes = [p_type, c_void_p, py_object, c_c
 libdeezer.dz_connect_set_access_token.argtypes = [p_type, c_void_p, py_object, c_char_p]
 libdeezer.dz_connect_offline_mode.argtypes = [p_type, c_void_p, py_object, c_bool]
 libdeezer.dz_connect_deactivate.argtypes = [p_type, c_void_p, py_object]
-libdeezer.dz_player_new.argtypes = [p_type]
-libdeezer.dz_player_new.restype = p_type
-libdeezer.dz_player_activate.argtypes = [p_type, py_object]
-libdeezer.dz_player_set_event_cb.argtypes = [p_type, dz_on_event_cb_func]
-libdeezer.dz_player_load.argtypes = [p_type, c_void_p, py_object, c_char_p]
-libdeezer.dz_player_play.argtypes = [p_type, c_void_p, py_object, c_int, c_int]
-libdeezer.dz_player_deactivate.argtypes = [p_type, c_void_p, c_void_p]
-libdeezer.dz_player_event_get_type.argtypes = [c_void_p]
-libdeezer.dz_player_event_get_type.restype = c_int
 
 
 # TODO: Check if it works without pack

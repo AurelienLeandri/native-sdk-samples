@@ -18,7 +18,6 @@ class MyDeezerApp(object):
     class AppContext(object):
         def __init__(self):
             self.nb_track_played = 0
-            self.is_playing = False
             self.dz_content_url = ""
             self.dz_index_in_queue_list = 0
             self.repeat_mode = 0
@@ -30,7 +29,7 @@ class MyDeezerApp(object):
     def __init__(self, debug_mode=False):
         self.debug_mode = debug_mode
         # Identifiers
-        self.user_access_token = u"fr51VpOp0JjW4odjXXCROAdbsXsImhuVKslMru1M7RNfqGyA1JK"  # SET your user access token
+        self.user_access_token = u"friwmy8Qp61UqdtZ7st1xincKMcMZPGIa4mFESyXVXSdvmulNmb"  # SET your user access token
         self.your_application_id = u"190262"  # SET your application id
         self.your_application_name = u"PythonSampleApp"  # SET your application name
         self.your_application_version = u"00001"  # SET your application version
@@ -102,17 +101,17 @@ class MyDeezerApp(object):
         print "########################"
 
     def playback_start_stop(self):
-        if not self.context.is_playing:
+        if not self.player.is_playing:
             if self.context.streaming_mode == ConnectionStreamingMode.ON_DEMAND:
                 self.player.play(command=PlayerCommand.START_TRACKLIST, index=PlayerIndex.CURRENT)
         elif self.context.streaming_mode == ConnectionStreamingMode.RADIO:
             self.player.play(command=PlayerCommand.START_TRACKLIST, index=PlayerIndex.CURRENT)
         else:
-            self.log("STOP => {}".format(self.context.dz_content_url))
+            self.log("STOP => {}".format(self.player.current_content))
             self.player.stop()
 
     def playback_play_pause(self):
-        if self.context.is_playing:
+        if self.player.is_playing:
             self.log("PAUSE track n° {} of => {}".format(self.context.nb_track_played, self.context.dz_content_url))
             self.player.pause()
         else:
@@ -156,8 +155,17 @@ class MyDeezerApp(object):
     @staticmethod
     def player_event_callback(handle, event, userdata):
         # We retrieve our deezer app
+        streaming_mode = ConnectionStreamingMode.UNKNOWN
         app = cast(userdata, py_object).value
         event_type = Player.get_event(event)
+        idx = 0
+        if Player.get_queuelist_context(event, streaming_mode, idx):
+            streaming_mode = ConnectionStreamingMode.ON_DEMAND
+            idx = PlayerIndex.INVALID
+        # Update the streaming mode if relevant
+        if streaming_mode != ConnectionStreamingMode.UNKNOWN:
+            app.context.streaming_mode = streaming_mode
+            app.context.dz_index_in_queue_list = idx
         # Print track info after the track is loaded and selected
         if event_type == PlayerEvent.QUEUELIST_TRACK_SELECTED:
             can_pause_unpause = c_bool()

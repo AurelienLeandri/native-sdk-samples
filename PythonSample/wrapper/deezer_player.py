@@ -39,6 +39,19 @@
 
 from wrapper.deezer_connect import *
 
+libdeezer.dz_player_new.argtypes = [p_type]
+libdeezer.dz_player_new.restype = p_type
+libdeezer.dz_player_activate.argtypes = [p_type, py_object]
+libdeezer.dz_player_set_event_cb.argtypes = [p_type, dz_on_event_cb_func]
+libdeezer.dz_player_load.argtypes = [p_type, c_void_p, py_object, c_char_p]
+libdeezer.dz_player_play.argtypes = [p_type, c_void_p, py_object, c_int, c_int]
+libdeezer.dz_player_deactivate.argtypes = [p_type, c_void_p, c_void_p]
+libdeezer.dz_player_event_get_type.argtypes = [c_void_p]
+libdeezer.dz_player_event_get_type.restype = c_int
+libdeezer.dz_player_stop.argtypes = [p_type, c_void_p, py_object]
+libdeezer.dz_player_pause.argtypes = [p_type, c_void_p, py_object]
+libdeezer.dz_player_resume.argtypes = [p_type, c_void_p, py_object]
+libdeezer.dz_player_event_get_queuelist_context.argtypes = [c_void_p, c_void_p, c_void_p]
 
 class PlayerInitFailedError(Exception):
     def __init__(self, value):
@@ -197,6 +210,7 @@ class Player:
         self.dz_player_handle = 0
         self.current_content = None
         self.active = False
+        self.is_playing = False
         self.dz_player_handle = libdeezer.dz_player_new(self.connection.connect_handle)
         if not self.dz_player_handle:
             raise PlayerInitFailedError(u"Player failed to init. Check that connection is established.")
@@ -268,6 +282,7 @@ class Player:
         cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_player_play(self.dz_player_handle, cb, context, command, index) not in range(0, 2):
             raise PlayerRequestFailedError(u"play: Unable to play selected track. Check player commands and info.")
+        self.is_playing = True
 
     def shutdown(self, activity_operation_cb=None, operation_user_data=None):
         """
@@ -284,18 +299,21 @@ class Player:
         cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_player_stop(self.dz_player_handle, cb, context):
             raise PlayerRequestFailedError(u"play: Unable to stop track. Check player commands and info.")
+        self.is_playing = False
 
     def pause(self, activity_operation_cb=None, operation_user_data=None):
         context = byref(operation_user_data) if operation_user_data else c_void_p(0)
         cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_player_pause(self.dz_player_handle, cb, context):
             raise PlayerRequestFailedError(u"play: Unable to pause track. Check player commands and info.")
+        self.is_playing = False
 
     def resume(self, activity_operation_cb=None, operation_user_data=None):
         context = byref(operation_user_data) if operation_user_data else c_void_p(0)
         cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_player_resume(self.dz_player_handle, cb, context):
             raise PlayerRequestFailedError(u"play: Unable to resume track. Check player commands and info.")
+        self.is_playing = True
 
     def set_repeat_mode(self, repeat_mode, activity_operation_cb=None, operation_user_data=None):
         context = byref(operation_user_data) if operation_user_data else c_void_p(0)
@@ -308,6 +326,12 @@ class Player:
         cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_player_enable_shuffle_mode(self.dz_player_handle, cb, context, shuffle_mode):
             raise PlayerRequestFailedError(u"play: Unable to set repeat mode. Check player commands and info.")
+
+    @staticmethod
+    def get_queuelist_context(event, streaming_mode, idx):
+        return libdeezer.dz_player_event_get_queuelist_context(c_void_p(event),
+                                                               byref(c_uint(streaming_mode)),
+                                                               byref(c_uint(idx)))
 
     @staticmethod
     def is_selected_track_preview(event_handle):
