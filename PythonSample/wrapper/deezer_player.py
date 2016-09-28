@@ -64,6 +64,22 @@ class PlayerActivationError(Exception):
         return repr(self.value)
 
 
+class PlayerIndex:
+    """
+        Defines track position in queuelist
+
+        Warning: If you happen to change the values, make sure they correspond
+        to the values of the corresponding C enum
+    """
+    def __init__(self):
+        pass
+
+    INVALID = 2 ** 32 - 1,
+    CURRENT = 2 ** 32 - 2,
+    PREVIOUS = 2 ** 32 - 3,
+    NEXT = 2 ** 32 - 4
+
+
 class PlayerEvent:
     """
         Defines values associated to player events returned by get_event.
@@ -194,25 +210,23 @@ class Player:
                 u"set_event_cb: Request failed. Check the given callback arguments and return types and/or the player.")
 
     # TODO: public load function, and use event LOADED to play song
-    def load(self, tracklist_data=None, activity_operation_cb=None, operation_user_data=None):
+    def load(self, content=None, activity_operation_cb=None, operation_user_data=None):
         """Load the given track or the current track.
 
         In the first case, set the current_track to the given track.
 
-        :param tracklist_data: The track/tracklist to load
+        :param content: The track/tracklist to load
         :param activity_operation_cb: A callback triggered after operation.
         See module docstring.
         :param operation_user_data:  Any object your operation_callback can
         manipulate. Must inherit from Structure class.
-        :type tracklist_data: str
+        :type content: str
         :type activity_operation_cb: dz_activity_operation_cb_func
         :type operation_user_data: Same as operation_user_data in your
         callback. Must inherit from Structure as it is used by ctypes
         """
-        if tracklist_data:
-            self.current_content = tracklist_data
-        else:
-            self.current_content = "dzmedia:///track/10287076"  # TODO: Find a way to load track
+        if content:
+            self.current_content = content
         context = byref(operation_user_data) if operation_user_data else c_void_p(0)
         cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_player_load(self.dz_player_handle, cb, context, self.current_content):
