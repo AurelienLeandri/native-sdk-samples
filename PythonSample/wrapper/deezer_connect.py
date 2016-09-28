@@ -292,8 +292,8 @@ class Connection:
         :param user_data: An object you want to pass to dz_connect_on_event_cb.
         :type user_data: The type of the object you want to manipulate
         """
-        delegate = py_object(user_data) if user_data else c_void_p(0)
-        if libdeezer.dz_connect_activate(self.connect_handle, delegate):
+        context = py_object(user_data) if user_data else c_void_p(0)
+        if libdeezer.dz_connect_activate(self.connect_handle, context):
             raise ConnectionActivationError(u'Failed to activate connection. Check your network connection.')
         self.active = True
 
@@ -311,9 +311,9 @@ class Connection:
         :type activity_operation_cb: dz_activity_operation_cb_func
         :type operation_userdata: The type of the object you want to manipulate
         """
-        delegate = py_object(operation_userdata) if operation_userdata else c_void_p(0)
+        context = py_object(operation_userdata) if operation_userdata else c_void_p(0)
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
-        if libdeezer.dz_connect_cache_path_set(self.connect_handle, cb, delegate,
+        if libdeezer.dz_connect_cache_path_set(self.connect_handle, cb, context,
                                                c_char_p(user_cache_path)):
             raise ConnectionRequestFailedError(
                 u'cache_path_set: Request failed. Check connection and/or path validity.')
@@ -332,9 +332,9 @@ class Connection:
         :type activity_operation_cb: dz_activity_operation_cb_func
         :type operation_user_data: The type of the object you want to manipulate
         """
-        delegate = py_object(operation_user_data) if operation_user_data else c_void_p(0)
+        context = py_object(operation_user_data) if operation_user_data else c_void_p(0)
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
-        if libdeezer.dz_connect_set_access_token(self.connect_handle, cb, delegate,
+        if libdeezer.dz_connect_set_access_token(self.connect_handle, cb, context,
                                                  c_char_p(user_access_token)):
             raise ConnectionRequestFailedError(u'set_access_token: Request failed. Check access token or update it.')
 
@@ -352,20 +352,23 @@ class Connection:
         :type operation_user_data: The type of the object you want to manipulate
         :type offline_mode_forced: bool
         """
-        delegate = py_object(operation_user_data) if operation_user_data else c_void_p(0)
+        context = py_object(operation_user_data) if operation_user_data else c_void_p(0)
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
-        if libdeezer.dz_connect_offline_mode(self.connect_handle, cb, delegate, c_bool(offline_mode_forced)):
+        if libdeezer.dz_connect_offline_mode(self.connect_handle, cb, context, c_bool(offline_mode_forced)):
             raise ConnectionRequestFailedError(
                 u'connect_offline_mode: Request failed. Check connection and callbacks if used.')
 
     # TODO: call that in a callback dz_connect_on_deactivate
-    def shutdown(self):
+    def shutdown(self, activity_operation_cb=None, operation_user_data=None):
         """Deactivate connection associated to the handle."""
+        context = py_object(operation_user_data) if operation_user_data else c_void_p(0)
+        cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
         if self.connect_handle:
-            libdeezer.dz_connect_deactivate(self.connect_handle, c_void_p(0), None)
+            libdeezer.dz_connect_deactivate(self.connect_handle, cb, context)
             self.active = False
 
     @staticmethod
     def get_event(event_obj):
         """Get the event value from the event_obj given by the SDK."""
         return int(libdeezer.dz_player_event_get_type(c_void_p(event_obj)))
+

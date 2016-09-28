@@ -37,7 +37,7 @@ def main():
     if len(sys.argv) != 2:
         argv_error()
         return 1
-    app.set_song(sys.argv[1])
+    app.load_content(sys.argv[1])
     app.log_command_info()
     process_input(app)
     return 0
