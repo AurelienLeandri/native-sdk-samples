@@ -285,6 +285,12 @@ class Player:
         self.load()
         self.play()
 
+    def stop(self, activity_operation_cb, operation_user_data):
+        context = byref(operation_user_data) if operation_user_data else c_void_p(0)
+        cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
+        if libdeezer.dz_player_stop(self.dz_player_handle, cb, context):
+            raise PlayerRequestFailedError(u"play: Unable to stop track. Check player commands and info.")
+
     @staticmethod
     def get_event(event_obj):
         return libdeezer.dz_player_event_get_type(c_void_p(event_obj))

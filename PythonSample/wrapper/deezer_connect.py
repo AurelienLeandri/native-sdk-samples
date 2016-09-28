@@ -182,7 +182,7 @@ class ConnectionEvent:
         return event_names[event]
 
 
-class StreamingMode:
+class ConnectionStreamingMode:
     """Defines values associated to the streaming mode
 
     Warning: If you happen to change the values, make sure they correspond
