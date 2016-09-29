@@ -301,3 +301,8 @@ class Connection:
         """Get the event value from the event_obj given by the SDK."""
         return int(libdeezer.dz_player_event_get_type(c_void_p(event_obj)))
 
+    @staticmethod
+    def get_build_id():
+        """Return the build id of libdeezer"""
+        return int(libdeezer.dz_connect_get_build_id())
+

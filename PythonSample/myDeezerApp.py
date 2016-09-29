@@ -66,7 +66,7 @@ class MyDeezerApp(object):
     def log_connect_info(self):
         """Print connection info"""
         if self.debug_mode:
-            print "---- Deezer NativeSDK version: {}".format(libdeezer.dz_connect_get_build_id())
+            print "---- Deezer NativeSDK version: {}".format(Connection.get_build_id())
             print "---- Application ID: {}".format(self.your_application_id)
             print "---- Product ID: {}".format(self.your_application_name)
 
