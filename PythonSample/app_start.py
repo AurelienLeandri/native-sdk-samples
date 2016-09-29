@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding: utf8
+
 import Queue
 import threading
-
 from myDeezerApp import *
 
 
@@ -17,7 +17,7 @@ def process_input(app):
     input_thread = threading.Thread(target=add_input, args=(input_queue,))
     input_thread.daemon = True
     input_thread.start()
-    while True:
+    while app.connection.active or app.player.active:
         if not input_queue.empty():
             app.process_command(input_queue.get())
 

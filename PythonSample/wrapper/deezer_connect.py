@@ -173,7 +173,7 @@ class Connection:
         self.anonymous_blob = anonymous_blob
         self.dz_connect_crash_reporting_delegate = dz_connect_crash_reporting_delegate_func(
             dz_connect_crash_reporting_delegate)
-        self.connect_handle = 0
+        self.handle = 0
         self.active = False
         self.set_event_cb(dz_connect_on_event_cb)
         config = DZConnectConfiguration(c_char_p(self.app_id),
@@ -183,8 +183,8 @@ class Connection:
                                         self.dz_connect_on_event_cb,
                                         c_void_p(self.anonymous_blob),
                                         self.dz_connect_crash_reporting_delegate)
-        self.connect_handle = libdeezer.dz_connect_new(byref(config))
-        if not self.connect_handle:
+        self.handle = libdeezer.dz_connect_new(byref(config))
+        if not self.handle:
             raise ConnectionInitFailedError(u'Connection handle failed to initialize. Check connection info you gave.')
         self._activate(context)
 
@@ -202,13 +202,13 @@ class Connection:
         """
         :return: The device ID for logs
         """
-        return libdeezer.dz_connect_get_device_id(self.connect_handle)
+        return libdeezer.dz_connect_get_device_id(self.handle)
 
     def debug_log_disable(self):
         """
         Mute all API logs for readability's sake
         """
-        if libdeezer.dz_connect_debug_log_disable(self.connect_handle):
+        if libdeezer.dz_connect_debug_log_disable(self.handle):
             raise ConnectionRequestFailedError(u'debug_log_disable: Request failed.')
 
     def _activate(self, user_data=None):
@@ -222,7 +222,7 @@ class Connection:
         :type user_data: The type of the object you want to manipulate
         """
         context = py_object(user_data) if user_data else c_void_p(0)
-        if libdeezer.dz_connect_activate(self.connect_handle, context):
+        if libdeezer.dz_connect_activate(self.handle, context):
             raise ConnectionActivationError(u'Failed to activate connection. Check your network connection.')
         self.active = True
 
@@ -242,7 +242,7 @@ class Connection:
         """
         context = py_object(operation_userdata) if operation_userdata else c_void_p(0)
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
-        if libdeezer.dz_connect_cache_path_set(self.connect_handle, cb, context,
+        if libdeezer.dz_connect_cache_path_set(self.handle, cb, context,
                                                c_char_p(user_cache_path)):
             raise ConnectionRequestFailedError(
                 u'cache_path_set: Request failed. Check connection and/or path validity.')
@@ -263,7 +263,7 @@ class Connection:
         """
         context = py_object(operation_user_data) if operation_user_data else c_void_p(0)
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
-        if libdeezer.dz_connect_set_access_token(self.connect_handle, cb, context,
+        if libdeezer.dz_connect_set_access_token(self.handle, cb, context,
                                                  c_char_p(user_access_token)):
             raise ConnectionRequestFailedError(u'set_access_token: Request failed. Check access token or update it.')
 
@@ -283,7 +283,7 @@ class Connection:
         """
         context = py_object(operation_user_data) if operation_user_data else c_void_p(0)
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
-        if libdeezer.dz_connect_offline_mode(self.connect_handle, cb, context, c_bool(offline_mode_forced)):
+        if libdeezer.dz_connect_offline_mode(self.handle, cb, context, c_bool(offline_mode_forced)):
             raise ConnectionRequestFailedError(
                 u'connect_offline_mode: Request failed. Check connection and callbacks if used.')
 
@@ -292,8 +292,8 @@ class Connection:
         """Deactivate connection associated to the handle."""
         context = py_object(operation_user_data) if operation_user_data else c_void_p(0)
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
-        if self.connect_handle:
-            libdeezer.dz_connect_deactivate(self.connect_handle, cb, context)
+        if self.handle:
+            libdeezer.dz_connect_deactivate(self.handle, cb, context)
             self.active = False
 
     @staticmethod

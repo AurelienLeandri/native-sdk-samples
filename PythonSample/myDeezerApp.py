@@ -52,12 +52,16 @@ class MyDeezerApp(object):
             self.connection.debug_log_disable()
         else:
             print u"Device ID:", self.connection.get_device_id()
-        self.player = Player(self, self.connection.connect_handle)
+        self.player = Player(self, self.connection.handle)
         self.player.set_event_cb(self.player_cb)
         self.connection.cache_path_set(self.connection.user_profile_path, activity_operation_cb=self.cache_path_set_cb,
                                        operation_userdata=self)
         self.connection.set_access_token(self.user_access_token)
         self.connection.set_offline_mode(False)
+        self.context.player_handle = self.player.handle
+        self.context.connect_handle = self.connection.handle
+        self.dz_player_deactivate_cb = dz_activity_operation_cb_func(self.player_on_deactivate_cb)
+        self.dz_connect_deactivate_cb = dz_activity_operation_cb_func(self.connection_on_deactivate_cb)
 
     def log(self, message):
         """
@@ -148,9 +152,14 @@ class MyDeezerApp(object):
         self.player.load(content)
 
     def shutdown(self):
-        self.log("SHUTDOWN (1/2) - dzplayer = {}".format(self.context.player_handle))
-        if self.player.dz_player_handle:
-            self.player.shutdown(activity_operation_cb=self.player_on_deactivate_cb)
+        if self.context.player_handle:
+            self.log("SHUTDOWN PLAYER - player_handle = {}".format(self.context.player_handle))
+            self.player.shutdown(activity_operation_cb=self.dz_player_deactivate_cb,
+                                 operation_user_data=self)
+        elif self.context.connect_handle:
+            self.log("SHUTDOWN CONNECTION - connect_handle = {}".format(self.context.connect_handle))
+            self.connection.shutdown(activity_operation_cb=self.dz_connect_deactivate_cb,
+                                     operation_user_data=self)
 
     # We set the callback for player events, to print various logs and listen to events
     @staticmethod
@@ -201,24 +210,26 @@ class MyDeezerApp(object):
         if event_type == ConnectionEvent.USER_LOGIN_OK:
             app.player.load()
         if event_type == ConnectionEvent.USER_LOGIN_FAIL_USER_INFO:
-            exit(1)
+            app.shutdown()
         return 0
 
-    # This is an example of a usable operation callback
     @staticmethod
     def player_on_deactivate_cb(delegate, operation_userdata, status, result):
         app = cast(operation_userdata, py_object).value
         app.player.active = False
+        app.context.player_handle = 0
         app.log("Player deactivated")
-        app.log("SHUTDOWN (2/2) - dzconnect = {}".format(app.context.connect_handle))
-        app.connection.shutdown(activity_operation_cb=app.connection_on_deactivate_cb)
+        if app.context.connect_handle:
+            app.log("SHUTDOWN CONNECTION - connect_handle = {}".format(app.context.connect_handle))
+            app.connection.shutdown(activity_operation_cb=app.dz_connect_deactivate_cb,
+                                    operation_user_data=app)
         return 0
 
     @staticmethod
     def connection_on_deactivate_cb(delegate, operation_userdata, status, result):
         app = cast(operation_userdata, py_object).value
-        if app.connection.connect_handle:
+        if app.context.connect_handle:
             app.connection.active = False
+            app.context.connect_handle = 0
         app.log("Connection deactivated")
         return 0
-
