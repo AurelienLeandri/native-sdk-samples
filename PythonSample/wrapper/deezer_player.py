@@ -170,18 +170,17 @@ class Player:
             current_track       The track currently played
             active              True if the player has been activated
     """
-    def __init__(self, context, connection):
+    def __init__(self, context, connect_handle):
         """
         :param connection: A connection object to store connection info
         :type connection: connection.Connection
         """
         self.context = context
-        self.connection = connection
         self.dz_player_handle = 0
         self.current_content = None
         self.active = False
         self.is_playing = False
-        self.dz_player_handle = libdeezer.dz_player_new(self.connection.connect_handle)
+        self.dz_player_handle = libdeezer.dz_player_new(connect_handle)
         if not self.dz_player_handle:
             raise PlayerInitFailedError(u"Player failed to init. Check that connection is established.")
         self._activate(self.context)

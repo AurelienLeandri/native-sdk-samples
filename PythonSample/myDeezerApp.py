@@ -16,6 +16,10 @@ class MyDeezerApp(object):
     """
 
     class AppContext(object):
+        """
+            Can be used to pass a context to store various info and pass them
+            to your callbacks
+        """
         def __init__(self):
             self.nb_track_played = 0
             self.dz_content_url = ""
@@ -48,7 +52,7 @@ class MyDeezerApp(object):
             self.connection.debug_log_disable()
         else:
             print u"Device ID:", self.connection.get_device_id()
-        self.player = Player(self, self.connection)
+        self.player = Player(self, self.connection.connect_handle)
         self.player.set_event_cb(self.player_cb)
         self.connection.cache_path_set(self.connection.user_profile_path, activity_operation_cb=self.cache_path_set_cb,
                                        operation_userdata=self)
