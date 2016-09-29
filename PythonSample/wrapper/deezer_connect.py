@@ -146,10 +146,8 @@ class Connection:
                                      after given connection info
     """
 
-    # TODO: change profile path according to platform
-    def __init__(self, context, app_id, product_id, product_build_id,
-                 user_profile_path=u'/var/tmp/dzrcache_NDK_SAMPLE', dz_connect_on_event_cb=None, anonymous_blob=None,
-                 dz_connect_crash_reporting_delegate=None):
+    def __init__(self, context, app_id, product_id, product_build_id, user_profile_path, dz_connect_on_event_cb=None,
+                 anonymous_blob=None, dz_connect_crash_reporting_delegate=None):
         """
         :param app_id: The ID of the application
         :param product_id: The name of your application

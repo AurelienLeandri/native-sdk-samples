@@ -20,6 +20,8 @@
 
 """
 
+from wrapper.deezer_connect import *
+
 
 class PlayerInitFailedError(Exception):
     def __init__(self, value):
@@ -208,7 +210,6 @@ class Player:
             raise PlayerRequestFailedError(
                 u"set_event_cb: Request failed. Check the given callback arguments and return types and/or the player.")
 
-    # TODO: public load function, and use event LOADED to play song
     def load(self, content=None, activity_operation_cb=None, operation_user_data=None):
         """Load the given track or the current track.
 
