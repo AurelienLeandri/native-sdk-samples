@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # coding: utf8
 
 from wrapper.deezer_player import *
@@ -145,11 +145,12 @@ class MyDeezerApp(object):
 
     def shutdown(self):
         self.log("SHUTDOWN (1/2) - dzplayer = {}".format(self.context.player_handle))
-        if self.context.player_handle:
+        if self.player.dz_player_handle:
             self.player.shutdown()
         self.log("SHUTDOWN (2/2) - dzconnect = {}".format(self.context.connect_handle))
-        if self.context.connect_handle:
+        if self.connection.connect_handle:
             self.connection.shutdown()
+        exit(0)
 
     # We set the callback for player events, to print various logs and listen to events
     @staticmethod

@@ -1,7 +1,5 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # coding: utf8
-
-# TODO: !/usr/bin/env python instead of #!/usr/bin/python
 
 
 """
@@ -91,7 +89,6 @@ libdeezer.dz_connect_offline_mode.argtypes = [p_type, c_void_p, py_object, c_boo
 libdeezer.dz_connect_deactivate.argtypes = [p_type, c_void_p, py_object]
 
 
-# TODO: Check if it works without pack
 class DZConnectConfiguration(Structure):
     """Contains the connection info used by the sdk."""
     _fields_ = [(u'app_id', c_char_p),

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # coding: utf8
 
 """
@@ -52,6 +52,8 @@ libdeezer.dz_player_stop.argtypes = [p_type, c_void_p, py_object]
 libdeezer.dz_player_pause.argtypes = [p_type, c_void_p, py_object]
 libdeezer.dz_player_resume.argtypes = [p_type, c_void_p, py_object]
 libdeezer.dz_player_event_get_queuelist_context.argtypes = [c_void_p, c_void_p, c_void_p]
+libdeezer.dz_player_set_repeat_mode.argtypes = [p_type, c_void_p, py_object]
+libdeezer.dz_player_enable_shuffle_mode.argtypes = [p_type, c_void_p, py_object, p_type]
 
 class PlayerInitFailedError(Exception):
     def __init__(self, value):
