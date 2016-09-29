@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf8
 
+# TODO: update docstrings once the code is validated
+
 """
     Deezer ``player`` module for NativeSDK
     ==========================================
@@ -165,7 +167,6 @@ class Player:
     """A simple player load and play music.
 
         Attributes:
-            connection          A connection object to store connection info
             dz_player           The ID of the player
             current_track       The track currently played
             active              True if the player has been activated
@@ -190,7 +191,7 @@ class Player:
 
         :param supervisor: An object that can be manipulated by your
             dz_player_on_event_cb to store info.
-        :type supervisor: Same as delegate in dz_player_on_event_cb
+        :type supervisor: Same as userdata in dz_player_on_event_cb
         """
         context = py_object(supervisor) if supervisor else c_void_p(0)
         if libdeezer.dz_player_activate(self.dz_player_handle, context):
@@ -209,8 +210,8 @@ class Player:
             raise PlayerRequestFailedError(
                 u"set_event_cb: Request failed. Check the given callback arguments and return types and/or the player.")
 
-    def load(self, content=None, activity_operation_cb=None, operation_user_data=None):
-        """Load the given track or the current track.
+    def load(self, content, activity_operation_cb=None, operation_user_data=None):
+        """Load the given content or the current track.
 
         In the first case, set the current_track to the given track.
 
@@ -260,7 +261,7 @@ class Player:
         cb = byref(dz_activity_operation_cb_func(activity_operation_cb)) if activity_operation_cb else c_void_p(0)
         if self.dz_player_handle:
             libdeezer.dz_player_deactivate(self.dz_player_handle, cb, context)
-            self.active = False
+            self.active = False  # TODO: on deactivate instead
 
     def stop(self, activity_operation_cb=None, operation_user_data=None):
         context = byref(operation_user_data) if operation_user_data else c_void_p(0)
