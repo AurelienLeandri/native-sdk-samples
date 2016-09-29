@@ -25,68 +25,11 @@
     The class used to manage connection is the Connection class. The others
     describe C enums to be used in callbacks (see below) and logs.
 
-    Callback types
-    --------------
 
-    A bunch of this module's functions use callbacks to react to some
-    connection events or to process some data. you are free to pass your funcs
-    as callbacks, they are then translated to C functions and passed to the SDK
-    functions. Here is a description of their parameters:
-
-        dz_connect_on_event_cb:
-            Called after connection activation and when the connection state
-            changes. The callback must take 3 parameters:
-            -   The connection handle (same as Connection.connect_handle)
-            -   An event object used to get the event that has been caught.
-                In your callback, use the static method get_event to convert the
-                event object to a ConnectionEvent index.
-            -   A user_data that is an object you can pass through some
-                functions and that can be manipulated by the callback.
-
-        dz_activity_operation_cb:
-            Can be set in some functions of Connection class to be called after
-            the operation. The callback must take 4 parameters:
-            -   A delegate that is the context object to store and change info
-                in the callback.
-            -   An operation_userdata that is the object you can pass to the
-                calling function
-            -   The error status used to get the index of the error enum
-            -   An event object used to get the event that has been caught
-
-        dz_connect_crash_reporting_delegate:
-            Takes nothing an returns a boolean.
-            Use this to call your own crash reporting system. If left to None,
-            the SDK will use its own crash reporting system.
 
 """
 
-from ctypes import *
-import platform
-
-import sys
-
-# TODO: Move to sdk import file, taking the path as parameters
-lib_name = u'libdeezer.so'
-if platform.system() == u'Darwin':
-    lib_name = u'libdeezer'
-if platform.system() == u'Windows':
-    lib_name = u'libdeezer.'
-    lib_name += u'x64.dll' if sys.maxsize > 2**32 else u'x86.dll'
-libdeezer = cdll.LoadLibrary(lib_name)
-p_type = c_uint64 if sys.maxsize > 2**32 else c_uint32
-
-dz_on_event_cb_func = CFUNCTYPE(c_int, p_type, c_void_p, c_void_p)
-dz_connect_crash_reporting_delegate_func = CFUNCTYPE(c_bool)
-dz_activity_operation_cb_func = CFUNCTYPE(c_int, c_void_p, c_void_p, p_type, p_type)
-
-libdeezer.dz_connect_new.restype = p_type
-libdeezer.dz_connect_get_device_id.argtypes = [p_type]
-libdeezer.dz_connect_debug_log_disable.argtypes = [p_type]
-libdeezer.dz_connect_activate.argtypes = [p_type, py_object]
-libdeezer.dz_connect_cache_path_set.argtypes = [p_type, c_void_p, py_object, c_char_p]
-libdeezer.dz_connect_set_access_token.argtypes = [p_type, c_void_p, py_object, c_char_p]
-libdeezer.dz_connect_offline_mode.argtypes = [p_type, c_void_p, py_object, c_bool]
-libdeezer.dz_connect_deactivate.argtypes = [p_type, c_void_p, py_object]
+from wrapper.deezer_import import *
 
 
 class DZConnectConfiguration(Structure):

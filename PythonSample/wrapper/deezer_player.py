@@ -18,42 +18,8 @@
     describe C enums to be used in callbacks (see below) and logs as
     events (like the PlayerEvent class).
 
-    Callback types
-    --------------
-
-    A bunch of this module's functions use callbacks to react to some
-    connection events or to process some data. you are free to pass your funcs
-    as callbacks, they are then translated to C functions and passed to the SDK
-    functions:
-
-        dz_player_on_event_cb:
-            Used to handle player state changes, just as
-            dz_connect_on_event_cb. See connection module documentation for
-            details.
-
-        dz_activity_operation_cb:
-            Same as those used in connection module. See connection module
-            for details.
-
 """
 
-from wrapper.deezer_connect import *
-
-libdeezer.dz_player_new.argtypes = [p_type]
-libdeezer.dz_player_new.restype = p_type
-libdeezer.dz_player_activate.argtypes = [p_type, py_object]
-libdeezer.dz_player_set_event_cb.argtypes = [p_type, dz_on_event_cb_func]
-libdeezer.dz_player_load.argtypes = [p_type, c_void_p, py_object, c_char_p]
-libdeezer.dz_player_play.argtypes = [p_type, c_void_p, py_object, c_int, c_int]
-libdeezer.dz_player_deactivate.argtypes = [p_type, c_void_p, c_void_p]
-libdeezer.dz_player_event_get_type.argtypes = [c_void_p]
-libdeezer.dz_player_event_get_type.restype = c_int
-libdeezer.dz_player_stop.argtypes = [p_type, c_void_p, py_object]
-libdeezer.dz_player_pause.argtypes = [p_type, c_void_p, py_object]
-libdeezer.dz_player_resume.argtypes = [p_type, c_void_p, py_object]
-libdeezer.dz_player_event_get_queuelist_context.argtypes = [c_void_p, c_void_p, c_void_p]
-libdeezer.dz_player_set_repeat_mode.argtypes = [p_type, c_void_p, py_object]
-libdeezer.dz_player_enable_shuffle_mode.argtypes = [p_type, c_void_p, py_object, p_type]
 
 class PlayerInitFailedError(Exception):
     def __init__(self, value):
