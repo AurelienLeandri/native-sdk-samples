@@ -33,7 +33,7 @@ class MyDeezerApp(object):
     def __init__(self, debug_mode=False):
         self.debug_mode = debug_mode
         # Identifiers
-        self.user_access_token = u"friwmy8Qp61UqdtZ7st1xincKMcMZPGIa4mFESyXVXSdvmulNmb"  # SET your user access token
+        self.user_access_token = u"frS28iNAoq3J4UiShfcAa18AoXO0jAutv64zDJXoxjmV3IGBVtp"  # SET your user access token
         self.your_application_id = u"190262"  # SET your application id
         self.your_application_name = u"PythonSampleApp"  # SET your application name
         self.your_application_version = u"00001"  # SET your application version
@@ -208,7 +208,7 @@ class MyDeezerApp(object):
         app.log(u"++++ CONNECT_EVENT ++++ {0}".format(ConnectionEvent.event_name(event_type)))
         # After User is authenticated we can start the player
         if event_type == ConnectionEvent.USER_LOGIN_OK:
-            app.player.load()
+            app.player.load(app.context.dz_content_url)
         if event_type == ConnectionEvent.USER_LOGIN_FAIL_USER_INFO:
             app.shutdown()
         return 0
