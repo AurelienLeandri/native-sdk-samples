@@ -23,17 +23,15 @@ class MyDeezerApp(object):
         def __init__(self):
             self.nb_track_played = 0
             self.dz_content_url = ""
-            self.dz_index_in_queue_list = 0
             self.repeat_mode = 0
             self.is_shuffle_mode = False
             self.connect_handle = 0
             self.player_handle = 0
-            self.streaming_mode = 0
 
     def __init__(self, debug_mode=False):
         self.debug_mode = debug_mode
         # Identifiers
-        self.user_access_token = u"frS28iNAoq3J4UiShfcAa18AoXO0jAutv64zDJXoxjmV3IGBVtp"  # SET your user access token
+        self.user_access_token = u"fr49mph7tV4KY3ukISkFHQysRpdCEbzb958dB320pM15OpFsQs"  # SET your user access token
         self.your_application_id = u"190262"  # SET your application id
         self.your_application_name = u"PythonSampleApp"  # SET your application name
         self.your_application_version = u"00001"  # SET your application version
@@ -71,13 +69,6 @@ class MyDeezerApp(object):
         if self.debug_mode:
             print message
 
-    def log_connect_info(self):
-        """Print connection info"""
-        if self.debug_mode:
-            print "---- Deezer NativeSDK version: {}".format(Connection.get_build_id())
-            print "---- Application ID: {}".format(self.your_application_id)
-            print "---- Product ID: {}".format(self.your_application_name)
-
     def process_command(self, command):
         c = ''.join(command.splitlines())
         call = {
@@ -89,30 +80,11 @@ class MyDeezerApp(object):
             '?': self.playback_toggle_random,
             'Q': self.shutdown
         }
-        if c not in call.keys():
-            print "Invalid command, try again"
-            self.log_command_info()
-            return
         call.get(c)()
-
-    @staticmethod
-    def log_command_info():
-        print "######### MENU #########"
-        print "- Please enter keys for command -"
-        print "\tS : START/STOP"
-        print "\tP : PLAY/PAUSE"
-        print "\t+ : NEXT"
-        print "\t- : PREVIOUS"
-        print "\tR : NEXT REPEAT MODE"
-        print "\t? : TOGGLE SHUFFLE MODE"
-        print "\tQ : QUIT"
-        print "########################"
 
     def playback_start_stop(self):
         if not self.player.is_playing:
-            if self.context.streaming_mode == ConnectionStreamingMode.ON_DEMAND:
-                self.player.play(command=PlayerCommand.START_TRACKLIST, index=PlayerIndex.CURRENT)
-        elif self.context.streaming_mode == ConnectionStreamingMode.RADIO:
+            self.log("PLAY => {}".format(self.player.current_content))
             self.player.play(command=PlayerCommand.START_TRACKLIST, index=PlayerIndex.CURRENT)
         else:
             self.log("STOP => {}".format(self.player.current_content))
@@ -165,17 +137,8 @@ class MyDeezerApp(object):
     @staticmethod
     def player_event_callback(handle, event, userdata):
         # We retrieve our deezer app
-        streaming_mode = ConnectionStreamingMode.UNKNOWN
         app = cast(userdata, py_object).value
         event_type = Player.get_event(event)
-        idx = 0
-        if Player.get_queuelist_context(event, streaming_mode, idx):
-            streaming_mode = ConnectionStreamingMode.ON_DEMAND
-            idx = PlayerIndex.INVALID
-        # Update the streaming mode if relevant
-        if streaming_mode != ConnectionStreamingMode.UNKNOWN:
-            app.context.streaming_mode = streaming_mode
-            app.context.dz_index_in_queue_list = idx
         # Print track info after the track is loaded and selected
         if event_type == PlayerEvent.QUEUELIST_TRACK_SELECTED:
             can_pause_unpause = c_bool()
