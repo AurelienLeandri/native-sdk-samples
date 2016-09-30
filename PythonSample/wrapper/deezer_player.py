@@ -60,8 +60,8 @@ class PlayerIndex:
         pass
 
     INVALID = sys.maxsize
-    CURRENT = sys.maxsize - 1
-    PREVIOUS = sys.maxsize - 2
+    PREVIOUS = sys.maxsize - 1
+    CURRENT = sys.maxsize - 2
     NEXT = sys.maxsize - 3
 
 
