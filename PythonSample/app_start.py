@@ -19,7 +19,12 @@ def process_input(app):
     input_thread.start()
     while app.connection.active or app.player.active:
         if not input_queue.empty():
-            app.process_command(input_queue.get())
+            command = input_queue.get()
+            if len(command) != 2 or command[0] not in "PSQ+-?R":
+                print "INVALID COMMAND"
+                log_command_info()
+            else:
+                app.process_command(command)
 
 
 def argv_error():
@@ -31,14 +36,35 @@ def argv_error():
     print """\t"dzradio:///user-743548285"        (User Mix example)"""
 
 
+def log_connect_info(app):
+    """Print connection info"""
+    if app.debug_mode:
+        print "---- Deezer NativeSDK version: {}".format(Connection.get_build_id())
+        print "---- Application ID: {}".format(app.your_application_id)
+        print "---- Product ID: {}".format(app.your_application_name)
+
+
+def log_command_info():
+    print "######### MENU #########"
+    print "- Please enter keys for command -"
+    print "\tS : START/STOP"
+    print "\tP : PLAY/PAUSE"
+    print "\t+ : NEXT"
+    print "\t- : PREVIOUS"
+    print "\tR : NEXT REPEAT MODE"
+    print "\t? : TOGGLE SHUFFLE MODE"
+    print "\tQ : QUIT"
+    print "########################"
+
+
 def main():
     app = MyDeezerApp(True)
-    app.log_connect_info()
+    log_connect_info(app)
     if len(sys.argv) != 2:
         argv_error()
         return 1
     app.load_content(sys.argv[1])
-    app.log_command_info()
+    log_command_info()
     process_input(app)
     return 0
 
