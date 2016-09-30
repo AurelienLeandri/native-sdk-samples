@@ -173,7 +173,7 @@ class Player:
     """
     def __init__(self, context, connect_handle):
         """
-        :param connection: A connection object to store connection info
+        :param context: A connection object to store connection info
         :type connection: connection.Connection
         """
         self.context = context
@@ -300,6 +300,12 @@ class Player:
         return libdeezer.dz_player_event_get_queuelist_context(c_void_p(event),
                                                                byref(c_uint(streaming_mode)),
                                                                byref(c_uint(idx)))
+
+    def play_audioads(self, activity_operation_cb=None, operation_user_data=None):
+        context = py_object(operation_user_data) if operation_user_data else c_void_p(0)
+        cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
+        if libdeezer.dz_player_play_audioads(self.handle, cb, context):
+            raise PlayerRequestFailedError(u"play: Unable to play audio ads. Check connection.")
 
     @staticmethod
     def is_selected_track_preview(event_handle):
