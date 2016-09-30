@@ -37,7 +37,6 @@ def argv_error():
 
 
 def log_connect_info(app):
-    """Print connection info"""
     if app.debug_mode:
         print "---- Deezer NativeSDK version: {}".format(Connection.get_build_id())
         print "---- Application ID: {}".format(app.your_application_id)

@@ -131,20 +131,7 @@ class ConnectionStreamingMode:
 
 
 class Connection:
-    """Manage connection and user session
-
-        Attributes:
-            app_id                   The ID of the application
-            product_id               The name of your application
-            product_build_id         The version number
-            user_profile_path        The cache path of the user. Deprecated.
-            dz_connect_on_event_cb   The event listener to connection operations
-            anonymous_blob           Deprecated
-            dz_connect_crash_reporting_delegate     The error callback
-            active                   True when connection has been activated
-            connect_handle           The ID used for all operations initialized
-                                     after given connection info
-    """
+    """Manage connection and user session"""
 
     def __init__(self, context, app_id, product_id, product_build_id, user_profile_path, dz_connect_on_event_cb=None,
                  anonymous_blob=None, dz_connect_crash_reporting_delegate=None):

@@ -254,15 +254,14 @@ class Player:
         self.is_playing = True
 
     def shutdown(self, activity_operation_cb=None, operation_user_data=None):
-        """
-        Deactivate the player and close the connection.
-        """
+        """Deactivate the player"""
         context = py_object(operation_user_data) if operation_user_data else c_void_p(0)
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
         if self.handle:
             libdeezer.dz_player_deactivate(self.handle, cb, context)
 
     def stop(self, activity_operation_cb=None, operation_user_data=None):
+        """Stop the currently playing track"""
         context = py_object(operation_user_data) if operation_user_data else c_void_p(0)
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_player_stop(self.handle, cb, context):
@@ -270,6 +269,7 @@ class Player:
         self.is_playing = False
 
     def pause(self, activity_operation_cb=None, operation_user_data=None):
+        """Pause the track"""
         context = py_object(operation_user_data) if operation_user_data else c_void_p(0)
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_player_pause(self.handle, cb, context):
@@ -277,6 +277,7 @@ class Player:
         self.is_playing = False
 
     def resume(self, activity_operation_cb=None, operation_user_data=None):
+        """Resume the track if it has been paused"""
         context = py_object(operation_user_data) if operation_user_data else c_void_p(0)
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_player_resume(self.handle, cb, context):
@@ -284,28 +285,38 @@ class Player:
         self.is_playing = True
 
     def set_repeat_mode(self, repeat_mode, activity_operation_cb=None, operation_user_data=None):
+        """Set the repeat mode of the player.
+            :param repeat_mode: The repeat mode to set
+            :type repeat_mode: PlayerRepeatMode
+        """
         context = py_object(operation_user_data) if operation_user_data else c_void_p(0)
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_player_set_repeat_mode(self.handle, cb, context, repeat_mode):
             raise PlayerRequestFailedError(u"play: Unable to set repeat mode. Check player commands and info.")
 
     def enable_shuffle_mode(self, shuffle_mode, activity_operation_cb=None, operation_user_data=None):
+        """Set the shuffle mode of the player (randomize track selection)
+            :param shuffle_mode: Set to true to activate the random track
+            selection
+            :type shuffle_mode: bool
+        """
         context = py_object(operation_user_data) if operation_user_data else c_void_p(0)
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
         if libdeezer.dz_player_enable_shuffle_mode(self.handle, cb, context, shuffle_mode):
             raise PlayerRequestFailedError(u"play: Unable to set repeat mode. Check player commands and info.")
+
+    def play_audio_ads(self, activity_operation_cb=None, operation_user_data=None):
+        """Load and play an audio ad when required"""
+        context = py_object(operation_user_data) if operation_user_data else c_void_p(0)
+        cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
+        if libdeezer.dz_player_play_audioads(self.handle, cb, context):
+            raise PlayerRequestFailedError(u"play: Unable to play audio ads. Check connection.")
 
     @staticmethod
     def get_queuelist_context(event, streaming_mode, idx):
         return libdeezer.dz_player_event_get_queuelist_context(c_void_p(event),
                                                                byref(c_uint(streaming_mode)),
                                                                byref(c_uint(idx)))
-
-    def play_audioads(self, activity_operation_cb=None, operation_user_data=None):
-        context = py_object(operation_user_data) if operation_user_data else c_void_p(0)
-        cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
-        if libdeezer.dz_player_play_audioads(self.handle, cb, context):
-            raise PlayerRequestFailedError(u"play: Unable to play audio ads. Check connection.")
 
     @staticmethod
     def is_selected_track_preview(event_handle):

@@ -5,20 +5,15 @@ from wrapper.deezer_player import *
 
 
 class MyDeezerApp(object):
-    """A simple deezer application using NativeSDK
-
+    """
+    A simple deezer application using NativeSDK
     Initialize a connection and a player, then load and play a song.
-
-    Attributes:
-        connection  A Connection instance to store connection info
-        player      A Player instance to store the player's data
-        debug_mode  When True displays event and API logs
     """
 
     class AppContext(object):
         """
-            Can be used to pass a context to store various info and pass them
-            to your callbacks
+        Can be used to pass a context to store various info and pass them
+        to your callbacks
         """
         def __init__(self):
             self.nb_track_played = 0
@@ -70,6 +65,10 @@ class MyDeezerApp(object):
             print message
 
     def process_command(self, command):
+        """Dispatch commands to corresponding function
+        :param command: the command parameters
+        :type command: str
+        """
         c = ''.join(command.splitlines())
         call = {
             'S': self.playback_start_stop,
@@ -119,11 +118,17 @@ class MyDeezerApp(object):
         self.player.enable_shuffle_mode(self.context.is_shuffle_mode)
 
     def load_content(self, content):
+        """Load the given dzmedia content.
+        It will replace the current_content of the player class
+        :param content: The content to load
+        :type content: str
+        """
         self.log("LOAD => {}".format(self.context.dz_content_url))
         self.context.dz_content_url = content
         self.player.load(content)
 
     def shutdown(self):
+        """Stop the connection and the player if they have been initialized"""
         if self.context.player_handle:
             self.log("SHUTDOWN PLAYER - player_handle = {}".format(self.context.player_handle))
             self.player.shutdown(activity_operation_cb=self.dz_player_deactivate_cb,
@@ -136,10 +141,19 @@ class MyDeezerApp(object):
     # We set the callback for player events, to print various logs and listen to events
     @staticmethod
     def player_event_callback(handle, event, userdata):
+        """Listen to events and call the appropriate functions
+        :param handle: The player handle.
+        :type: p_type
+        :param event: The corresponding event.
+            Must be converted using Player.get_event
+        :type: dz_player_event_t
+        :param userdata: Any data you want to be passed and used here
+        :type: ctypes.py_object
+        :return: int
+        """
         # We retrieve our deezer app
         app = cast(userdata, py_object).value
         event_type = Player.get_event(event)
-        # Print track info after the track is loaded and selected
         if event_type == PlayerEvent.QUEUELIST_TRACK_SELECTED:
             can_pause_unpause = c_bool()
             can_seek = c_bool()
@@ -160,11 +174,23 @@ class MyDeezerApp(object):
         app.log(u"==== PLAYER_EVENT ==== {0}".format(PlayerEvent.event_name(event_type)))
         if event_type == PlayerEvent.QUEUELIST_LOADED:
             app.player.play()
+        if event_type == PlayerEvent.QUEUELIST_TRACK_RIGHTS_AFTER_AUDIOADS:
+            app.player.play_audio_ads()
         return 0
 
     # We set the connection callback to launch the player after connection is established
     @staticmethod
     def connection_event_callback(handle, event, userdata):
+        """Listen to events and call the appropriate functions
+        :param handle: The connect handle.
+        :type: p_type
+        :param event: The corresponding event.
+            Must be converted using Connection.get_event
+        :type: dz_connect_event_t
+        :param userdata: Any data you want to be passed and used here
+        :type: ctypes.py_object
+        :return: int
+        """
         # We retrieve our deezerApp
         app = cast(userdata, py_object).value
         event_type = Connection.get_event(event)
@@ -178,6 +204,7 @@ class MyDeezerApp(object):
 
     @staticmethod
     def player_on_deactivate_cb(delegate, operation_userdata, status, result):
+        """The callback to the shutdown of the player"""
         app = cast(operation_userdata, py_object).value
         app.player.active = False
         app.context.player_handle = 0
@@ -190,6 +217,7 @@ class MyDeezerApp(object):
 
     @staticmethod
     def connection_on_deactivate_cb(delegate, operation_userdata, status, result):
+        """The callback to the shutdown of the connection"""
         app = cast(operation_userdata, py_object).value
         if app.context.connect_handle:
             app.connection.active = False
