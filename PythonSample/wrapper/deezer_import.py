@@ -42,7 +42,6 @@
             the SDK will use its own crash reporting system.
 
 """
-
 import sys
 import platform
 from ctypes import *
@@ -53,15 +52,23 @@ lib_path = u"../NativeSDK/Bins/Platforms"
 if platform.system() == u'Darwin':
     lib_name = u'libdeezer'
     lib_path += u"/MacOSX/libdeezer.framework/Versions/Current/"
+    libdeezer = cdll.LoadLibrary(lib_path+lib_name)
 elif platform.system() == u'Windows':
     lib_path += u"/Windows/DLLs/"
+    import os
+    lib_path = os.path.abspath(os.pardir)
+    lib_path = os.path.join(lib_path, u'NativeSDK', u'Bins', u'Platforms', u'Windows', u'DLLs')
     lib_name = u'libdeezer.'
     lib_name += u'x64.dll' if sys.maxsize > 2**32 else u'x86.dll'
+    lib_path = os.path.join(lib_path, lib_name)
+    print lib_path
+    libdeezer = cdll.LoadLibrary(lib_path)
 else:
     lib_name = u'libdeezer.so'
     lib_path += u"/Linux/"
     lib_path += platform.machine()
-libdeezer = cdll.LoadLibrary(lib_path+lib_name)
+    libdeezer = cdll.LoadLibrary(lib_path+lib_name)
+print "path is "+lib_path+lib_name
 p_type = c_uint64 if sys.maxsize > 2**32 else c_uint32
 
 # Callbacks
