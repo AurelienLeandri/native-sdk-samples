@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf8
 
-# TODO: update docstrings once the code is validated
 
 """
     Deezer ``player`` module for NativeSDK

@@ -274,7 +274,6 @@ class Connection:
             raise ConnectionRequestFailedError(
                 u'connect_offline_mode: Request failed. Check connection and callbacks if used.')
 
-    # TODO: call that in a callback dz_connect_on_deactivate
     def shutdown(self, activity_operation_cb=None, operation_user_data=None):
         """Deactivate connection associated to the handle."""
         context = py_object(operation_user_data) if operation_user_data else c_void_p(0)
