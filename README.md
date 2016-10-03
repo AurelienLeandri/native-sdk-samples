@@ -27,7 +27,17 @@ OfflineModePlayer is a MacOSX application which uses Deezer's Native SDK to enab
  - User authentication
  - Offline mode playblack enabled for Deezer song list.
 
+## [PythonSample][5]
+
+PythonSample is a python application which uses Deezer's Native SDK to play a song once a user was authenticated.
+
+### Features
+
+ - User authentication
+ - Playing a Deezer content (track, album or playlist).
+
  [1]: http://developers.deezer.com/sdk/native
  [2]: https://github.com/deezer/native-sdk-samples/tree/master/NanoPlayer
  [3]: https://github.com/deezer/native-sdk-samples/tree/master/OfflineModePlayer
  [4]: http://developers.deezer.com/sdk/native/releasenotes/rss
+ [5]: https://github.com/deezer/native-sdk-samples/tree/master/PythonSample
