@@ -68,7 +68,7 @@ else:
     lib_path += u"/Linux/"
     if u"arm" in platform.machine():
         lib_path += u"arm/"
-    if u"x86" in platform.machine() or u"x64" in platform.machine():
+    elif u"x86" in platform.machine() or u"x64" in platform.machine():
         lib_path += u"x86_64/"
     else:
         lib_path += u"i386/"
