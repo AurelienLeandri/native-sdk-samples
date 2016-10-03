@@ -66,9 +66,13 @@ elif platform.system() == u'Windows':
 else:
     lib_name = u'libdeezer.so'
     lib_path += u"/Linux/"
-    lib_path += platform.machine()
+    if u"arm" in platform.machine():
+        lib_path += u"arm/"
+    if u"x86" in platform.machine() or u"x64" in platform.machine():
+        lib_path += u"x86_64/"
+    else:
+        lib_path += u"i386/"
     libdeezer = cdll.LoadLibrary(lib_path+lib_name)
-print "path is "+lib_path+lib_name
 p_type = c_uint64 if sys.maxsize > 2**32 else c_uint32
 
 # Callbacks
