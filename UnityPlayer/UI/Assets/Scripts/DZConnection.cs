@@ -72,15 +72,43 @@ public class DZConnection {
 		handle = dz_connect_new (ref config);
 		if (!handle)
 			throw new ConnectionInitFailedException ("Connection handle failed to initialize. Check connection info you gave");
-		if (dz_connect_activate handle, context))
+		if (dz_connect_activate(handle, context))
 			throw new RequestFailedException ("Connection failed to activate.");
+		active = true;
 	}
 
 	public int GetDeviceId() {
 		return dz_connect_get_device_id (handle);
 	}
 
+	public void DebugLogDisable() {
+		// TODO: dz_connect_debug_log_disable
+	}
+
+	public void CachePathSet(string path, dz_activity_operation_callback cb, IntPtr operationUserdata) {
+		if (dz_connect_cache_path_set (path, cb, operationUserdata))
+			throw new RequestFailedException ("Cache path was not set. Check connection.");
+	}
+
+	public void SetAccessToken(string token, dz_activity_operation_callback cb, IntPtr operationUserData) {
+		if (dz_connect_set_access_token(handle, token, cb, operationUserData))
+			throw new RequestFailedException ("Could not set access token. Check connection and that the token is valid.");
+	}
+
+	public void SetOfflineMode(bool offlineModeForced, dz_activity_operation_callback cb, IntPtr operationUserData) {
+		if (dz_connect_offline_mode(offlineModeForced, cb, operationUserData))
+			throw new RequestFailedException ("Failed to set offline mode.");
+	}
+
+	public void shutdown(dz_activity_operation_callback cb, IntPtr operationUserData) {
+		if (handle) {
+			dz_connect_deactivate (handle, cb, operationUserData);
+			active = false;
+		}
+	}
+
 	private IntPtr handle;
+	private bool active;
 
 	[DllImport("libdeezer")] public static extern void dz_object_release(IntPtr objectHandle);
 	[DllImport("libdeezer")] public static extern IntPtr dz_connect_new(ref dz_connect_configuration config);
