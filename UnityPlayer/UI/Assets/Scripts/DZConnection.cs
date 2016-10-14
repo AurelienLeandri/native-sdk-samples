@@ -4,8 +4,20 @@ using System.Runtime.InteropServices;
 using System.Collections;
 
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
- struct dz_connect_configuration
+public struct dz_connect_configuration
 {
+	public dz_connect_configuration(string app_id, string product_id, string product_build_id,
+		string user_profile_path, string connect_event_cb, string anonymous_blob, string app_has_crashed_delegate)
+	{
+		this.app_id = app_id;
+		this.product_id = product_id;
+		this.product_build_id = product_build_id;
+		this.user_profile_path = user_profile_path;
+		this.connect_event_cb = connect_event_cb;
+		this.anonymous_blob = anonymous_blob;
+		this.app_has_crashed_delegate = app_has_crashed_delegate;
+	}
+
 	[MarshalAs(UnmanagedType.LPStr)]
 	public string app_id;
 
@@ -58,27 +70,27 @@ public class ConnectionInitFailedException : System.Exception
 }
 
 [Serializable()]
-public class RequestFailedException : System.Exception
+public class ConnectionRequestFailedException : System.Exception
 {
-	public RequestFailedException() : base() { }
-	public RequestFailedException(string message) : base(message) { }
-	public RequestFailedException(string message, System.Exception inner) : base(message, inner) { }
-	protected RequestFailedException(System.Runtime.Serialization.SerializationInfo info,
+	public ConnectionRequestFailedException() : base() { }
+	public ConnectionRequestFailedException(string message) : base(message) { }
+	public ConnectionRequestFailedException(string message, System.Exception inner) : base(message, inner) { }
+	protected ConnectionRequestFailedException(System.Runtime.Serialization.SerializationInfo info,
 		System.Runtime.Serialization.StreamingContext context) { }
 }
 
 public class DZConnection {
 	public DZConnection(dz_connect_configuration config, IntPtr context) {
-		handle = dz_connect_new (ref config);
-		if (!handle)
+		Handle = dz_connect_new (ref config);
+		if (!Handle)
 			throw new ConnectionInitFailedException ("Connection handle failed to initialize. Check connection info you gave");
-		if (dz_connect_activate(handle, context))
-			throw new RequestFailedException ("Connection failed to activate.");
+		if (dz_connect_activate(Handle, context))
+			throw new ConnectionRequestFailedException ("Connection failed to activate.");
 		active = true;
 	}
 
 	public int GetDeviceId() {
-		return dz_connect_get_device_id (handle);
+		return dz_connect_get_device_id (Handle);
 	}
 
 	public void DebugLogDisable() {
@@ -87,28 +99,28 @@ public class DZConnection {
 
 	public void CachePathSet(string path, dz_activity_operation_callback cb, IntPtr operationUserdata) {
 		if (dz_connect_cache_path_set (path, cb, operationUserdata))
-			throw new RequestFailedException ("Cache path was not set. Check connection.");
+			throw new ConnectionRequestFailedException ("Cache path was not set. Check connection.");
 	}
 
 	public void SetAccessToken(string token, dz_activity_operation_callback cb, IntPtr operationUserData) {
-		if (dz_connect_set_access_token(handle, token, cb, operationUserData))
-			throw new RequestFailedException ("Could not set access token. Check connection and that the token is valid.");
+		if (dz_connect_set_access_token(Handle, token, cb, operationUserData))
+			throw new ConnectionRequestFailedException ("Could not set access token. Check connection and that the token is valid.");
 	}
 
 	public void SetOfflineMode(bool offlineModeForced, dz_activity_operation_callback cb, IntPtr operationUserData) {
 		if (dz_connect_offline_mode(offlineModeForced, cb, operationUserData))
-			throw new RequestFailedException ("Failed to set offline mode.");
+			throw new ConnectionRequestFailedException ("Failed to set offline mode.");
 	}
 
 	public void shutdown(dz_activity_operation_callback cb, IntPtr operationUserData) {
-		if (handle) {
-			dz_connect_deactivate (handle, cb, operationUserData);
+		if (Handle) {
+			dz_connect_deactivate (Handle, cb, operationUserData);
 			active = false;
 		}
 	}
 
-	private IntPtr handle;
-	private bool active;
+	private bool active = false;
+	public IntPtr Handle { get; private set; } = IntPtr.Zero;
 
 	[DllImport("libdeezer")] public static extern void dz_object_release(IntPtr objectHandle);
 	[DllImport("libdeezer")] public static extern IntPtr dz_connect_new(ref dz_connect_configuration config);
