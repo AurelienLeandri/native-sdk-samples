@@ -24,7 +24,7 @@ enum dz_player_event_t {
 	DZ_PLAYER_EVENT_RENDER_TRACK_REMOVED = 17
 };
 
-enum dz_player_play_t {
+enum dz_player_command_t {
 	DZ_PLAYER_PLAY_CMD_UNKNOWN = 0,
 	DZ_PLAYER_PLAY_CMD_START_TRACKLIST = 1,
 	DZ_PLAYER_PLAY_CMD_JUMP_IN_TRACKLIST = 2,
@@ -44,6 +44,13 @@ enum dz_player_mode_t {
 	DZ_TRACKLIST_AUTOPLAY_MODE_NEXT_REPEAT = 5,
 	DZ_TRACKLIST_AUTOPLAY_MODE_RANDOM = 6,
 	DZ_TRACKLIST_AUTOPLAY_MODE_RANDOM_REPEAT = 7
+};
+
+enum dz_player_index_t {
+	INVALID = Marshal.SizeOf(IntPtr.Zero),
+	PREVIOUS = Marshal.SizeOf(IntPtr.Zero) - 1,
+	CURRENT = Marshal.SizeOf(IntPtr.Zero) - 2,
+	NEXT = Marshal.SizeOf(IntPtr.Zero) - 3
 };
 
 delegate void dz_player_onevent_cb(IntPtr playerHandle, IntPtr eventHandle, IntPtr data);
@@ -76,6 +83,22 @@ public static class DZPlayer {
 			throw new PlayerInitFailedException ("Player failed to initialize. Check connection handle initialized properly");
 		if (dz_player_activate (handle, context))
 			throw new PlayerRequestFailedException ("Unable to activate player. Check connection.");
+	}
+
+	public void SetEventCallback(dz_connect_onevent_cb cb) {
+		if (dz_player_set_event_cb(handle, cb))
+			throw new PlayerRequestFailedException ("Unable to set event callback for player.");
+	}
+
+	public void Load(string content, dz_activity_operation_callback cb, IntPtr operationUserData) {
+		currentContent = content;
+		if (dz_player_load(handle, cb, operationUserData, currentContent))
+			throw new PlayerRequestFailedException ("Unable to load track. Check the given dzmedia entry.");
+	}
+
+	public void Play(dz_activity_operation_callback cb, IntPtr operationUserData,
+		dz_player_command_t command=dz_player_command_t.DZ_PLAYER_PLAY_CMD_START_TRACKLIST,
+		) {
 	}
 
 	private bool active = false;
