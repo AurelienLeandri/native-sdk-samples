@@ -5,50 +5,46 @@ using System.Collections;
 
 // TODO: update enum values for 1.1
 
-enum dz_player_event_t {
-	DZ_PLAYER_EVENT_UNKNOWN = 0,
-	DZ_PLAYER_EVENT_LIMITATION_FORCED_PAUSE = 1,
-	DZ_PLAYER_EVENT_PLAYLIST_TRACK_NOT_AVAILABLE_OFFLINE = 2,
-	DZ_PLAYER_EVENT_PLAYLIST_TRACK_NO_RIGHT = 3,
-	DZ_PLAYER_EVENT_PLAYLIST_TRACK_RIGHTS_AFTER_AUDIOADS = 4,
-	DZ_PLAYER_EVENT_PLAYLIST_SKIP_NO_RIGHT = 5,
-	DZ_PLAYER_EVENT_PLAYLIST_TRACK_SELECTED = 6,
-	DZ_PLAYER_EVENT_PLAYLIST_NEED_NATURAL_NEXT = 7,
-	DZ_PLAYER_EVENT_MEDIASTREAM_DATA_READY = 8,
-	DZ_PLAYER_EVENT_MEDIASTREAM_DATA_READY_AFTER_SEEK = 9,
-	DZ_PLAYER_EVENT_RENDER_TRACK_START_FAILURE = 10,
-	DZ_PLAYER_EVENT_RENDER_TRACK_START = 11,
-	DZ_PLAYER_EVENT_RENDER_TRACK_END = 12,
-	DZ_PLAYER_EVENT_RENDER_TRACK_PAUSED = 13,
-	DZ_PLAYER_EVENT_RENDER_TRACK_SEEKING = 14,
-	DZ_PLAYER_EVENT_RENDER_TRACK_UNDERFLOW = 15,
-	DZ_PLAYER_EVENT_RENDER_TRACK_RESUMED = 16,
-	DZ_PLAYER_EVENT_RENDER_TRACK_REMOVED = 17
+enum DZPlayerEvent {
+	UNKNOWN,
+	LIMITATION_FORCED_PAUSE,
+	QUEUELIST_LOADED,
+	QUEUELIST_NO_RIGHT,
+	QUEUELIST_TRACK_NOT_AVAILABLE_OFFLINE,
+	QUEUELIST_TRACK_RIGHTS_AFTER_AUDIOADS,
+	QUEUELIST_SKIP_NO_RIGHT,
+	QUEUELIST_TRACK_SELECTED,
+	QUEUELIST_NEED_NATURAL_NEXT,
+	MEDIASTREAM_DATA_READY,
+	MEDIASTREAM_DATA_READY_AFTER_SEEK,
+	RENDER_TRACK_START_FAILURE,
+	RENDER_TRACK_START,
+	RENDER_TRACK_END,
+	RENDER_TRACK_PAUSED,
+	RENDER_TRACK_SEEKING,
+	RENDER_TRACK_UNDERFLOW,
+	RENDER_TRACK_RESUMED,
+	RENDER_TRACK_REMOVED
 };
 
-enum dz_player_command_t {
-	DZ_PLAYER_PLAY_CMD_UNKNOWN = 0,
-	DZ_PLAYER_PLAY_CMD_START_TRACKLIST = 1,
-	DZ_PLAYER_PLAY_CMD_JUMP_IN_TRACKLIST = 2,
-	DZ_PLAYER_PLAY_CMD_NEXT = 3,
-	DZ_PLAYER_PLAY_CMD_PREV = 4,
-	DZ_PLAYER_PLAY_CMD_DISLIKE = 5,
-	DZ_PLAYER_PLAY_CMD_NATURAL_END = 6,
-	DZ_PLAYER_PLAY_CMD_RESUMED_AFTER_ADS = 7,
+enum DZPlayerCommand {
+	UNKNOWN,
+	START_TRACKLIST,
+	JUMP_IN_TRACKLIST,
+	NEXT,
+	PREV,
+	DISLIKE,
+	NATURAL_END,
+	RESUMED_AFTER_ADS,
 };
 
-enum dz_player_mode_t { // TODO: Think it has changed since then. Refactor that.
-	DZ_TRACKLIST_AUTOPLAY_MODE_UNKNOWN = 0,
-	DZ_TRACKLIST_AUTOPLAY_MANUAL = 1,
-	DZ_TRACKLIST_AUTOPLAY_MODE_ONE = 2,
-	DZ_TRACKLIST_AUTOPLAY_MODE_ONE_REPEAT = 3,
-	DZ_TRACKLIST_AUTOPLAY_MODE_NEXT = 4,
-	DZ_TRACKLIST_AUTOPLAY_MODE_NEXT_REPEAT = 5,
-	DZ_TRACKLIST_AUTOPLAY_MODE_RANDOM = 6,
-	DZ_TRACKLIST_AUTOPLAY_MODE_RANDOM_REPEAT = 7
+enum DZPlayerRepeatMode { // TODO: Think it has changed since then. Refactor that.
+	OFF,
+	ON,
+	ALL
 };
 
-enum dz_player_index_t {
+enum DZPlayerIndex {
 	INVALID = Marshal.SizeOf(IntPtr.Zero),
 	PREVIOUS = Marshal.SizeOf(IntPtr.Zero) - 1,
 	CURRENT = Marshal.SizeOf(IntPtr.Zero) - 2,
@@ -99,8 +95,8 @@ public static class DZPlayer {
 	}
 
 	public void Play(dz_activity_operation_callback cb = null, IntPtr operationUserData = IntPtr.Zero,
-		dz_player_command_t command=dz_player_command_t.DZ_PLAYER_PLAY_CMD_START_TRACKLIST,
-		dz_player_index_t index = dz_player_index_t.CURRENT) {
+		DZPlayerCommand command=DZPlayerCommand.DZ_PLAYER_PLAY_CMD_START_TRACKLIST,
+		DZPlayerIndex index = DZPlayerIndex.CURRENT) {
 		if (dz_player_play(Handle, cb, operationUserData, command, index) > 1)
 			throw new PlayerRequestFailedException ("Unable to play content.");
 		IsStopped = true;
@@ -127,7 +123,7 @@ public static class DZPlayer {
 			throw new PlayerRequestFailedException ("Unable to resume current track.");
 	}
 
-	public void UpdateRepeatMode(dz_player_mode_t mode, dz_activity_operation_callback cb = null, IntPtr operationUserData = IntPtr.Zero) {
+	public void UpdateRepeatMode(DZPlayerRepeatMode mode, dz_activity_operation_callback cb = null, IntPtr operationUserData = IntPtr.Zero) {
 		// TODO: dz_player_set_repeat_mode
 		RepeatMode = mode;
 	}
@@ -146,7 +142,7 @@ public static class DZPlayer {
 	public bool IsStopped = false;
 	public bool IsPaused = false;
 	public IntPtr Handle { get; private set; } = IntPtr.Zero;
-	public dz_player_mode_t RepeatMode { get; private set; } = 0;
+	public DZPlayerRepeatMode RepeatMode { get; private set; } = 0;
 	private string currentContent = "";
 	public bool isShuffleMode { get; private set; } = false;
 	private int nbTracksPlayed;
