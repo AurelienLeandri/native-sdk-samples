@@ -3,6 +3,8 @@ using System;
 using System.Runtime.InteropServices;
 using System.Collections;
 
+// TODO: update enum values for 1.1
+
 enum dz_player_event_t {
 	DZ_PLAYER_EVENT_UNKNOWN = 0,
 	DZ_PLAYER_EVENT_LIMITATION_FORCED_PAUSE = 1,
@@ -137,13 +139,9 @@ public static class DZPlayer {
 			throw new PlayerRequestFailedException ("Unable to load audio ads.");
 	}
 
-	private bool active = false;
+	public bool Active { get; set; } = false;
 	private bool playing = false;
-	private IntPtr Handle
-	{
-		get { return Handle; }
-		set { Handle = value; }
-	} = IntPtr.Zero;
+	public IntPtr Handle { get; private set; } = IntPtr.Zero;
 	private string currentContent = "";
 	private bool isShuffleMode = false;
 	private int nbTracksPlayed;

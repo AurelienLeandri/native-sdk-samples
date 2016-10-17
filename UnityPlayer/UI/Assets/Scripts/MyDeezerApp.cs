@@ -13,7 +13,7 @@ public class MyDeezerApp : MonoBehaviour {
 		connection = new DZConnection (config);
 		if (!debugMode)
 			connection.DebugLogDisable ();
-		player = new DZPlayer (ref this, connection.Handle);
+		Player = new DZPlayer (ref this, connection.Handle);
 		// TODO: player.SetEventCallback (myCallback);
 		connection.CachePathSet(config.user_profile_path);
 		connection.SetAccessToken (userAccessToken);
@@ -21,10 +21,13 @@ public class MyDeezerApp : MonoBehaviour {
 		// TODO: connection and player on_deactivate cbs
 	}
 
+	public void Shutdown() {
+	}
+
 	private bool debugMode = false;
 	dz_connect_configuration config;
 	private DZConnection connection = null;
-	private DZPlayer player = null;
+	public DZPlayer Player { get; private set; } = null;
 
 	public static int PlayerOnEventCallback(IntPtr handle, dz_player_event_t eventType, IntPtr userData) {
 		// TODO: If it doesnt work check type of attribute eventType.
@@ -37,5 +40,16 @@ public class MyDeezerApp : MonoBehaviour {
 	}
 
 	public static int ConnectionOnEventCallback(IntPtr handle, dz_player_event_t eventType, IntPtr userData) {
+		MyDeezerApp app = (MyDeezerApp)(*userData);
+		if (eventType = dz_connect_event_t.DZ_CONNECT_EVENT_USER_LOGIN_OK)
+			app.Player.Load ();
+		if (eventType == dz_connect_event_t.DZ_CONNECT_EVENT_USER_LOGIN_FAIL_USER_INFO)
+			app.Shutdown ();
+	}
+
+	public static int PlayerOnDeactivateCallback(IntPtr delegateFunc, IntPtr operationUserData, int status, int result) {
+		MyDeezerApp app = (MyDeezerApp)(*operationUserData);
+		app.Player.Active = false;
+		app.Player.Handle = IntPtr.Zero;
 	}
 }
