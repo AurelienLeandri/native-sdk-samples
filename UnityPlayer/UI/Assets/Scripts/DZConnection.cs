@@ -6,8 +6,10 @@ using System.Collections;
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
 public struct dz_connect_configuration
 {
-	public dz_connect_configuration(string app_id, string product_id, string product_build_id,
-		string user_profile_path, string connect_event_cb, string anonymous_blob, string app_has_crashed_delegate)
+	public dz_connect_configuration(string app_id,
+		string product_id, string product_build_id,
+		string user_profile_path, dz_connect_onevent_cb connect_event_cb,
+		IntPtr anonymous_blob, dz_connect_crash_reporting_delegate app_has_crashed_delegate)
 	{
 		this.app_id = app_id;
 		this.product_id = product_id;
@@ -34,30 +36,30 @@ public struct dz_connect_configuration
 	public dz_connect_onevent_cb connect_event_cb;
 
 	[MarshalAs(UnmanagedType.LPStr)]
-	public string anonymous_blob;
+	public IntPtr anonymous_blob;
 
 	[MarshalAs(UnmanagedType.FunctionPtr)]
 	public dz_connect_crash_reporting_delegate app_has_crashed_delegate;
 };
 
-enum dz_connect_event_t {
-	DZ_CONNECT_EVENT_UNKNOWN,
-	DZ_CONNECT_EVENT_USER_OFFLINE_AVAILABLE,
-	DZ_CONNECT_EVENT_USER_ACCESS_TOKEN_OK,
-	DZ_CONNECT_EVENT_USER_ACCESS_TOKEN_FAILED,
-	DZ_CONNECT_EVENT_USER_LOGIN_OK,
-	DZ_CONNECT_EVENT_USER_LOGIN_FAIL_NETWORK_ERROR,
-	DZ_CONNECT_EVENT_USER_LOGIN_FAIL_BAD_CREDENTIALS,
-	DZ_CONNECT_EVENT_USER_LOGIN_FAIL_USER_INFO,
-	DZ_CONNECT_EVENT_USER_LOGIN_FAIL_OFFLINE_MODE,
-	DZ_CONNECT_EVENT_USER_NEW_OPTIONS,
-	DZ_CONNECT_EVENT_ADVERTISEMENT_START,
-	DZ_CONNECT_EVENT_ADVERTISEMENT_STOP
+public enum dz_connect_event_t {
+	UNKNOWN,
+	USER_OFFLINE_AVAILABLE,
+	USER_ACCESS_TOKEN_OK,
+	USER_ACCESS_TOKEN_FAILED,
+	USER_LOGIN_OK,
+	USER_LOGIN_FAIL_NETWORK_ERROR,
+	USER_LOGIN_FAIL_BAD_CREDENTIALS,
+	USER_LOGIN_FAIL_USER_INFO,
+	USER_LOGIN_FAIL_OFFLINE_MODE,
+	USER_NEW_OPTIONS,
+	ADVERTISEMENT_START,
+	ADVERTISEMENT_STOP
 };
 
-delegate void dz_activity_operation_callback(IntPtr d, IntPtr data, int status, IntPtr result);
-delegate void dz_connect_onevent_cb(IntPtr connectHandle, IntPtr eventHandle, IntPtr data);
-delegate bool dz_connect_crash_reporting_delegate();
+public delegate void dz_activity_operation_callback(IntPtr d, IntPtr data, int status, IntPtr result);
+public delegate void dz_connect_onevent_cb(IntPtr connectHandle, IntPtr eventHandle, IntPtr data);
+public delegate bool dz_connect_crash_reporting_delegate();
 
 [Serializable()]
 public class ConnectionInitFailedException : System.Exception
@@ -82,40 +84,40 @@ public class ConnectionRequestFailedException : System.Exception
 public class DZConnection {
 	public DZConnection(dz_connect_configuration config, IntPtr context) {
 		Handle = dz_connect_new (ref config);
-		if (!Handle)
+		if (Handle.ToInt32() == 0)
 			throw new ConnectionInitFailedException ("Connection handle failed to initialize. Check connection info you gave");
-		if (dz_connect_activate(Handle, context))
+		if (dz_connect_activate(Handle, context) != 0)
 			throw new ConnectionRequestFailedException ("Connection failed to activate.");
-		active = true;
+		Active = true;
 	}
 
-	public int GetDeviceId() {
-		return dz_connect_get_device_id (Handle);
+	public long GetDeviceId() {
+		return dz_connect_get_device_id (Handle).ToInt64();
 	}
 
 	public void DebugLogDisable() {
 		// TODO: dz_connect_debug_log_disable
 	}
 
-	public void CachePathSet(string path, dz_activity_operation_callback cb = null, IntPtr operationUserdata = IntPtr.Zero) {
+	public void CachePathSet(string path, dz_activity_operation_callback cb = null, IntPtr operationUserdata = default(IntPtr)) {
 		if (dz_connect_cache_path_set (path, cb, operationUserdata))
 			throw new ConnectionRequestFailedException ("Cache path was not set. Check connection.");
 	}
 
-	public void SetAccessToken(string token, dz_activity_operation_callback cb = null, IntPtr operationUserData = IntPtr.Zero) {
+	public void SetAccessToken(string token, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
 		if (dz_connect_set_access_token(Handle, token, cb, operationUserData))
 			throw new ConnectionRequestFailedException ("Could not set access token. Check connection and that the token is valid.");
 	}
 
-	public void SetOfflineMode(bool offlineModeForced, dz_activity_operation_callback cb = null, IntPtr operationUserData = IntPtr.Zero) {
+	public void SetOfflineMode(bool offlineModeForced, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
 		if (dz_connect_offline_mode(offlineModeForced, cb, operationUserData))
 			throw new ConnectionRequestFailedException ("Failed to set offline mode.");
 	}
 
-	public void shutdown(dz_activity_operation_callback cb = null, IntPtr operationUserData = IntPtr.Zero) {
-		if (Handle) {
+	public void shutdown(dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
+		if (Handle.ToInt64() != 0) {
 			dz_connect_deactivate (Handle, cb, operationUserData);
-			active = false;
+			Active = false;
 		}
 	}
 
