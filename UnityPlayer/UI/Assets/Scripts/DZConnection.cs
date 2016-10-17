@@ -97,29 +97,29 @@ public class DZConnection {
 		// TODO: dz_connect_debug_log_disable
 	}
 
-	public void CachePathSet(string path, dz_activity_operation_callback cb, IntPtr operationUserdata) {
+	public void CachePathSet(string path, dz_activity_operation_callback cb = null, IntPtr operationUserdata = IntPtr.Zero) {
 		if (dz_connect_cache_path_set (path, cb, operationUserdata))
 			throw new ConnectionRequestFailedException ("Cache path was not set. Check connection.");
 	}
 
-	public void SetAccessToken(string token, dz_activity_operation_callback cb, IntPtr operationUserData) {
+	public void SetAccessToken(string token, dz_activity_operation_callback cb = null, IntPtr operationUserData = IntPtr.Zero) {
 		if (dz_connect_set_access_token(Handle, token, cb, operationUserData))
 			throw new ConnectionRequestFailedException ("Could not set access token. Check connection and that the token is valid.");
 	}
 
-	public void SetOfflineMode(bool offlineModeForced, dz_activity_operation_callback cb, IntPtr operationUserData) {
+	public void SetOfflineMode(bool offlineModeForced, dz_activity_operation_callback cb = null, IntPtr operationUserData = IntPtr.Zero) {
 		if (dz_connect_offline_mode(offlineModeForced, cb, operationUserData))
 			throw new ConnectionRequestFailedException ("Failed to set offline mode.");
 	}
 
-	public void shutdown(dz_activity_operation_callback cb, IntPtr operationUserData) {
+	public void shutdown(dz_activity_operation_callback cb = null, IntPtr operationUserData = IntPtr.Zero) {
 		if (Handle) {
 			dz_connect_deactivate (Handle, cb, operationUserData);
 			active = false;
 		}
 	}
 
-	private bool active = false;
+	public bool Active { get; set; } = false;
 	public IntPtr Handle { get; private set; } = IntPtr.Zero;
 
 	[DllImport("libdeezer")] public static extern void dz_object_release(IntPtr objectHandle);
