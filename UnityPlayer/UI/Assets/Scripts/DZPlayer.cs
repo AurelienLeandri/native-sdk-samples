@@ -103,6 +103,7 @@ public static class DZPlayer {
 		dz_player_index_t index = dz_player_index_t.CURRENT) {
 		if (dz_player_play(Handle, cb, operationUserData, command, index) > 1)
 			throw new PlayerRequestFailedException ("Unable to play content.");
+		IsStopped = true;
 	}
 
 	public void Shutdown(dz_activity_operation_callback cb, IntPtr operationuserData) {
@@ -118,6 +119,7 @@ public static class DZPlayer {
 	public void Pause(dz_activity_operation_callback cb, IntPtr operationUserData) {
 		if (dz_player_pause(Handle, cb, operationUserData))
 			throw new PlayerRequestFailedException ("Unable to pause current track.");
+		IsStopped = false;
 	}
 
 	public void Resume(dz_activity_operation_callback cb, IntPtr operationUserData) {
@@ -140,7 +142,8 @@ public static class DZPlayer {
 	}
 
 	public bool Active { get; set; } = false;
-	private bool playing = false;
+	public bool IsStopped = false;
+	public bool IsPaused = false;
 	public IntPtr Handle { get; private set; } = IntPtr.Zero;
 	private string currentContent = "";
 	private bool isShuffleMode = false;
