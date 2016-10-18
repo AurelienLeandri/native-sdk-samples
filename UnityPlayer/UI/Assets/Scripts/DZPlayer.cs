@@ -5,7 +5,7 @@ using System.Collections;
 
 // TODO: update enum values for 1.1
 
-enum DZPlayerEvent {
+public enum DZPlayerEvent {
 	UNKNOWN,
 	LIMITATION_FORCED_PAUSE,
 	QUEUELIST_LOADED,
@@ -27,7 +27,7 @@ enum DZPlayerEvent {
 	RENDER_TRACK_REMOVED
 };
 
-enum DZPlayerCommand {
+public enum DZPlayerCommand {
 	UNKNOWN,
 	START_TRACKLIST,
 	JUMP_IN_TRACKLIST,
@@ -38,21 +38,25 @@ enum DZPlayerCommand {
 	RESUMED_AFTER_ADS,
 };
 
-enum DZPlayerRepeatMode { // TODO: Think it has changed since then. Refactor that.
+public enum DZPlayerRepeatMode { // TODO: Think it has changed since then. Refactor that.
 	OFF,
 	ON,
 	ALL
 };
 
-enum DZPlayerIndex {
-	INVALID = Marshal.SizeOf(IntPtr.Zero),
-	PREVIOUS = Marshal.SizeOf(IntPtr.Zero) - 1,
-	CURRENT = Marshal.SizeOf(IntPtr.Zero) - 2,
-	NEXT = Marshal.SizeOf(IntPtr.Zero) - 3
+public static class test {
+	public static readonly int t = Marshal.SizeOf(IntPtr.Zero);
+}
+
+public static class DZPlayerIndex {
+	public static readonly int INVALID = test.t;
+	public static readonly int PREVIOUS = Marshal.SizeOf (IntPtr.Zero) - 1;
+	public static readonly int CURRENT = Marshal.SizeOf (IntPtr.Zero) - 2;
+	public static readonly int NEXT = Marshal.SizeOf (IntPtr.Zero) - 3;
 };
 
-delegate void dz_player_onevent_cb(IntPtr playerHandle, IntPtr eventHandle, IntPtr data);
-delegate void dz_player_onindexprogress_cb(IntPtr playerHandle, uint progress, IntPtr data);
+public delegate void dz_player_onevent_cb(IntPtr playerHandle, IntPtr eventHandle, IntPtr data);
+public delegate void dz_player_onindexprogress_cb(IntPtr playerHandle, uint progress, IntPtr data);
 
 [Serializable()]
 public class PlayerInitFailedException : System.Exception
@@ -74,77 +78,86 @@ public class PlayerRequestFailedException : System.Exception
 		System.Runtime.Serialization.StreamingContext context) { }
 }
 
-public static class DZPlayer {
+public class DZPlayer {
 	public DZPlayer(IntPtr context, IntPtr connectionHandle) {
+		isShuffleMode = false;
+		Active = false;
 		Handle = dz_player_new (connectionHandle);
-		if (!Handle)
+		if (Handle.ToInt64() == 0)
 			throw new PlayerInitFailedException ("Player failed to initialize. Check connection handle initialized properly");
-		if (dz_player_activate (Handle, context))
+		if (dz_player_activate (Handle, context) != 0)
 			throw new PlayerRequestFailedException ("Unable to activate player. Check connection.");
+		Active = true;
 	}
 
-	public void SetEventCallback(dz_connect_onevent_cb cb) {
-		if (dz_player_set_event_cb(Handle, cb))
+	public void SetEventCallback(dz_player_onevent_cb cb) {
+		if (dz_player_set_event_cb(Handle, cb) != 0)
 			throw new PlayerRequestFailedException ("Unable to set event callback for player.");
 	}
 
-	public void Load(string content, dz_activity_operation_callback cb = null, IntPtr operationUserData = IntPtr.Zero) {
+	public void Load(string content = null, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
 		currentContent = content;
-		if (dz_player_load(Handle, cb, operationUserData, currentContent))
+		if (dz_player_load(Handle, cb, operationUserData, currentContent) != 0)
 			throw new PlayerRequestFailedException ("Unable to load content. Check the given dzmedia entry.");
 	}
 
-	public void Play(dz_activity_operation_callback cb = null, IntPtr operationUserData = IntPtr.Zero,
-		DZPlayerCommand command=DZPlayerCommand.DZ_PLAYER_PLAY_CMD_START_TRACKLIST,
-		DZPlayerIndex index = DZPlayerIndex.CURRENT) {
-		if (dz_player_play(Handle, cb, operationUserData, command, index) > 1)
+	public void Play(dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr),
+		DZPlayerCommand command=DZPlayerCommand.START_TRACKLIST,
+		int index = 0) {
+		if (index == 0)
+			index = DZPlayerIndex.CURRENT;
+		if (dz_player_play(Handle, cb, operationUserData, (int)command, (uint)index) > 1)
 			throw new PlayerRequestFailedException ("Unable to play content.");
 		IsStopped = true;
 	}
 
-	public void Shutdown(dz_activity_operation_callback cb = null, IntPtr operationuserData = IntPtr.Zero) {
-		if (Handle)
+	public void Shutdown(dz_activity_operation_callback cb = null, IntPtr operationuserData = default(IntPtr)) {
+		if (Handle.ToInt64() != 0)
 			dz_player_deactivate (Handle, cb, operationuserData);
 	}
 
-	public void Stop(dz_activity_operation_callback cb = null, IntPtr operationUserData = IntPtr.Zero) {
-		if (dz_player_stop(Handle, cb, operationUserData))
+	public void Stop(dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
+		if (dz_player_stop(Handle, cb, operationUserData) != 0)
 			throw new PlayerRequestFailedException ("Unable to stop current track.");
 	}
 
-	public void Pause(dz_activity_operation_callback cb = null, IntPtr operationUserData = IntPtr.Zero) {
-		if (dz_player_pause(Handle, cb, operationUserData))
+	public void Pause(dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
+		if (dz_player_pause(Handle, cb, operationUserData) != 0)
 			throw new PlayerRequestFailedException ("Unable to pause current track.");
 		IsStopped = false;
 	}
 
-	public void Resume(dz_activity_operation_callback cb = null, IntPtr operationUserData = IntPtr.Zero) {
-		if (dz_player_resume(Handle, cb, operationUserData))
+	public void Resume(dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
+		if (dz_player_resume(Handle, cb, operationUserData) != 0)
 			throw new PlayerRequestFailedException ("Unable to resume current track.");
 	}
 
-	public void UpdateRepeatMode(DZPlayerRepeatMode mode, dz_activity_operation_callback cb = null, IntPtr operationUserData = IntPtr.Zero) {
+	public void UpdateRepeatMode(DZPlayerRepeatMode mode, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
 		// TODO: dz_player_set_repeat_mode
 		RepeatMode = mode;
 	}
 
-	public void EnableShuffleMode(bool shuffleMode, dz_activity_operation_callback cb = null, IntPtr operationUserData = IntPtr.Zero) {
+	public void EnableShuffleMode(bool shuffleMode, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
 		// TODO: dz_player_enable_shuffle_mode
 		isShuffleMode = shuffleMode;
 	}
 
-	public void PlayAudioAds(dz_activity_operation_callback cb = null, IntPtr operationUserData = IntPtr.Zero) {
-		if (dz_player_play_audioads(cb, operationUserData))
+	public void PlayAudioAds(dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
+		if (dz_player_play_audioads(Handle, cb, operationUserData) != 0)
 			throw new PlayerRequestFailedException ("Unable to load audio ads.");
 	}
 
-	public bool Active { get; set; } = false;
+	public static DZPlayerEvent GetEventFromHandle(IntPtr handle) {
+		return (DZPlayerEvent)dz_player_event_get_type (handle);
+	}
+
+	public bool Active { get; set; }
 	public bool IsStopped = false;
 	public bool IsPaused = false;
-	public IntPtr Handle { get; private set; } = IntPtr.Zero;
-	public DZPlayerRepeatMode RepeatMode { get; private set; } = 0;
+	public IntPtr Handle { get; set; }
+	public DZPlayerRepeatMode RepeatMode { get; private set; }
 	private string currentContent = "";
-	public bool isShuffleMode { get; private set; } = false;
+	public bool isShuffleMode { get; private set; }
 	private int nbTracksPlayed;
 
 	[DllImport("libdeezer")] private static extern IntPtr dz_player_new(IntPtr self);
@@ -153,7 +166,7 @@ public static class DZPlayer {
 	[DllImport("libdeezer")] private static extern int dz_player_cache_next(IntPtr playerHandle, dz_activity_operation_callback cb, IntPtr data, [MarshalAs(UnmanagedType.LPStr)]string trackUrl);
 	[DllImport("libdeezer")] private static extern int dz_player_load(IntPtr playerHandle, dz_activity_operation_callback cb, IntPtr data, [MarshalAs(UnmanagedType.LPStr)]string tracklistData);
 	[DllImport("libdeezer")] private static extern int dz_player_pause(IntPtr playerHandle, dz_activity_operation_callback cb, IntPtr data);
-	[DllImport("libdeezer")] private static extern int dz_player_play(IntPtr playerHandle, dz_activity_operation_callback cb, IntPtr data, int command, int mode, uint idx);
+	[DllImport("libdeezer")] private static extern int dz_player_play(IntPtr playerHandle, dz_activity_operation_callback cb, IntPtr data, int command, uint idx);
 	[DllImport("libdeezer")] private static extern int dz_player_play_audioads(IntPtr playerHandle, dz_activity_operation_callback cb, IntPtr data);
 	[DllImport("libdeezer")] private static extern int dz_player_stop(IntPtr playerHandle, dz_activity_operation_callback cb, IntPtr data);
 	[DllImport("libdeezer")] private static extern int dz_player_resume(IntPtr playerHandle, dz_activity_operation_callback cb, IntPtr data);
