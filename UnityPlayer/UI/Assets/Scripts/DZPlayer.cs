@@ -80,6 +80,7 @@ public class PlayerRequestFailedException : System.Exception
 
 public class DZPlayer {
 	public DZPlayer(IntPtr context, IntPtr connectionHandle) {
+		Debug.Log ("Init player");
 		isShuffleMode = false;
 		Active = false;
 		Handle = dz_player_new (connectionHandle);
@@ -88,63 +89,84 @@ public class DZPlayer {
 		if (dz_player_activate (Handle, context) != 0)
 			throw new PlayerRequestFailedException ("Unable to activate player. Check connection.");
 		Active = true;
+		Debug.Log ("Player initialized");
 	}
 
 	public void SetEventCallback(dz_player_onevent_cb cb) {
+		Debug.Log ("Set event callback for player");
 		if (dz_player_set_event_cb(Handle, cb) != 0)
 			throw new PlayerRequestFailedException ("Unable to set event callback for player.");
+		Debug.Log ("Event callback for player set");
 	}
 
 	public void Load(string content = null, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
+		Debug.Log ("Load content");
 		currentContent = content;
 		if (dz_player_load(Handle, cb, operationUserData, currentContent) != 0)
 			throw new PlayerRequestFailedException ("Unable to load content. Check the given dzmedia entry.");
+		Debug.Log ("Content loaded");
 	}
 
 	public void Play(dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr),
 		DZPlayerCommand command=DZPlayerCommand.START_TRACKLIST,
 		int index = 0) {
+		Debug.Log ("Play content");
 		if (index == 0)
 			index = DZPlayerIndex.CURRENT;
 		if (dz_player_play(Handle, cb, operationUserData, (int)command, (uint)index) > 1)
 			throw new PlayerRequestFailedException ("Unable to play content.");
 		IsStopped = true;
+		Debug.Log ("Content playing");
 	}
 
 	public void Shutdown(dz_activity_operation_callback cb = null, IntPtr operationuserData = default(IntPtr)) {
+		Debug.Log ("Shutdown player");
 		if (Handle.ToInt64() != 0)
 			dz_player_deactivate (Handle, cb, operationuserData);
+		Debug.Log ("Player shut");
 	}
 
 	public void Stop(dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
+		Debug.Log ("Stop player");
 		if (dz_player_stop(Handle, cb, operationUserData) != 0)
 			throw new PlayerRequestFailedException ("Unable to stop current track.");
+		Debug.Log ("Player stopped");
 	}
 
 	public void Pause(dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
+		Debug.Log ("Pause player");
 		if (dz_player_pause(Handle, cb, operationUserData) != 0)
 			throw new PlayerRequestFailedException ("Unable to pause current track.");
 		IsStopped = false;
+		Debug.Log ("Player paused");
 	}
 
 	public void Resume(dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
+		Debug.Log ("Resume player");
 		if (dz_player_resume(Handle, cb, operationUserData) != 0)
 			throw new PlayerRequestFailedException ("Unable to resume current track.");
+		Debug.Log ("Player resumed");
 	}
 
 	public void UpdateRepeatMode(DZPlayerRepeatMode mode, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
+		Debug.Log ("Update repeat mode");
 		// TODO: dz_player_set_repeat_mode
 		RepeatMode = mode;
+		Debug.Log ("Repeat mode updated");
 	}
 
 	public void EnableShuffleMode(bool shuffleMode, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
+		Debug.Log ("Enable shuffle mode");
 		// TODO: dz_player_enable_shuffle_mode
 		isShuffleMode = shuffleMode;
+		Debug.Log ("Shuffle mode updated");
 	}
 
 	public void PlayAudioAds(dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
+		Debug.Log ("Play audio ad");
 		if (dz_player_play_audioads(Handle, cb, operationUserData) != 0)
 			throw new PlayerRequestFailedException ("Unable to load audio ads.");
+		Debug.Log ("Audio ad playing");
 	}
 
 	public static DZPlayerEvent GetEventFromHandle(IntPtr handle) {
