@@ -42,7 +42,7 @@ public struct dz_connect_configuration
 	public dz_connect_crash_reporting_delegate app_has_crashed_delegate;
 };
 
-public enum dz_connect_event_t {
+public enum DZConnectionEvent {
 	UNKNOWN,
 	USER_OFFLINE_AVAILABLE,
 	USER_ACCESS_TOKEN_OK,
@@ -57,7 +57,7 @@ public enum dz_connect_event_t {
 	ADVERTISEMENT_STOP
 };
 
-public delegate void dz_activity_operation_callback(IntPtr d, IntPtr data, int status, IntPtr result);
+public delegate void dz_activity_operation_callback(IntPtr d, IntPtr data, int status, int result);
 public delegate void dz_connect_onevent_cb(IntPtr connectHandle, IntPtr eventHandle, IntPtr data);
 public delegate bool dz_connect_crash_reporting_delegate();
 
@@ -84,6 +84,7 @@ public class ConnectionRequestFailedException : System.Exception
 public class DZConnection {
 	public DZConnection(dz_connect_configuration config, IntPtr context) {
 		Handle = dz_connect_new (ref config);
+		Active = false;
 		if (Handle.ToInt32() == 0)
 			throw new ConnectionInitFailedException ("Connection handle failed to initialize. Check connection info you gave");
 		if (dz_connect_activate(Handle, context) != 0)
@@ -100,17 +101,17 @@ public class DZConnection {
 	}
 
 	public void CachePathSet(string path, dz_activity_operation_callback cb = null, IntPtr operationUserdata = default(IntPtr)) {
-		if (dz_connect_cache_path_set (path, cb, operationUserdata))
+		if (dz_connect_cache_path_set (Handle, cb, operationUserdata, path) != 0)
 			throw new ConnectionRequestFailedException ("Cache path was not set. Check connection.");
 	}
 
 	public void SetAccessToken(string token, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
-		if (dz_connect_set_access_token(Handle, token, cb, operationUserData))
+		if (dz_connect_set_access_token(Handle, cb, operationUserData, token) != 0)
 			throw new ConnectionRequestFailedException ("Could not set access token. Check connection and that the token is valid.");
 	}
 
 	public void SetOfflineMode(bool offlineModeForced, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
-		if (dz_connect_offline_mode(offlineModeForced, cb, operationUserData))
+		if (dz_connect_offline_mode(Handle, cb, operationUserData, offlineModeForced) != 0)
 			throw new ConnectionRequestFailedException ("Failed to set offline mode.");
 	}
 
@@ -121,8 +122,12 @@ public class DZConnection {
 		}
 	}
 
-	public bool Active { get; set; } = false;
-	public IntPtr Handle { get; private set; } = IntPtr.Zero;
+	public static DZConnectionEvent GetEventFromHandle(IntPtr handle) {
+		return (DZConnectionEvent)dz_connect_event_get_type (handle);
+	}
+
+	public bool Active { get; set; }
+	public IntPtr Handle { get; set; }
 
 	[DllImport("libdeezer")] public static extern void dz_object_release(IntPtr objectHandle);
 	[DllImport("libdeezer")] public static extern IntPtr dz_connect_new(ref dz_connect_configuration config);
