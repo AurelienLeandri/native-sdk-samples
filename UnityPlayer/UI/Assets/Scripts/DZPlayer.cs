@@ -111,14 +111,8 @@ public class DZPlayer {
 		DZPlayerCommand command=DZPlayerCommand.START_TRACKLIST,
 		int index = 0) {
 		Debug.Log ("Play content");
-		if (index == 0)
-		if (IsPaused)
-			Resume (cb, operationUserData);
-		else
-			if (dz_player_play (Handle, cb, operationUserData, (int)command, (uint)index) > 1)
-				throw new PlayerRequestFailedException ("Unable to play content.");
-		IsStopped = false;
-		IsPaused = false;
+		if (dz_player_play (Handle, cb, operationUserData, (int)command, (uint)index) > 1)
+			throw new PlayerRequestFailedException ("Unable to play content.");
 		Debug.Log ("Content playing");
 	}
 
@@ -133,8 +127,6 @@ public class DZPlayer {
 		Debug.Log ("Stop player");
 		if (dz_player_stop(Handle, cb, operationUserData) != 0)
 			throw new PlayerRequestFailedException ("Unable to stop current track.");
-		IsStopped = true;
-		IsPaused = false;
 		Debug.Log ("Player stopped");
 	}
 
@@ -142,7 +134,6 @@ public class DZPlayer {
 		Debug.Log ("Pause player");
 		if (dz_player_pause(Handle, cb, operationUserData) != 0)
 			throw new PlayerRequestFailedException ("Unable to pause current track.");
-		IsPaused = true;
 		Debug.Log ("Player paused");
 	}
 
@@ -150,7 +141,6 @@ public class DZPlayer {
 		Debug.Log ("Resume player");
 		if (dz_player_resume(Handle, cb, operationUserData) != 0)
 			throw new PlayerRequestFailedException ("Unable to resume current track.");
-		IsPaused = false;
 		Debug.Log ("Player resumed");
 	}
 
@@ -180,8 +170,6 @@ public class DZPlayer {
 	}
 
 	public bool Active { get; set; }
-	public bool IsStopped = false;
-	public bool IsPaused = false;
 	public IntPtr Handle { get; set; }
 	public DZPlayerRepeatMode RepeatMode { get; private set; }
 	private string currentContent = "";

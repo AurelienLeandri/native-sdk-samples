@@ -47,15 +47,24 @@ public class MyDeezerApp {
 	}
 
 	public void Stop() {
-		if (!Player.IsStopped)
-			Player.Stop ();
+		Player.Stop ();
+		isPaused = false;
+		isStopped = true;
 	}
 
 	public void PlayPause() {
-		if (Player.IsPaused || Player.IsStopped)
+		if (isStopped) {
 			Player.Play ();
-		else
+			isPaused = false;
+			isStopped = false;
+		} else if (isPaused) {
+			Player.Resume ();
+			isPaused = false;
+			;
+		} else {
 			Player.Pause ();
+			isPaused = true;
+		}
 	}
 
 	public void Next() {
@@ -84,6 +93,8 @@ public class MyDeezerApp {
 	public DZConnection Connection { get; private set; }
 	public DZPlayer Player { get; private set; }
 	private IntPtr appPtr = IntPtr.Zero;
+	private bool isPaused;
+	private bool isStopped;
 
 	public static void PlayerOnEventCallback(IntPtr handle, IntPtr eventHandle, IntPtr userData) {
 		Debug.Log ("Entering PlayerOnEventCallback");
