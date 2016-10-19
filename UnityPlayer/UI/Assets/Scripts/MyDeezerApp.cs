@@ -89,14 +89,13 @@ public class MyDeezerApp {
 
 	public static void PlayerOnEventCallback(IntPtr handle, IntPtr eventHandle, IntPtr userData) {
 		Debug.Log ("Entering PlayerOnEventCallback");
-		// TODO: If it doesnt work check type of attribute eventType.
 		GCHandle selfHandle = GCHandle.FromIntPtr(userData);
-		DZPlayer selfPlayer = (DZPlayer)selfHandle.Target;
+		MyDeezerApp app = (MyDeezerApp)selfHandle.Target;
 		DZPlayerEvent playerEvent = DZPlayer.GetEventFromHandle (eventHandle);
-		if (true) // TODO: change event_t enum values
-			selfPlayer.Play();
+		if (playerEvent == DZPlayerEvent.QUEUELIST_LOADED) // TODO: change event_t enum values
+			app.Player.Play();
 		if (playerEvent == DZPlayerEvent.QUEUELIST_TRACK_RIGHTS_AFTER_AUDIOADS)
-			selfPlayer.PlayAudioAds ();
+			app.Player.PlayAudioAds ();
 		Debug.Log ("Exiting PlayerOnEventCallback");
 	}
 
@@ -106,7 +105,7 @@ public class MyDeezerApp {
 		MyDeezerApp app = (MyDeezerApp)(selfHandle.Target);
 		DZConnectionEvent connectionEvent = DZConnection.GetEventFromHandle (eventHandle);
 		if (connectionEvent == DZConnectionEvent.USER_LOGIN_OK)
-			app.Player.Load ();
+			app.Player.Load ("dzmedia:///album/607845");
 		if (connectionEvent == DZConnectionEvent.USER_LOGIN_FAIL_USER_INFO)
 			app.Shutdown ();
 		Debug.Log ("Exiting ConnectionOnEventCallback");
