@@ -112,9 +112,11 @@ public class DZPlayer {
 		int index = 0) {
 		Debug.Log ("Play content");
 		if (index == 0)
-			index = DZPlayerIndex.CURRENT;
-		if (dz_player_play(Handle, cb, operationUserData, (int)command, (uint)index) > 1)
-			throw new PlayerRequestFailedException ("Unable to play content.");
+		if (IsPaused)
+			Resume (cb, operationUserData);
+		else
+			if (dz_player_play (Handle, cb, operationUserData, (int)command, (uint)index) > 1)
+				throw new PlayerRequestFailedException ("Unable to play content.");
 		IsStopped = false;
 		IsPaused = false;
 		Debug.Log ("Content playing");
@@ -132,6 +134,7 @@ public class DZPlayer {
 		if (dz_player_stop(Handle, cb, operationUserData) != 0)
 			throw new PlayerRequestFailedException ("Unable to stop current track.");
 		IsStopped = true;
+		IsPaused = false;
 		Debug.Log ("Player stopped");
 	}
 
