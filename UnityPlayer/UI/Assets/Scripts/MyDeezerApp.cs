@@ -46,16 +46,14 @@ public class MyDeezerApp {
 		Debug.Log ("App shut");
 	}
 
-	public void StartStop() {
-		if (Player.IsStopped)
-			Player.Play ();
-		else
+	public void Stop() {
+		if (!Player.IsStopped)
 			Player.Stop ();
 	}
 
 	public void PlayPause() {
-		if (Player.IsPaused)
-			Player.Resume ();
+		if (Player.IsPaused || Player.IsStopped)
+			Player.Play ();
 		else
 			Player.Pause ();
 	}
