@@ -116,6 +116,7 @@ public class DZPlayer {
 		if (dz_player_play(Handle, cb, operationUserData, (int)command, (uint)index) > 1)
 			throw new PlayerRequestFailedException ("Unable to play content.");
 		IsStopped = false;
+		IsPaused = false;
 		Debug.Log ("Content playing");
 	}
 
@@ -138,7 +139,7 @@ public class DZPlayer {
 		Debug.Log ("Pause player");
 		if (dz_player_pause(Handle, cb, operationUserData) != 0)
 			throw new PlayerRequestFailedException ("Unable to pause current track.");
-		IsStopped = false;
+		IsPaused = true;
 		Debug.Log ("Player paused");
 	}
 
@@ -146,6 +147,7 @@ public class DZPlayer {
 		Debug.Log ("Resume player");
 		if (dz_player_resume(Handle, cb, operationUserData) != 0)
 			throw new PlayerRequestFailedException ("Unable to resume current track.");
+		IsPaused = false;
 		Debug.Log ("Player resumed");
 	}
 

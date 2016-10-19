@@ -19,4 +19,8 @@ public class DeezerAppLaunchScript : MonoBehaviour {
 	public void StopButton() {
 		app.StartStop ();
 	}
+
+	public void PlayPauseButton() {
+		app.PlayPause ();
+	}
 }
