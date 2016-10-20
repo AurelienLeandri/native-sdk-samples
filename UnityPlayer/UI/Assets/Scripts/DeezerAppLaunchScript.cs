@@ -35,4 +35,8 @@ public class DeezerAppLaunchScript : MonoBehaviour {
 	public void RepeatButton() {
 		app.ToggleRepeat ();
 	}
+
+	public void ShuffleButton() {
+		app.ToggleRandom ();
+	}
 }
