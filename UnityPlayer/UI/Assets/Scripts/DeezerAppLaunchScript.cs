@@ -31,4 +31,8 @@ public class DeezerAppLaunchScript : MonoBehaviour {
 	public void PreviousButton() {
 		app.Previous ();
 	}
+
+	public void RepeatButton() {
+		app.ToggleRepeat ();
+	}
 }
