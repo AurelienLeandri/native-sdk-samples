@@ -68,11 +68,17 @@ public class MyDeezerApp {
 	}
 
 	public void Next() {
-		Player.Play (command: DZPlayerCommand.START_TRACKLIST, index: DZPlayerIndex.NEXT);
+		isPaused = false;
+		isStopped = false;
+		Int64 index = Marshal.SizeOf (IntPtr.Zero) == 4 ? DZPlayerIndex32.NEXT : DZPlayerIndex64.NEXT;
+		Player.Play (command: DZPlayerCommand.START_TRACKLIST, index: index);
 	}
 
 	public void Previous() {
-		Player.Play (command: DZPlayerCommand.START_TRACKLIST, index: DZPlayerIndex.PREVIOUS);
+		isPaused = false;
+		isStopped = false;
+		Int64 index = Marshal.SizeOf (IntPtr.Zero) == 4 ? DZPlayerIndex32.PREVIOUS : DZPlayerIndex64.PREVIOUS;
+		Player.Play (command: DZPlayerCommand.START_TRACKLIST, index: index);
 	}
 
 	public void ToggleRepeat() {
@@ -101,7 +107,8 @@ public class MyDeezerApp {
 		GCHandle selfHandle = GCHandle.FromIntPtr(userData);
 		MyDeezerApp app = (MyDeezerApp)selfHandle.Target;
 		DZPlayerEvent playerEvent = DZPlayer.GetEventFromHandle (eventHandle);
-		if (playerEvent == DZPlayerEvent.QUEUELIST_LOADED) // TODO: change event_t enum values
+		Debug.Log (playerEvent);
+		if (playerEvent == DZPlayerEvent.QUEUELIST_LOADED)
 			app.Player.Play();
 		if (playerEvent == DZPlayerEvent.QUEUELIST_TRACK_RIGHTS_AFTER_AUDIOADS)
 			app.Player.PlayAudioAds ();
