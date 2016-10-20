@@ -3,8 +3,6 @@ using System;
 using System.Runtime.InteropServices;
 using System.Collections;
 
-// TODO: update enum values for 1.1
-
 public enum DZPlayerEvent {
 	UNKNOWN,
 	LIMITATION_FORCED_PAUSE,
@@ -38,7 +36,7 @@ public enum DZPlayerCommand {
 	RESUMED_AFTER_ADS,
 };
 
-public enum DZPlayerRepeatMode { // TODO: Think it has changed since then. Refactor that.
+public enum DZPlayerRepeatMode {
 	OFF,
 	ON,
 	ALL
@@ -153,7 +151,6 @@ public class DZPlayer {
 
 	public void UpdateRepeatMode(DZPlayerRepeatMode mode, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
 		Debug.Log ("Update repeat mode");
-		// TODO: remove RepeatMode outside of wrapper ?
 		RepeatMode = mode;
 		dz_player_set_repeat_mode (Handle, cb, operationUserData, (int)RepeatMode);
 		Debug.Log ("Repeat mode updated");
@@ -161,8 +158,8 @@ public class DZPlayer {
 
 	public void EnableShuffleMode(bool shuffleMode, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
 		Debug.Log ("Enable shuffle mode");
-		// TODO: dz_player_enable_shuffle_mode
 		isShuffleMode = shuffleMode;
+		dz_player_enable_shuffle_mode (Handle, cb, operationUserData, isShuffleMode);
 		Debug.Log ("Shuffle mode updated");
 	}
 
@@ -199,6 +196,7 @@ public class DZPlayer {
 	[DllImport("libdeezer")] private static extern int dz_player_set_index_progress_cb(IntPtr player, dz_player_onindexprogress_cb cb, uint refreshTime);
 	[DllImport("libdeezer")] private static extern int dz_player_set_event_cb(IntPtr player, dz_player_onevent_cb cb);
 	[DllImport("libdeezer")] private static extern int dz_player_set_repeat_mode(IntPtr playerHandle, dz_activity_operation_callback cb, IntPtr data, int mode);
+	[DllImport("libdeezer")] private static extern int dz_player_enable_shuffle_mode(IntPtr playerHandle, dz_activity_operation_callback cb, IntPtr data, bool shuffle_mode);
 	[DllImport("libdeezer")] private static extern int dz_player_event_get_type(IntPtr eventHandle);
 	[DllImport("libdeezer")] private static extern IntPtr dz_player_event_track_selected_dzapiinfo(IntPtr eventHandle);
 	[DllImport("libdeezer")] private static extern IntPtr dz_player_event_track_selected_next_track_dzapiinfo(IntPtr eventHandle);
