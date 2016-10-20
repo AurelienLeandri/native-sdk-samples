@@ -82,8 +82,10 @@ public class MyDeezerApp {
 	}
 
 	public void ToggleRepeat() {
-		if (Player.RepeatMode + 1 > 0 /* TODO: repeat mode enum */)
-			Player.UpdateRepeatMode(0); /* idem */
+		if (Player.RepeatMode + 1 > DZPlayerRepeatMode.ALL)
+			Player.UpdateRepeatMode (DZPlayerRepeatMode.OFF); /* idem */
+		else
+			Player.UpdateRepeatMode (Player.RepeatMode + 1);
 	}
 
 	public void ToggleRandom() {
