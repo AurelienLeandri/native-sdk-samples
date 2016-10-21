@@ -23,7 +23,6 @@ public class MyDeezerApp {
 			null
 		);
 		this.debugMode = true;
-		this.config = config;
 		GCHandle selfHandle = GCHandle.Alloc (this);
 		this.appPtr = GCHandle.ToIntPtr(selfHandle);
 		Connection = new DZConnection (config, appPtr);
@@ -35,6 +34,9 @@ public class MyDeezerApp {
 		Connection.SetAccessToken (userAccessToken);
 		Connection.SetOfflineMode (false);
 		Debug.Log ("App info set");
+	}
+
+	public void Update() {
 	}
 
 	public void Shutdown() {
@@ -82,14 +84,18 @@ public class MyDeezerApp {
 	}
 
 	public void ToggleRepeat() {
-		if (Player.RepeatMode + 1 > DZPlayerRepeatMode.ALL)
-			Player.UpdateRepeatMode (DZPlayerRepeatMode.OFF); /* idem */
+		if (RepeatMode == DZPlayerRepeatMode.OFF)
+			RepeatMode = DZPlayerRepeatMode.ALL;
+		else if (RepeatMode == DZPlayerRepeatMode.ON)
+			RepeatMode = DZPlayerRepeatMode.OFF;
 		else
-			Player.UpdateRepeatMode (Player.RepeatMode + 1);
+			RepeatMode = DZPlayerRepeatMode.ON;
+		Player.UpdateRepeatMode (RepeatMode);
 	}
 
 	public void ToggleRandom() {
-		Player.EnableShuffleMode(!Player.isShuffleMode);
+		isShuffleMode = !isShuffleMode;
+		Player.EnableShuffleMode(isShuffleMode);
 	}
 
 	public void LoadContent(string content) {
@@ -97,12 +103,13 @@ public class MyDeezerApp {
 	}
 
 	private bool debugMode = false;
-	dz_connect_configuration config;
 	public DZConnection Connection { get; private set; }
 	public DZPlayer Player { get; private set; }
 	private IntPtr appPtr = IntPtr.Zero;
 	private bool isPaused;
 	private bool isStopped;
+	public DZPlayerRepeatMode RepeatMode { get; private set; }
+	public bool isShuffleMode { get; private set; }
 
 	public static void PlayerOnEventCallback(IntPtr handle, IntPtr eventHandle, IntPtr userData) {
 		Debug.Log ("Entering PlayerOnEventCallback");
