@@ -82,7 +82,6 @@ public class PlayerRequestFailedException : System.Exception
 public class DZPlayer {
 	public DZPlayer(IntPtr context, IntPtr connectionHandle) {
 		Debug.Log ("Init player");
-		isShuffleMode = false;
 		Active = false;
 		Handle = dz_player_new (connectionHandle);
 		if (Handle.ToInt64() == 0)
@@ -151,15 +150,13 @@ public class DZPlayer {
 
 	public void UpdateRepeatMode(DZPlayerRepeatMode mode, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
 		Debug.Log ("Update repeat mode");
-		RepeatMode = mode;
-		dz_player_set_repeat_mode (Handle, cb, operationUserData, (int)RepeatMode);
+		dz_player_set_repeat_mode (Handle, cb, operationUserData, (int)mode);
 		Debug.Log ("Repeat mode updated");
 	}
 
 	public void EnableShuffleMode(bool shuffleMode, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
 		Debug.Log ("Enable shuffle mode");
-		isShuffleMode = shuffleMode;
-		dz_player_enable_shuffle_mode (Handle, cb, operationUserData, isShuffleMode);
+		dz_player_enable_shuffle_mode (Handle, cb, operationUserData, shuffleMode);
 		Debug.Log ("Shuffle mode updated");
 	}
 
@@ -177,9 +174,7 @@ public class DZPlayer {
 	// TODO: Remove attributes from wrapper ??
 	public bool Active { get; set; }
 	public IntPtr Handle { get; set; }
-	public DZPlayerRepeatMode RepeatMode { get; private set; }
 	private string currentContent = "";
-	public bool isShuffleMode { get; private set; }
 	private int nbTracksPlayed;
 
 	[DllImport("libdeezer")] private static extern IntPtr dz_player_new(IntPtr self);
