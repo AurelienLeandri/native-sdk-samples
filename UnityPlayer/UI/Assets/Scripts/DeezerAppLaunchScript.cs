@@ -9,6 +9,7 @@ public class DeezerAppLaunchScript : MonoBehaviour {
 	private Button RepeatButton;
 	private Button ShuffleButton;
 	private Button PlayPauseButton;
+	public TrackListScript TrackList;
 	private Image OneImage;
 
 	void Start () {
@@ -19,10 +20,21 @@ public class DeezerAppLaunchScript : MonoBehaviour {
 		Color temp2 = new Color (1.0f, 1.0f, 1.0f, 0.0f);
 		OneImage.color = temp2;
 		app = new MyDeezerApp ();
+		string albumJson = MyDeezerApp.getContentJson ("http://api.deezer.com/album/607845");
+		string tracksJson = MyDeezerApp.getContentJson ("http://api.deezer.com/album/607845/tracks");
+		tracksJson = tracksJson.Substring (tracksJson.IndexOf ('['));
+		tracksJson = tracksJson.Substring (0, tracksJson.LastIndexOf (']') + 1);
+		tracksJson = "{\"Items\":" + tracksJson + "}";
+		TrackInfo[] tracks = JsonHelper.FromJson<TrackInfo> (tracksJson);
+		AlbumInfo info = JsonUtility.FromJson<AlbumInfo> (albumJson);
+		for (int i = 0; i < tracks.Length; i++) {
+			info.tracks.Add (tracks [i]);
+			TrackList.AddTrackList (tracks[i].title, info.artist.name);
+		}
+		Debug.Log (tracksJson);
 	}
 
 	void OnApplicationQuit() {
-		Debug.Log ("Application quit");
 		app.Shutdown();
 	}
 
