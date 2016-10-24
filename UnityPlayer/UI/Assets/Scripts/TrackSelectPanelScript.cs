@@ -39,4 +39,12 @@ public class TrackSelectPanelScript : MonoBehaviour {
 		GetComponent<Image> ().color = new Color32(43, 216, 208, 255);
 		selected = true;
 	}
+
+	public void SetInfo(string title, string artist) {
+		Debug.Log ("------------_________--------------_________________--------------");
+		Text trackName = transform.Find ("TrackSelect/TrackSelectInfo/TrackName").gameObject.GetComponent<Text> ();
+		trackName.text = title;
+		Text artistName = transform.Find ("TrackSelect/TrackSelectInfo/ArtistName").gameObject.GetComponent<Text> ();
+		artistName.text = artist;
+	}
 }
