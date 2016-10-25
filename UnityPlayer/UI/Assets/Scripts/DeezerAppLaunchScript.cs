@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using UnityEngine.UI;
+using System.Threading;
 
 public class DeezerAppLaunchScript : MonoBehaviour {
 
@@ -24,6 +25,7 @@ public class DeezerAppLaunchScript : MonoBehaviour {
 		OneImage.color = temp2;
 		app = new MyDeezerApp ("dzmedia:///" + contentLink);
 		LoadtrackList("https://api.deezer.com/" + contentLink);
+		TrackList.ClickTrack (0);
 	}
 
 	private void LoadtrackList(string contentURL) {
