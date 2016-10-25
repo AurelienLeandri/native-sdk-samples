@@ -13,6 +13,7 @@ public class DeezerAppLaunchScript : MonoBehaviour {
 	private Image OneImage;
 
 	void Start () {
+		string contentLink = "http://api.deezer.com/album/607845" // FIXME: choose your content here
 		RepeatButton = GameObject.Find ("RepeatButton").GetComponent<Button>();
 		ShuffleButton = GameObject.Find ("ShuffleButton").GetComponent<Button>();
 		PlayPauseButton = GameObject.Find ("PlayPauseButton").GetComponent<Button>();
@@ -29,7 +30,7 @@ public class DeezerAppLaunchScript : MonoBehaviour {
 		AlbumInfo info = JsonUtility.FromJson<AlbumInfo> (albumJson);
 		for (int i = 0; i < tracks.Length; i++) {
 			info.tracks.Add (tracks [i]);
-			TrackList.AddTrackList (tracks[i].title, info.artist.name);
+			TrackList.AddTrackList (tracks[i].title, info.artist.name, info.cover_small);
 		}
 		Debug.Log (tracksJson);
 	}
