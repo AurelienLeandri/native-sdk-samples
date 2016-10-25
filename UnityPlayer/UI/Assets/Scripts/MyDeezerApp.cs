@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 using System;
 using System.Runtime.InteropServices;
 using System.Collections;
 
 public class MyDeezerApp {
-	public MyDeezerApp() 
+	public MyDeezerApp(string ContentInput) 
 	{
 		Debug.Log ("Set app info");
 		string userAccessToken = "fr49mph7tV4KY3ukISkFHQysRpdCEbzb958dB320pM15OpFsQs";
@@ -23,6 +24,7 @@ public class MyDeezerApp {
 			null
 		);
 		this.debugMode = true;
+		this.ContentInput = ContentInput;
 		GCHandle selfHandle = GCHandle.Alloc (this);
 		this.appPtr = GCHandle.ToIntPtr(selfHandle);
 		Connection = new DZConnection (config, appPtr);
@@ -102,15 +104,6 @@ public class MyDeezerApp {
 		Player.Load (content);
 	}
 
-	private bool debugMode = false;
-	public DZConnection Connection { get; private set; }
-	public DZPlayer Player { get; private set; }
-	private IntPtr appPtr = IntPtr.Zero;
-	private bool isPaused;
-	private bool isStopped;
-	public DZPlayerRepeatMode RepeatMode { get; private set; }
-	public bool isShuffleMode { get; private set; }
-
 	public static void PlayerOnEventCallback(IntPtr handle, IntPtr eventHandle, IntPtr userData) {
 		Debug.Log ("Entering PlayerOnEventCallback");
 		GCHandle selfHandle = GCHandle.FromIntPtr(userData);
@@ -130,10 +123,22 @@ public class MyDeezerApp {
 		MyDeezerApp app = (MyDeezerApp)(selfHandle.Target);
 		DZConnectionEvent connectionEvent = DZConnection.GetEventFromHandle (eventHandle);
 		if (connectionEvent == DZConnectionEvent.USER_LOGIN_OK)
-			app.Player.Load ("dzmedia:///album/607845");
+			app.Player.Load (app.ContentInput);
 		if (connectionEvent == DZConnectionEvent.USER_LOGIN_FAIL_USER_INFO)
 			app.Shutdown ();
 		Debug.Log ("Exiting ConnectionOnEventCallback");
+	}
+
+	public static string getContentJson (string content) {
+		UnityWebRequest www = UnityWebRequest.Get (content);
+		www.Send ();
+		while (!www.isDone) {}
+		if (www.isError) {
+			Debug.Log (www.error);
+			www.Dispose ();
+			return "error";
+		}
+		return www.downloadHandler.text;
 	}
 
 	public static void PlayerOnDeactivateCallback(IntPtr delegateFunc, IntPtr operationUserData, int status, int result) {
@@ -157,4 +162,14 @@ public class MyDeezerApp {
 		}
 		Debug.Log ("Exiting ConnectionOnDeactivateCallback");
 	}
+
+	private bool debugMode = false;
+	public DZConnection Connection { get; private set; }
+	public DZPlayer Player { get; private set; }
+	private IntPtr appPtr = IntPtr.Zero;
+	private bool isPaused;
+	private bool isStopped;
+	public DZPlayerRepeatMode RepeatMode { get; private set; }
+	public bool isShuffleMode { get; private set; }
+	public string ContentInput = "";
 }

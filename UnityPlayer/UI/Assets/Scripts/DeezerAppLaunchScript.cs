@@ -13,26 +13,47 @@ public class DeezerAppLaunchScript : MonoBehaviour {
 	private Image OneImage;
 
 	void Start () {
-		string contentLink = "http://api.deezer.com/album/607845" // FIXME: choose your content here
+		//string contentLink = "track/10287076"; // FIXME: choose your content here
+		//string contentLink = "album/607845"; // FIXME: choose your content here
+		string contentLink = "playlist/1363560485"; // FIXME: choose your content here
 		RepeatButton = GameObject.Find ("RepeatButton").GetComponent<Button>();
 		ShuffleButton = GameObject.Find ("ShuffleButton").GetComponent<Button>();
 		PlayPauseButton = GameObject.Find ("PlayPauseButton").GetComponent<Button>();
 		OneImage = GameObject.Find ("OneImage").GetComponent<Image> ();
 		Color temp2 = new Color (1.0f, 1.0f, 1.0f, 0.0f);
 		OneImage.color = temp2;
-		app = new MyDeezerApp ();
-		string albumJson = MyDeezerApp.getContentJson ("http://api.deezer.com/album/607845");
-		string tracksJson = MyDeezerApp.getContentJson ("http://api.deezer.com/album/607845/tracks");
-		tracksJson = tracksJson.Substring (tracksJson.IndexOf ('['));
-		tracksJson = tracksJson.Substring (0, tracksJson.LastIndexOf (']') + 1);
-		tracksJson = "{\"Items\":" + tracksJson + "}";
-		TrackInfo[] tracks = JsonHelper.FromJson<TrackInfo> (tracksJson);
-		AlbumInfo info = JsonUtility.FromJson<AlbumInfo> (albumJson);
-		for (int i = 0; i < tracks.Length; i++) {
-			info.tracks.Add (tracks [i]);
-			TrackList.AddTrackList (tracks[i].title, info.artist.name, info.cover_small);
+		app = new MyDeezerApp ("dzmedia:///" + contentLink);
+		LoadtrackList("https://api.deezer.com/" + contentLink);
+	}
+
+	private void LoadtrackList(string contentURL) {
+		string jsonContent = MyDeezerApp.getContentJson (contentURL);
+		if (contentURL.Contains ("album")) {
+			AlbumInfo albumInfo = JsonUtility.FromJson<AlbumInfo> (jsonContent);
+			contentURL += "/tracks";
+			jsonContent = MyDeezerApp.getContentJson (contentURL);
+			jsonContent = jsonContent.Substring (jsonContent.IndexOf ('['));
+			jsonContent = jsonContent.Substring (0, jsonContent.LastIndexOf (']') + 1);
+			jsonContent = "{\"Items\":" + jsonContent + "}";
+			TrackInfo[] tracks = JsonHelper.FromJson<TrackInfo> (jsonContent);
+			for (int i = 0; i < tracks.Length; i++) {
+				tracks [i].album = albumInfo;
+				TrackList.AddTrackList (tracks [i].title, tracks [i].artist.name, tracks [i].album.cover_small);
+			}
+		} else if (contentURL.Contains ("track")) {
+			TrackInfo trackInfo = JsonUtility.FromJson<TrackInfo> (jsonContent);
+			TrackList.AddTrackList (trackInfo.title, trackInfo.artist.name, trackInfo.album.cover_small);
+		} else if (contentURL.Contains ("playlist") || contentURL.Contains ("radio")) {
+			contentURL += "/tracks";
+			jsonContent = MyDeezerApp.getContentJson (contentURL);
+			jsonContent = jsonContent.Substring (jsonContent.IndexOf ('['));
+			jsonContent = jsonContent.Substring (0, jsonContent.LastIndexOf (']') + 1);
+			jsonContent = "{\"Items\":" + jsonContent + "}";
+			TrackInfo[] tracks = JsonHelper.FromJson<TrackInfo> (jsonContent);
+			for (int i = 0; i < tracks.Length; i++) {
+				TrackList.AddTrackList (tracks [i].title, tracks [i].artist.name, tracks [i].album.cover_small);
+			}
 		}
-		Debug.Log (tracksJson);
 	}
 
 	void OnApplicationQuit() {
