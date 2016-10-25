@@ -28,4 +28,8 @@ public class TrackListScript : MonoBehaviour {
 			rt.sizeDelta = new Vector2 (rt.sizeDelta.x, rt.sizeDelta.y + 45);
 		o.GetComponent<TrackSelectPanelScript> ().SetInfo(title, artist, imageLink);
 	}
+
+	public void ClickTrack(int index) {
+		transform.GetChild (index).gameObject.GetComponent<TrackSelectPanelScript> ().SetSelected ();
+	}
 }

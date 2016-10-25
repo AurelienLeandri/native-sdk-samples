@@ -12,7 +12,7 @@ public class TrackSelectPanelScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		selected = false;
+		selected = transform.GetSiblingIndex() == 0;
 		PlayingTrack = GameObject.Find ("Canvas/TracklistPanel/PlayingTrackContainer").GetComponent<PlayingTrackScript> ();
 	}
 	
@@ -37,13 +37,17 @@ public class TrackSelectPanelScript : MonoBehaviour {
 	}
 
 	public void OnClick() {
+		SetSelected ();
+	}
+
+	public void SetSelected() {
 		foreach (Transform child in transform.parent) {
 			child.gameObject.GetComponent<Image> ().color = new Color32 (255, 255, 255, 0);
 			child.gameObject.GetComponent<TrackSelectPanelScript> ().selected = false;
 		}
+		selected = true;
 		GetComponent<Image> ().color = new Color32(43, 216, 208, 255);
 		PlayingTrack.UpdateInfo (trackName.text, artistName.text, albumCover.sprite.texture);
-		selected = true;
 	}
 
 	private IEnumerator LoadTexture(string textureUrl)
