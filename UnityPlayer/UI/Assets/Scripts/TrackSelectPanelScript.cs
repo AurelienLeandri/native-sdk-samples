@@ -9,11 +9,19 @@ public class TrackSelectPanelScript : MonoBehaviour {
 	private Text trackName;
 	private Text artistName;
 	private Image albumCover;
+	private MyDeezerApp app;
+	private TimeSliderScript slider;
+	private TrackInfo trackInfo;
 
 	// Use this for initialization
-	void Start () {
-		selected = transform.GetSiblingIndex() == 0;
+	void Awake () {
+		selected = false;
 		PlayingTrack = GameObject.Find ("Canvas/TracklistPanel/PlayingTrackContainer").GetComponent<PlayingTrackScript> ();
+		app = GameObject.Find ("AppObject").GetComponent<DeezerAppLaunchScript> ().app;
+		slider = GameObject.Find ("Canvas/PlayerPanel/PlayerSlider").GetComponent<TimeSliderScript> ();
+	}
+
+	void Start() {
 	}
 	
 	// Update is called once per frame
@@ -25,6 +33,7 @@ public class TrackSelectPanelScript : MonoBehaviour {
 		Color color = image.color;
 		color.a = 255;
 		image.color = color;
+		Debug.Log (selected);
 	}
 
 	public void OnHout() {
@@ -39,14 +48,21 @@ public class TrackSelectPanelScript : MonoBehaviour {
 	public void OnClick() {
 		SetSelected ();
 	}
-
+	
 	public void SetSelected() {
 		foreach (Transform child in transform.parent) {
 			child.gameObject.GetComponent<Image> ().color = new Color32 (255, 255, 255, 0);
 			child.gameObject.GetComponent<TrackSelectPanelScript> ().selected = false;
 		}
 		selected = true;
-		GetComponent<Image> ().color = new Color32(43, 216, 208, 255);
+		GetComponent<Image> ().color = new Color32(83, 255, 248, 255);
+		StartCoroutine (UpdatePlayingTrack ());
+		app.LoadIndex (transform.GetSiblingIndex ());
+		slider.SliderComponent.maxValue = trackInfo.duration;
+	}
+
+	private IEnumerator UpdatePlayingTrack() {
+		yield return albumCover.sprite;
 		PlayingTrack.UpdateInfo (trackName.text, artistName.text, albumCover.sprite.texture);
 	}
 
@@ -58,12 +74,13 @@ public class TrackSelectPanelScript : MonoBehaviour {
 			new Vector2 (0.5f, 0.5f), 100);
 	}
 
-	public void SetInfo(string title, string artist, string imageLink) {
+	public void SetInfo(TrackInfo info) {
 		trackName = transform.Find ("TrackSelect/TrackSelectInfo/TrackName").gameObject.GetComponent<Text> ();
 		artistName = transform.Find ("TrackSelect/TrackSelectInfo/ArtistName").gameObject.GetComponent<Text> ();
 		albumCover = transform.Find ("TrackSelect/TrackSelectImage").gameObject.GetComponent<Image> ();
-		trackName.text = title;
-		artistName.text = artist;
-		StartCoroutine(LoadTexture (imageLink));
+		trackInfo = info;
+		trackName.text = info.title;
+		artistName.text = info.artist.name;
+		StartCoroutine(LoadTexture (info.album.cover_small));
 	}
 }

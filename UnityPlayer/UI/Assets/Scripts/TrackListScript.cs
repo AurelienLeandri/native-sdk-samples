@@ -15,7 +15,7 @@ public class TrackListScript : MonoBehaviour {
 	
 	}
 
-	public void AddTrackList(string title, string artist, string imageLink) {
+	public void AddTrackList(TrackInfo track) {
 		GameObject o = (GameObject) Instantiate (prefab, new Vector3(transform.position.x, transform.position.y, transform.position.z),
 			transform.rotation);
 		o.transform.parent = this.transform;
@@ -26,7 +26,7 @@ public class TrackListScript : MonoBehaviour {
 		RectTransform rt = (RectTransform)transform;
 		if (rt.sizeDelta.y < -lastTrackOffset)
 			rt.sizeDelta = new Vector2 (rt.sizeDelta.x, rt.sizeDelta.y + 45);
-		o.GetComponent<TrackSelectPanelScript> ().SetInfo(title, artist, imageLink);
+		o.GetComponent<TrackSelectPanelScript> ().SetInfo(track);
 	}
 
 	public void ClickTrack(int index) {
