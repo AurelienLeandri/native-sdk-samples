@@ -8,7 +8,7 @@ public class ListPanelScript : MonoBehaviour {
 	private float speed = 30f;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		rotationFrom = GameObject.Find("RotationFrom").transform;
 		rotationTo = GameObject.Find("RotationTo").transform;
 	}
