@@ -9,11 +9,14 @@ public class TimeSliderScript : MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
 		SliderComponent = transform.GetComponent<Slider> ();
+	}
+
+	void Start() {
 		app = GameObject.Find ("AppObject").GetComponent<DeezerAppLaunchScript> ().app;
 	}
 
-	public void OnValueChanged(int value) {
-		app.Seek (value);
+	public void OnValueChanged() {
+		app.Seek ((int)(SliderComponent.value));
 	}
 
 	// Update is called once per frame

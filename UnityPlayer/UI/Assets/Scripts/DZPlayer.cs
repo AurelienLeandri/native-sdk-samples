@@ -120,11 +120,9 @@ public class DZPlayer {
 		Debug.Log ("Content playing");
 	}
 
-	public void Seek(int time, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
-		Debug.Log ("Shutdown player");
+	public void Seek(int microseconds, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
 		if (Handle.ToInt64() != 0)
-			dz_player_seek (Handle, cb, operationUserData, time);
-		Debug.Log ("Player shut");
+			dz_player_seek (Handle, cb, operationUserData, microseconds);
 	}
 
 	public void Shutdown(dz_activity_operation_callback cb = null, IntPtr operationuserData = default(IntPtr)) {
@@ -200,7 +198,7 @@ public class DZPlayer {
 	[DllImport("libdeezer")] private static extern int dz_player_set_repeat_mode(IntPtr playerHandle, dz_activity_operation_callback cb, IntPtr data, int mode);
 	[DllImport("libdeezer")] private static extern int dz_player_enable_shuffle_mode(IntPtr playerHandle, dz_activity_operation_callback cb, IntPtr data, bool shuffle_mode);
 	[DllImport("libdeezer")] private static extern int dz_player_event_get_type(IntPtr eventHandle);
-	[DllImport("libdeezer")] private static extern int dz_player_seek(IntPtr playerHandle, dz_activity_operation_callback cb, IntPtr data, int seconds);
+	[DllImport("libdeezer")] private static extern int dz_player_seek(IntPtr playerHandle, dz_activity_operation_callback cb, IntPtr data, int microseconds);
 	[DllImport("libdeezer")] private static extern IntPtr dz_player_event_track_selected_dzapiinfo(IntPtr eventHandle);
 	[DllImport("libdeezer")] private static extern IntPtr dz_player_event_track_selected_next_track_dzapiinfo(IntPtr eventHandle);
 	[DllImport("libdeezer")] private static extern bool dz_player_event_track_selected_is_preview(IntPtr eventHandle);
