@@ -12,11 +12,12 @@ public class DeezerAppLaunchScript : MonoBehaviour {
 	private Button PlayPauseButton;
 	public TrackListScript TrackList;
 	private Image OneImage;
+	private string contentLink;
 
-	void Start () {
+	void Awake() {
 		//string contentLink = "track/10287076"; // FIXME: choose your content here
 		//string contentLink = "album/607845"; // FIXME: choose your content here
-		string contentLink = "playlist/1363560485"; // FIXME: choose your content here
+		contentLink = "playlist/1363560485"; // FIXME: choose your content here
 		RepeatButton = GameObject.Find ("RepeatButton").GetComponent<Button>();
 		ShuffleButton = GameObject.Find ("ShuffleButton").GetComponent<Button>();
 		PlayPauseButton = GameObject.Find ("PlayPauseButton").GetComponent<Button>();
@@ -24,6 +25,9 @@ public class DeezerAppLaunchScript : MonoBehaviour {
 		Color temp2 = new Color (1.0f, 1.0f, 1.0f, 0.0f);
 		OneImage.color = temp2;
 		app = new MyDeezerApp ("dzmedia:///" + contentLink);
+	}
+
+	void Start () {
 		LoadtrackList("https://api.deezer.com/" + contentLink);
 	}
 

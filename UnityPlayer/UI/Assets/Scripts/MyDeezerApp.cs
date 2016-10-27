@@ -110,8 +110,8 @@ public class MyDeezerApp {
 		Player.Load (content);
 	}
 
-	public void Seek(int time) {
-		Player.Seek (time);
+	public void Seek(int seconds) {
+		Player.Seek (seconds * 1000000);
 	}
 
 	public static void PlayerOnEventCallback(IntPtr handle, IntPtr eventHandle, IntPtr userData) {
