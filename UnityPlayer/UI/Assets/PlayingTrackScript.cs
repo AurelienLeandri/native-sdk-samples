@@ -7,7 +7,7 @@ public class PlayingTrackScript : MonoBehaviour {
 	private Text TrackTitle;
 	private Text ArtistTitle;
 
-	public void Start() {
+	public void Awake() {
 		AlbumCover = transform.Find ("AlbumCoverImage").gameObject.GetComponent<Image> ();
 		TrackTitle = transform.Find ("TrackInfoContainer/TrackName").gameObject.GetComponent<Text> ();
 		ArtistTitle = transform.Find ("TrackInfoContainer/ArtistName").gameObject.GetComponent<Text> ();
