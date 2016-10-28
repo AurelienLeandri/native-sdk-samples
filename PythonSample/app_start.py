@@ -32,8 +32,8 @@ def argv_error():
     print """\t"dzmedia:///track/10287076"        (Single track example)"""
     print """\t"dzmedia:///album/607845"          (Album example)"""
     print """\t"dzmedia:///playlist/1363560485"   (Playlist example)"""
-    print """\t"dzradio:///radio-223"             (Radio example)"""
-    print """\t"dzradio:///user-743548285"        (User Mix example)"""
+    print """\t"dzradio:///radio-220"             (Radio example)"""  # TODO: check for radio
+    print """\t"dzradio:///user-743548285"        (User Mix example)"""  # TODO: check for user
 
 
 def log_connect_info(app):

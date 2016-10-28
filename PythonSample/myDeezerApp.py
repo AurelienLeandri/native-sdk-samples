@@ -40,7 +40,7 @@ class MyDeezerApp(object):
                                      self.connection_event_callback, 0, 0)
         self.player = None
         self.player_cb = dz_on_event_cb_func(self.player_event_callback)
-        self.cache_path_set_cb = dz_activity_operation_cb_func()
+        self.cache_path_set_cb = dz_activity_operation_cb_func()  # TODO: no callback for cache_path
         if not self.debug_mode:
             self.connection.debug_log_disable()
         else:
