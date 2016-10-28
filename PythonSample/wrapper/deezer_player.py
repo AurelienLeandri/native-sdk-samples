@@ -175,7 +175,7 @@ class Player:
         :param context: A connection object to store connection info
         :type connection: connection.Connection
         """
-        self.context = context
+        self.context = context  # TODO: remove context from self
         self.handle = 0
         self.current_content = None
         self.active = False
@@ -301,6 +301,7 @@ class Player:
         """
         context = py_object(operation_user_data) if operation_user_data else c_void_p(0)
         cb = activity_operation_cb if activity_operation_cb else c_void_p(0)
+        print type(shuffle_mode)
         if libdeezer.dz_player_enable_shuffle_mode(self.handle, cb, context, shuffle_mode):
             raise PlayerRequestFailedError(u"play: Unable to set repeat mode. Check player commands and info.")
 
