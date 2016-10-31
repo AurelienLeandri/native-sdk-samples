@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ListPanelScript : MonoBehaviour {
+public class ListPanelScript : ApplicationElement {
 	private bool mouseOn;
 	private Transform rotationTo;
 	private Transform rotationFrom;

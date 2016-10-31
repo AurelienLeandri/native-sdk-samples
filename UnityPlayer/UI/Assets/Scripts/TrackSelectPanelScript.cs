@@ -3,13 +3,12 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
-public class TrackSelectPanelScript : MonoBehaviour {
+public class TrackSelectPanelScript : ApplicationElement {
 	public bool selected;
 	private PlayingTrackScript PlayingTrack;
 	private Text trackName;
 	private Text artistName;
 	private Image albumCover;
-	private MyDeezerApp app;
 	private TimeSliderScript slider;
 	private TrackInfo trackInfo;
 
@@ -17,7 +16,6 @@ public class TrackSelectPanelScript : MonoBehaviour {
 	void Awake () {
 		selected = false;
 		PlayingTrack = GameObject.Find ("Canvas/TracklistPanel/PlayingTrackContainer").GetComponent<PlayingTrackScript> ();
-		app = GameObject.Find ("AppObject").GetComponent<DeezerAppLaunchScript> ().app;
 		slider = GameObject.Find ("Canvas/PlayerPanel/PlayerSlider").GetComponent<TimeSliderScript> ();
 	}
 
@@ -57,7 +55,7 @@ public class TrackSelectPanelScript : MonoBehaviour {
 		selected = true;
 		GetComponent<Image> ().color = new Color32(83, 255, 248, 255);
 		StartCoroutine (UpdatePlayingTrack ());
-		app.LoadIndex (transform.GetSiblingIndex ());
+		MainView.LoadIndex (transform.GetSiblingIndex ());
 		slider.SliderComponent.maxValue = trackInfo.duration;
 	}
 

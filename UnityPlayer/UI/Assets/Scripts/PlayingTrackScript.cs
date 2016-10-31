@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class PlayingTrackScript : MonoBehaviour {
+public class PlayingTrackScript : ApplicationElement {
 	private Image AlbumCover;
 	private Text TrackTitle;
 	private Text ArtistTitle;
