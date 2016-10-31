@@ -80,16 +80,17 @@ public class PlayerRequestFailedException : System.Exception
 }
 
 public class DZPlayer {
-	public DZPlayer(IntPtr context, IntPtr connectionHandle) {
-		Debug.Log ("Init player");
+	public DZPlayer(IntPtr connectionHandle) {
 		Active = false;
 		Handle = dz_player_new (connectionHandle);
 		if (Handle.ToInt64() == 0)
 			throw new PlayerInitFailedException ("Player failed to initialize. Check connection handle initialized properly");
+	}
+
+	public void Activate(IntPtr context) {
 		if (dz_player_activate (Handle, context) != 0)
 			throw new PlayerRequestFailedException ("Unable to activate player. Check connection.");
 		Active = true;
-		Debug.Log ("Player initialized");
 	}
 
 	public void SetEventCallback(dz_player_onevent_cb cb) {
