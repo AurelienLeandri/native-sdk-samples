@@ -6,9 +6,9 @@ using System.Collections.Generic;
 public class TrackSelectPanelScript : ApplicationElement {
 	public bool selected;
 	private PlayingTrackScript PlayingTrack;
-	private Text trackName;
-	private Text artistName;
-	private Image albumCover;
+	public Text trackName;
+	public Text artistName;
+	public Image albumCover;
 	private TimeSliderScript slider;
 	private TrackInfo trackInfo;
 

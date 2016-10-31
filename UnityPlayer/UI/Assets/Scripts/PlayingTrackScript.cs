@@ -13,10 +13,24 @@ public class PlayingTrackScript : ApplicationElement {
 		ArtistTitle = transform.Find ("TrackInfoContainer/ArtistName").gameObject.GetComponent<Text> ();
 	}
 
+	private IEnumerator LoadTexture(string textureUrl)
+	{
+		WWW www = new WWW(textureUrl);
+		yield return www;
+		AlbumCover.sprite = Sprite.Create (www.texture, new Rect (0, 0, www.texture.width, www.texture.height),
+			new Vector2 (0.5f, 0.5f), 100);
+	}
+
 	public void UpdateInfo(string trackTitle, string artistTitle, Texture2D cover) {
 		TrackTitle.text = trackTitle;
 		ArtistTitle.text = artistTitle;
 		AlbumCover.sprite = Sprite.Create (cover, new Rect (0, 0, cover.width, cover.height),
 			new Vector2 (0.5f, 0.5f), 100);
+	}
+
+	public void UpdateInfo(string trackTitle, string artistTitle, string cover) {
+		TrackTitle.text = trackTitle;
+		ArtistTitle.text = artistTitle;
+		StartCoroutine (LoadTexture(cover));
 	}
 }
