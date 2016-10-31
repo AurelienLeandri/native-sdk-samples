@@ -82,16 +82,17 @@ public class ConnectionRequestFailedException : System.Exception
 }
 
 public class DZConnection {
-	public DZConnection(dz_connect_configuration config, IntPtr context) {
-		Debug.Log ("Init connection");
+	public DZConnection(dz_connect_configuration config) {
 		Handle = dz_connect_new (ref config);
 		Active = false;
 		if (Handle.ToInt32() == 0)
 			throw new ConnectionInitFailedException ("Connection handle failed to initialize. Check connection info you gave");
+	}
+
+	public void Activate(IntPtr context) {
 		if (dz_connect_activate(Handle, context) != 0)
 			throw new ConnectionRequestFailedException ("Connection failed to activate.");
 		Active = true;
-		Debug.Log ("Connection initialized");
 	}
 
 	public long GetDeviceId() {
