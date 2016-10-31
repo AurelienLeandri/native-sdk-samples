@@ -6,12 +6,31 @@ using System.Threading;
 using System.Collections;
 using System.Runtime.InteropServices;
 
+public struct ApplicationData {
+	public ApplicationData(DZPlayer Player, DZConnection Connection, string DZMediaLink, string ContentLink) {
+		this.Player = Player;
+		this.Connection = Connection;
+		this.DZMediaLink = DZMediaLink;
+		this.ContentLink = ContentLink;
+		this.SelfPtr = IntPtr.Zero;
+		GCHandle selfHandle = GCHandle.Alloc (this);
+		SelfPtr = GCHandle.ToIntPtr(selfHandle);
+	}
+
+	public DZPlayer Player;
+	public DZConnection Connection;
+	public string DZMediaLink;
+	public string ContentLink;
+	public IntPtr SelfPtr;
+}
+
 public class ApplicationMainScript : MonoBehaviour {
 
 	public PlayerPanelScript PlayerPanel;
 	public TrackListScript TrackListPanel;
 	private string contentLink;
 	private string dzmediaLink;
+	private ApplicationData applicationData;
 
 	void Awake() {
 		//string contentLink = "track/10287076"; // FIXME: choose your content here
@@ -34,12 +53,13 @@ public class ApplicationMainScript : MonoBehaviour {
 			null
 		);
 		this.debugMode = true;
-		GCHandle selfHandle = GCHandle.Alloc (this);
-		this.appPtr = GCHandle.ToIntPtr(selfHandle);
-		Connection = new DZConnection (config, appPtr);
+		Connection = new DZConnection (config);
 		if (!debugMode)
 			Connection.DebugLogDisable ();
-		Player = new DZPlayer (appPtr, Connection.Handle);
+		Player = new DZPlayer (Connection.Handle);
+		applicationData = new ApplicationData(Player, Connection, dzmediaLink, contentLink);
+		Connection.Activate (applicationData.SelfPtr);
+		Player.Activate(applicationData.SelfPtr);
 		Player.SetEventCallback (PlayerOnEventCallback);
 		Connection.CachePathSet(config.user_profile_path);
 		Connection.SetAccessToken (userAccessToken);
@@ -56,9 +76,9 @@ public class ApplicationMainScript : MonoBehaviour {
 
 	public void Shutdown() {
 		if (Player.Handle.ToInt64() != 0)
-			Player.Shutdown (PlayerOnDeactivateCallback, appPtr);
+			Player.Shutdown (PlayerOnDeactivateCallback, applicationData.SelfPtr);
 		else if (Connection.Handle.ToInt64() != 0)
-			Connection.shutdown (ConnectionOnDeactivateCallback, appPtr);
+			Connection.shutdown (ConnectionOnDeactivateCallback, applicationData.SelfPtr);
 	}
 
 	public void Stop() {
@@ -128,7 +148,7 @@ public class ApplicationMainScript : MonoBehaviour {
 	public static void PlayerOnEventCallback(IntPtr handle, IntPtr eventHandle, IntPtr userData) {
 		Debug.Log ("Entering PlayerOnEventCallback");
 		GCHandle selfHandle = GCHandle.FromIntPtr(userData);
-		ApplicationMainScript app = (ApplicationMainScript)selfHandle.Target;
+		ApplicationData app = (ApplicationData)selfHandle.Target;
 		DZPlayerEvent playerEvent = DZPlayer.GetEventFromHandle (eventHandle);
 		Debug.Log (playerEvent);
 		if (playerEvent == DZPlayerEvent.QUEUELIST_LOADED)
@@ -140,12 +160,16 @@ public class ApplicationMainScript : MonoBehaviour {
 	public static void ConnectionOnEventCallback(IntPtr handle, IntPtr eventHandle, IntPtr userData) {
 		Debug.Log ("Entering ConnectionOnEventCallback");
 		GCHandle selfHandle = GCHandle.FromIntPtr(userData);
-		ApplicationMainScript app = (ApplicationMainScript)(selfHandle.Target);
+		ApplicationData app = (ApplicationData)(selfHandle.Target);
 		DZConnectionEvent connectionEvent = DZConnection.GetEventFromHandle (eventHandle);
 		if (connectionEvent == DZConnectionEvent.USER_LOGIN_OK)
-			app.Player.Load (app.dzmediaLink);
-		if (connectionEvent == DZConnectionEvent.USER_LOGIN_FAIL_USER_INFO)
-			app.Shutdown ();
+			app.Player.Load (app.DZMediaLink);
+		if (connectionEvent == DZConnectionEvent.USER_LOGIN_FAIL_USER_INFO) {
+			if (app.Player.Handle.ToInt64 () != 0)
+				app.Player.Shutdown (PlayerOnDeactivateCallback, app.SelfPtr);
+			else if (app.Connection.Handle.ToInt64 () != 0)
+				app.Connection.shutdown (ConnectionOnDeactivateCallback, app.SelfPtr);
+		}
 		Debug.Log ("Exiting ConnectionOnEventCallback");
 	}
 
@@ -186,7 +210,6 @@ public class ApplicationMainScript : MonoBehaviour {
 	private bool debugMode = false;
 	public DZConnection Connection { get; private set; }
 	public DZPlayer Player { get; private set; }
-	private IntPtr appPtr = IntPtr.Zero;
 	private bool isPaused;
 	private bool isStopped;
 	public DZPlayerRepeatMode RepeatMode { get; private set; }
