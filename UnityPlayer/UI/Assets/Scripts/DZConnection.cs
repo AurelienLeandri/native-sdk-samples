@@ -104,33 +104,25 @@ public class DZConnection {
 	}
 
 	public void CachePathSet(string path, dz_activity_operation_callback cb = null, IntPtr operationUserdata = default(IntPtr)) {
-		Debug.Log ("Set cache path");
 		if (dz_connect_cache_path_set (Handle, cb, operationUserdata, path) != 0)
 			throw new ConnectionRequestFailedException ("Cache path was not set. Check connection.");
-		Debug.Log ("Cache path set");
 	}
 
 	public void SetAccessToken(string token, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
-		Debug.Log ("Set access token");
 		if (dz_connect_set_access_token(Handle, cb, operationUserData, token) != 0)
 			throw new ConnectionRequestFailedException ("Could not set access token. Check connection and that the token is valid.");
-		Debug.Log ("Access token set");
 	}
 
 	public void SetOfflineMode(bool offlineModeForced, dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
-		Debug.Log ("Set offline mode");
 		if (dz_connect_offline_mode(Handle, cb, operationUserData, offlineModeForced) != 0)
 			throw new ConnectionRequestFailedException ("Failed to set offline mode.");
-		Debug.Log ("Offline mode set");
 	}
 
 	public void shutdown(dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
-		Debug.Log ("Shutdown connection");
 		if (Handle.ToInt64() != 0) {
 			dz_connect_deactivate (Handle, cb, operationUserData);
 			Active = false;
 		}
-		Debug.Log ("Connection shut");
 	}
 
 	public static DZConnectionEvent GetEventFromHandle(IntPtr handle) {

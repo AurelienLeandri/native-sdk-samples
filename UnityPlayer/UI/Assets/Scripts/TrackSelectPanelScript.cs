@@ -31,7 +31,6 @@ public class TrackSelectPanelScript : ApplicationElement {
 		Color color = image.color;
 		color.a = 255;
 		image.color = color;
-		Debug.Log (selected);
 	}
 
 	public void OnHout() {

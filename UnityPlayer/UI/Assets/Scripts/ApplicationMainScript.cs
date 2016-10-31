@@ -146,7 +146,6 @@ public class ApplicationMainScript : MonoBehaviour {
 	}
 
 	public static void PlayerOnEventCallback(IntPtr handle, IntPtr eventHandle, IntPtr userData) {
-		Debug.Log ("Entering PlayerOnEventCallback");
 		GCHandle selfHandle = GCHandle.FromIntPtr(userData);
 		ApplicationData app = (ApplicationData)selfHandle.Target;
 		DZPlayerEvent playerEvent = DZPlayer.GetEventFromHandle (eventHandle);
@@ -158,7 +157,6 @@ public class ApplicationMainScript : MonoBehaviour {
 	}
 
 	public static void ConnectionOnEventCallback(IntPtr handle, IntPtr eventHandle, IntPtr userData) {
-		Debug.Log ("Entering ConnectionOnEventCallback");
 		GCHandle selfHandle = GCHandle.FromIntPtr(userData);
 		ApplicationData app = (ApplicationData)(selfHandle.Target);
 		DZConnectionEvent connectionEvent = DZConnection.GetEventFromHandle (eventHandle);
@@ -170,7 +168,6 @@ public class ApplicationMainScript : MonoBehaviour {
 			else if (app.Connection.Handle.ToInt64 () != 0)
 				app.Connection.shutdown (ConnectionOnDeactivateCallback, app.SelfPtr);
 		}
-		Debug.Log ("Exiting ConnectionOnEventCallback");
 	}
 
 	public static string getContentJson (string content) {
@@ -186,25 +183,21 @@ public class ApplicationMainScript : MonoBehaviour {
 	}
 
 	public static void PlayerOnDeactivateCallback(IntPtr delegateFunc, IntPtr operationUserData, int status, int result) {
-		Debug.Log ("Entering PlayerOnDeactivateCallback");
 		GCHandle selfHandle = GCHandle.FromIntPtr(operationUserData);
 		ApplicationMainScript app = (ApplicationMainScript)(selfHandle.Target);
 		app.Player.Active = false;
 		app.Player.Handle = IntPtr.Zero;
 		if (app.Connection.Handle.ToInt64() != 0)
 			app.Connection.shutdown (ApplicationMainScript.ConnectionOnDeactivateCallback, operationUserData);
-		Debug.Log ("Exiting PlayerOnDeactivateCallback");
 	}
 
 	public static void ConnectionOnDeactivateCallback(IntPtr delegateFunc, IntPtr operationUserData, int status, int result) {
-		Debug.Log ("Entering ConnectionOnDeactivateCallback");
 		GCHandle selfHandle = GCHandle.FromIntPtr(operationUserData);
 		ApplicationMainScript app = (ApplicationMainScript)(selfHandle.Target);
 		if (app.Connection.Handle.ToInt64() != 0) {
 			app.Connection.Active = false;
 			app.Connection.Handle = IntPtr.Zero;
 		}
-		Debug.Log ("Exiting ConnectionOnDeactivateCallback");
 	}
 
 	private bool debugMode = false;
