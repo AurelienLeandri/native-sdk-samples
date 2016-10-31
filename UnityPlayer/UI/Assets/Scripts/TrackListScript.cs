@@ -3,16 +3,11 @@ using System.Collections;
 
 public class TrackListScript : ApplicationElement {
 	public GameObject prefab;
+	public PlayingTrackScript PlayingTrack;
 	private float lastTrackOffset;
 
-	// Use this for initialization
 	void Start () {
 		lastTrackOffset = 0;
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
 	}
 
 	public void AddTrackList(TrackInfo track) {
@@ -43,9 +38,13 @@ public class TrackListScript : ApplicationElement {
 				tracks [i].album = albumInfo;
 				AddTrackList (tracks [i]);
 			}
+			TrackSelectPanelScript firstChild = transform.GetChild (0).gameObject.GetComponent<TrackSelectPanelScript> ();
+			PlayingTrack.UpdateInfo(firstChild.trackName.text, firstChild.artistName.text, tracks[0].album.cover_small);
 		} else if (contentURL.Contains ("track")) {
 			TrackInfo trackInfo = JsonUtility.FromJson<TrackInfo> (jsonContent);
 			AddTrackList (trackInfo);
+			TrackSelectPanelScript firstChild = transform.GetChild (0).gameObject.GetComponent<TrackSelectPanelScript> ();
+			PlayingTrack.UpdateInfo(firstChild.trackName.text, firstChild.artistName.text, trackInfo.album.cover_small);
 		} else if (contentURL.Contains ("playlist") || contentURL.Contains ("radio")) {
 			contentURL += "/tracks";
 			jsonContent = ApplicationMainScript.getContentJson (contentURL);
@@ -56,7 +55,8 @@ public class TrackListScript : ApplicationElement {
 			for (int i = 0; i < tracks.Length; i++) {
 				AddTrackList (tracks [i]);
 			}
+			TrackSelectPanelScript firstChild = transform.GetChild (0).gameObject.GetComponent<TrackSelectPanelScript> ();
+			PlayingTrack.UpdateInfo(tracks[0].title, tracks[0].artist.name, tracks[0].album.cover_small);
 		}
-		transform.GetChild (0).gameObject.GetComponent<TrackSelectPanelScript> ().SetSelected ();
 	}
 }
