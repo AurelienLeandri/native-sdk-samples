@@ -109,7 +109,6 @@ public class ApplicationMainScript : MonoBehaviour {
 	}
 
 	public void LoadIndex(int index) {
-		IndexInPlaylist = index;
 		isPaused = false;
 		isStopped = false;
 		Player.Play (command: DZPlayerCommand.JUMP_IN_TRACKLIST, index: index);
@@ -142,7 +141,6 @@ public class ApplicationMainScript : MonoBehaviour {
 	}
 
 	public void Seek(int seconds) {
-		Debug.Log ("---------------------------- I AM SEEKING");
 		Player.Seek (seconds * 1000000);
 	}
 
