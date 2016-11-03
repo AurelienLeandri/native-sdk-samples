@@ -4,25 +4,8 @@ using UnityEngine.Networking;
 using System;
 using System.Threading;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
-
-public struct ApplicationData {
-	public ApplicationData(DZPlayer Player, DZConnection Connection, string DZMediaLink, string ContentLink) {
-		this.Player = Player;
-		this.Connection = Connection;
-		this.DZMediaLink = DZMediaLink;
-		this.ContentLink = ContentLink;
-		this.SelfPtr = IntPtr.Zero;
-		GCHandle selfHandle = GCHandle.Alloc (this);
-		SelfPtr = GCHandle.ToIntPtr(selfHandle);
-	}
-
-	public DZPlayer Player;
-	public DZConnection Connection;
-	public string DZMediaLink;
-	public string ContentLink;
-	public IntPtr SelfPtr;
-}
 
 public class ApplicationMainScript : MonoBehaviour {
 
@@ -30,11 +13,20 @@ public class ApplicationMainScript : MonoBehaviour {
 	public TrackListScript TrackListPanel;
 	private string contentLink;
 	private string dzmediaLink;
-	private ApplicationData applicationData;
+	private IntPtr SelfPtr;
+	private bool debugMode = false;
+	public DZConnection Connection { get; private set; }
+	public DZPlayer Player { get; private set; }
+	private bool isPaused;
+	private bool isStopped;
+	public DZPlayerRepeatMode RepeatMode { get; private set; }
+	public bool isShuffleMode { get; private set; }
+	public List<Listener> Listeners = new List<Listener> ();
+	public int IndexInPlaylist { get; private set; }
 
 	void Awake() {
-		//string contentLink = "track/10287076"; // FIXME: choose your content here
-		//string contentLink = "album/607845"; // FIXME: choose your content here
+		//contentLink = "track/10287076"; // FIXME: choose your content here
+		//contentLink = "album/607845"; // FIXME: choose your content here
 		contentLink = "playlist/1363560485"; // FIXME: choose your content here
 		dzmediaLink = "dzmedia:///" + contentLink;
 		string userAccessToken = "fr49mph7tV4KY3ukISkFHQysRpdCEbzb958dB320pM15OpFsQs";
@@ -52,14 +44,16 @@ public class ApplicationMainScript : MonoBehaviour {
 			IntPtr.Zero,
 			null
 		);
+		IndexInPlaylist = 0;
 		this.debugMode = true;
 		Connection = new DZConnection (config);
 		if (!debugMode)
 			Connection.DebugLogDisable ();
+		GCHandle selfHandle = GCHandle.Alloc (this);
+		SelfPtr = GCHandle.ToIntPtr(selfHandle);
 		Player = new DZPlayer (Connection.Handle);
-		applicationData = new ApplicationData(Player, Connection, dzmediaLink, contentLink);
-		Connection.Activate (applicationData.SelfPtr);
-		Player.Activate(applicationData.SelfPtr);
+		Connection.Activate (SelfPtr);
+		Player.Activate(SelfPtr);
 		Player.SetEventCallback (PlayerOnEventCallback);
 		Connection.CachePathSet(config.user_profile_path);
 		Connection.SetAccessToken (userAccessToken);
@@ -70,15 +64,20 @@ public class ApplicationMainScript : MonoBehaviour {
 		TrackListPanel.LoadtrackList("https://api.deezer.com/" + contentLink);
 	}
 
+	void DispatchEvent (DZPlayerEvent value, System.Object eventData) {
+		foreach (Listener l in Listeners)
+			l.Notify (value, eventData);
+	}
+
 	void OnApplicationQuit() {
 		Shutdown();
 	}
 
 	public void Shutdown() {
 		if (Player.Handle.ToInt64() != 0)
-			Player.Shutdown (PlayerOnDeactivateCallback, applicationData.SelfPtr);
+			Player.Shutdown (PlayerOnDeactivateCallback, SelfPtr);
 		else if (Connection.Handle.ToInt64() != 0)
-			Connection.shutdown (ConnectionOnDeactivateCallback, applicationData.SelfPtr);
+			Connection.shutdown (ConnectionOnDeactivateCallback, SelfPtr);
 	}
 
 	public void Stop() {
@@ -110,6 +109,7 @@ public class ApplicationMainScript : MonoBehaviour {
 	}
 
 	public void LoadIndex(int index) {
+		IndexInPlaylist = index;
 		isPaused = false;
 		isStopped = false;
 		Player.Play (command: DZPlayerCommand.JUMP_IN_TRACKLIST, index: index);
@@ -142,26 +142,31 @@ public class ApplicationMainScript : MonoBehaviour {
 	}
 
 	public void Seek(int seconds) {
+		Debug.Log ("---------------------------- I AM SEEKING");
 		Player.Seek (seconds * 1000000);
 	}
 
 	public static void PlayerOnEventCallback(IntPtr handle, IntPtr eventHandle, IntPtr userData) {
 		GCHandle selfHandle = GCHandle.FromIntPtr(userData);
-		ApplicationData app = (ApplicationData)selfHandle.Target;
+		ApplicationMainScript app = (ApplicationMainScript)selfHandle.Target;
 		DZPlayerEvent playerEvent = DZPlayer.GetEventFromHandle (eventHandle);
 		Debug.Log (playerEvent);
 		if (playerEvent == DZPlayerEvent.QUEUELIST_LOADED)
 			app.Player.Play ();
 		if (playerEvent == DZPlayerEvent.QUEUELIST_TRACK_RIGHTS_AFTER_AUDIOADS)
 			app.Player.PlayAudioAds ();
+		if (playerEvent == DZPlayerEvent.RENDER_TRACK_START) {
+			app.IndexInPlaylist = app.Player.GetIndexInQueulist (eventHandle);
+			app.DispatchEvent (playerEvent, app.IndexInPlaylist);	
+		}
 	}
 
 	public static void ConnectionOnEventCallback(IntPtr handle, IntPtr eventHandle, IntPtr userData) {
 		GCHandle selfHandle = GCHandle.FromIntPtr(userData);
-		ApplicationData app = (ApplicationData)(selfHandle.Target);
+		ApplicationMainScript app = (ApplicationMainScript)(selfHandle.Target);
 		DZConnectionEvent connectionEvent = DZConnection.GetEventFromHandle (eventHandle);
 		if (connectionEvent == DZConnectionEvent.USER_LOGIN_OK)
-			app.Player.Load (app.DZMediaLink);
+			app.Player.Load (app.dzmediaLink);
 		if (connectionEvent == DZConnectionEvent.USER_LOGIN_FAIL_USER_INFO) {
 			if (app.Player.Handle.ToInt64 () != 0)
 				app.Player.Shutdown (PlayerOnDeactivateCallback, app.SelfPtr);
@@ -199,13 +204,4 @@ public class ApplicationMainScript : MonoBehaviour {
 			app.Connection.Handle = IntPtr.Zero;
 		}
 	}
-
-	private bool debugMode = false;
-	public DZConnection Connection { get; private set; }
-	public DZPlayer Player { get; private set; }
-	private bool isPaused;
-	private bool isStopped;
-	public DZPlayerRepeatMode RepeatMode { get; private set; }
-	public bool isShuffleMode { get; private set; }
-
 }
