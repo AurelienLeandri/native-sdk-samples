@@ -10,6 +10,7 @@ public class PlayerPanelScript : ApplicationElement {
 	public Button NextButton;
 	public Button PreviousButton;
 	public Button StopButton;
+	public TimeSliderScript TimeSlider;
 
 	void Start() {
 		Color temp = new Color (1.0f, 1.0f, 1.0f, 0.0f);

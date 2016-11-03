@@ -1,13 +1,29 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 
-public class TrackListScript : ApplicationElement {
+public class TrackListScript : ApplicationElement, Listener {
 	public GameObject prefab;
 	public PlayingTrackScript PlayingTrack;
 	private float lastTrackOffset;
+	public int CurrentIndex { get; set; }
+	public List<TrackSelectPanelScript> Tracks { get; private set; }
+	private Queue<Tuple<DZPlayerEvent, System.Object>> eventQueue = new Queue<Tuple<DZPlayerEvent, System.Object>> ();
+
+	void Awake () {
+		Tracks = new List<TrackSelectPanelScript> ();
+		eventQueue = new Queue<Tuple<DZPlayerEvent, System.Object>> ();
+	}
 
 	void Start () {
 		lastTrackOffset = 0;
+		CurrentIndex = 0;
+		MainView.Listeners.Add (this);
+	}
+
+	public void Notify(DZPlayerEvent playerEvent, System.Object data) {
+		eventQueue.Enqueue (new Tuple<DZPlayerEvent, System.Object> (playerEvent, data));
 	}
 
 	public void AddTrackList(TrackInfo track) {
@@ -21,7 +37,8 @@ public class TrackListScript : ApplicationElement {
 		RectTransform rt = (RectTransform)transform;
 		if (rt.sizeDelta.y < -lastTrackOffset)
 			rt.sizeDelta = new Vector2 (rt.sizeDelta.x, rt.sizeDelta.y + 45);
-		o.GetComponent<TrackSelectPanelScript> ().SetInfo(track);
+		o.GetComponent<TrackSelectPanelScript> ().SetInfo(Tracks.Count, track);
+		Tracks.Add (o.GetComponent<TrackSelectPanelScript> ());
 	}
 
 	public void LoadtrackList(string contentURL) {
@@ -55,8 +72,28 @@ public class TrackListScript : ApplicationElement {
 			for (int i = 0; i < tracks.Length; i++) {
 				AddTrackList (tracks [i]);
 			}
-			TrackSelectPanelScript firstChild = transform.GetChild (0).gameObject.GetComponent<TrackSelectPanelScript> ();
 			PlayingTrack.UpdateInfo(tracks[0].title, tracks[0].artist.name, tracks[0].album.cover_small);
+		}
+		Tracks [0].SetSelected ();
+	}
+
+	void Update() {
+		pollEvents ();
+	}
+
+	private void pollEvents() {
+		while (eventQueue.Count > 0) {
+			Tuple<DZPlayerEvent, System.Object> eventTuple = eventQueue.Dequeue ();
+			switch (eventTuple.first) {
+			case DZPlayerEvent.RENDER_TRACK_START:
+				int index = Convert.ToInt32 (eventTuple.second);
+				Debug.Log (index);
+				if (index >= 0)
+					Tracks [index].SetSelected ();
+				break;
+			default:
+				break;
+			}
 		}
 	}
 }

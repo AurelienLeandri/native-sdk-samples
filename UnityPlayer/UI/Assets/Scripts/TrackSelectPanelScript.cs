@@ -9,14 +9,13 @@ public class TrackSelectPanelScript : ApplicationElement {
 	public Text trackName;
 	public Text artistName;
 	public Image albumCover;
-	private TimeSliderScript slider;
-	private TrackInfo trackInfo;
+	public TrackInfo TrackInfo { get; private set; }
+	private int index = 0;
 
 	// Use this for initialization
 	void Awake () {
 		selected = false;
 		PlayingTrack = GameObject.Find ("Canvas/TracklistPanel/PlayingTrackContainer").GetComponent<PlayingTrackScript> ();
-		slider = GameObject.Find ("Canvas/PlayerPanel/PlayerSlider").GetComponent<TimeSliderScript> ();
 	}
 
 	void Start() {
@@ -44,6 +43,8 @@ public class TrackSelectPanelScript : ApplicationElement {
 
 	public void OnClick() {
 		SetSelected ();
+		MainView.TrackListPanel.CurrentIndex = index;
+		MainView.LoadIndex (index);
 	}
 	
 	public void SetSelected() {
@@ -54,13 +55,12 @@ public class TrackSelectPanelScript : ApplicationElement {
 		selected = true;
 		GetComponent<Image> ().color = new Color32(83, 255, 248, 255);
 		StartCoroutine (UpdatePlayingTrack ());
-		MainView.LoadIndex (transform.GetSiblingIndex ());
-		slider.SliderComponent.maxValue = trackInfo.duration;
 	}
 
 	private IEnumerator UpdatePlayingTrack() {
 		yield return albumCover.sprite;
-		PlayingTrack.UpdateInfo (trackName.text, artistName.text, albumCover.sprite.texture);
+		if (albumCover.sprite)
+			PlayingTrack.UpdateInfo (trackName.text, artistName.text, albumCover.sprite.texture);
 	}
 
 	private IEnumerator LoadTexture(string textureUrl)
@@ -71,11 +71,12 @@ public class TrackSelectPanelScript : ApplicationElement {
 			new Vector2 (0.5f, 0.5f), 100);
 	}
 
-	public void SetInfo(TrackInfo info) {
+	public void SetInfo(int index, TrackInfo info) {
+		this.index = index;
 		trackName = transform.Find ("TrackSelect/TrackSelectInfo/TrackName").gameObject.GetComponent<Text> ();
 		artistName = transform.Find ("TrackSelect/TrackSelectInfo/ArtistName").gameObject.GetComponent<Text> ();
 		albumCover = transform.Find ("TrackSelect/TrackSelectImage").gameObject.GetComponent<Image> ();
-		trackInfo = info;
+		TrackInfo = info;
 		trackName.text = info.title;
 		artistName.text = info.artist.name;
 		StartCoroutine(LoadTexture (info.album.cover_small));
