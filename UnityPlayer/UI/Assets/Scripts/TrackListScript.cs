@@ -7,7 +7,6 @@ public class TrackListScript : ApplicationElement, Listener {
 	public GameObject prefab;
 	public PlayingTrackScript PlayingTrack;
 	private float lastTrackOffset;
-	public int CurrentIndex { get; set; }
 	public List<TrackSelectPanelScript> Tracks { get; private set; }
 	private Queue<Tuple<DZPlayerEvent, System.Object>> eventQueue = new Queue<Tuple<DZPlayerEvent, System.Object>> ();
 
@@ -18,7 +17,6 @@ public class TrackListScript : ApplicationElement, Listener {
 
 	void Start () {
 		lastTrackOffset = 0;
-		CurrentIndex = 0;
 		MainView.Listeners.Add (this);
 	}
 
@@ -45,7 +43,6 @@ public class TrackListScript : ApplicationElement, Listener {
 		string jsonContent = ApplicationMainScript.getContentJson (contentURL);
 		if (contentURL.Contains ("album")) {
 			AlbumInfo albumInfo = JsonUtility.FromJson<AlbumInfo> (jsonContent);
-			contentURL += "/tracks";
 			jsonContent = ApplicationMainScript.getContentJson (contentURL);
 			jsonContent = jsonContent.Substring (jsonContent.IndexOf ('['));
 			jsonContent = jsonContent.Substring (0, jsonContent.LastIndexOf (']') + 1);
@@ -63,7 +60,6 @@ public class TrackListScript : ApplicationElement, Listener {
 			TrackSelectPanelScript firstChild = transform.GetChild (0).gameObject.GetComponent<TrackSelectPanelScript> ();
 			PlayingTrack.UpdateInfo(firstChild.trackName.text, firstChild.artistName.text, trackInfo.album.cover_small);
 		} else if (contentURL.Contains ("playlist") || contentURL.Contains ("radio")) {
-			contentURL += "/tracks";
 			jsonContent = ApplicationMainScript.getContentJson (contentURL);
 			jsonContent = jsonContent.Substring (jsonContent.IndexOf ('['));
 			jsonContent = jsonContent.Substring (0, jsonContent.LastIndexOf (']') + 1);
@@ -86,10 +82,8 @@ public class TrackListScript : ApplicationElement, Listener {
 			Tuple<DZPlayerEvent, System.Object> eventTuple = eventQueue.Dequeue ();
 			switch (eventTuple.first) {
 			case DZPlayerEvent.RENDER_TRACK_START:
-				int index = Convert.ToInt32 (eventTuple.second);
-				Debug.Log (index);
-				if (index >= 0)
-					Tracks [index].SetSelected ();
+				if (MainView.IndexInPlaylist >= 0)
+					Tracks [MainView.IndexInPlaylist].SetSelected ();
 				break;
 			default:
 				break;

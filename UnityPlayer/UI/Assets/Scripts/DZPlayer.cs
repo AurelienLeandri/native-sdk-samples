@@ -106,8 +106,8 @@ public class DZPlayer {
 
 	public void Play(dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr),
 		DZPlayerCommand command=DZPlayerCommand.START_TRACKLIST,
-		Int64 index = 0) {
-		if (index == 0)
+		Int64 index = -1) {
+		if (index == -1)
 			index = Marshal.SizeOf (IntPtr.Zero) == 4 ? DZPlayerIndex32.CURRENT : DZPlayerIndex64.CURRENT;
 		if (dz_player_play (Handle, cb, operationUserData, (int)command, (uint)index) > 1)
 			throw new PlayerRequestFailedException ("Unable to play content.");

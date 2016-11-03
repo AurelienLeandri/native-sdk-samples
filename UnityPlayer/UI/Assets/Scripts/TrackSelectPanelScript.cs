@@ -43,7 +43,6 @@ public class TrackSelectPanelScript : ApplicationElement {
 
 	public void OnClick() {
 		SetSelected ();
-		MainView.TrackListPanel.CurrentIndex = index;
 		MainView.LoadIndex (index);
 	}
 	
