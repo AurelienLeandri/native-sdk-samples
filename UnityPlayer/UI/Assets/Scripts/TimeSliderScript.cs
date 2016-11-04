@@ -25,12 +25,12 @@ public class TimeSliderScript : ApplicationElement, Listener {
 
 	public void OnValueChanged() {
 		if (!ignoreValueChange) {
-			MainView.Seek ((int)(SliderComponent.value));
+			MainView.PlaySongAtTimestamp ((int)(SliderComponent.value));
 			timeCounter = 0;
 		}
 	}
 
-	private void pollEvents() {
+	private void PollEvents() {
 		while (eventQueue.Count > 0) {
 			Tuple<DZPlayerEvent, System.Object> eventTuple = eventQueue.Dequeue ();
 			switch (eventTuple.first) {
@@ -49,7 +49,7 @@ public class TimeSliderScript : ApplicationElement, Listener {
 
 	// Update is called once per frame
 	void Update () {
-		pollEvents ();
+		PollEvents ();
 		timeCounter += Time.deltaTime;
 		if (timeCounter > 1) {
 			timeCounter -= 1;

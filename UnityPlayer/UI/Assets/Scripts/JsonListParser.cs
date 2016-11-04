@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Collections;
 
-public static class JsonHelper
+public static class JsonListParser
 {
 	public static T[] FromJson<T>(string json)
 	{

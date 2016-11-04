@@ -27,15 +27,15 @@ public class PlayerPanelScript : ApplicationElement {
 	}
 
 	public void NextbuttonOnClick() {
-		MainView.Next ();
+		MainView.PlayNextTrack ();
 	}
 
 	public void PreviousButtonOnClick() {
-		MainView.Previous ();
+		MainView.PlayPreviousTrack ();
 	}
 
 	public void RepeatButtonOnClick() {
-		MainView.ToggleRepeat ();
+		MainView.ToggleRepeatMode ();
 		Color temp;
 		Color temp2;
 		temp2 = new Color (43f/255f, 216f/255f, 208f/255f, 0f);
@@ -53,6 +53,6 @@ public class PlayerPanelScript : ApplicationElement {
 		if (!MainView.isShuffleMode)
 			temp = new Color (43f/255f, 216f/255f, 208f/255f, 1.0f);
 		ShuffleButton.image.color = temp;
-		MainView.ToggleRandom ();
+		MainView.ToggleRandomMode ();
 	}
 }

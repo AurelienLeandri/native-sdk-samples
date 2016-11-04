@@ -151,7 +151,6 @@ public class DZPlayer {
 			throw new PlayerRequestFailedException ("Unable to load audio ads.");
 	}
 
-	// Returns -1 if in radio TODO: Manage radio ?
 	public int GetIndexInQueulist (IntPtr playerEventHandle) {
 		int index = -1;
 		int streaming_mode = 1; // TODO: streaming mode enum ?

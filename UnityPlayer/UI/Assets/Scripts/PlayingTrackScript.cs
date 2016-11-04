@@ -13,9 +13,9 @@ public class PlayingTrackScript : ApplicationElement {
 		ArtistTitle = transform.Find ("TrackInfoContainer/ArtistName").gameObject.GetComponent<Text> ();
 	}
 
-	private IEnumerator LoadTexture(string textureUrl)
+	private IEnumerator LoadCoverImage(string coverURL)
 	{
-		WWW www = new WWW(textureUrl);
+		WWW www = new WWW(coverURL);
 		yield return www;
 		AlbumCover.sprite = Sprite.Create (www.texture, new Rect (0, 0, www.texture.width, www.texture.height),
 			new Vector2 (0.5f, 0.5f), 100);
@@ -31,6 +31,6 @@ public class PlayingTrackScript : ApplicationElement {
 	public void UpdateInfo(string trackTitle, string artistTitle, string cover) {
 		TrackTitle.text = trackTitle;
 		ArtistTitle.text = artistTitle;
-		StartCoroutine (LoadTexture(cover));
+		StartCoroutine (LoadCoverImage(cover));
 	}
 }
