@@ -7,6 +7,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
+/// <summary>
+/// Entry point script of the app. Contains all the UI panels and is itself the root of the UI.
+/// All UI scripts contain a reference to this class to access main parameters, other UI elements and
+/// call the SDK functions.
+/// Calls the wrappers functions and defines callbacks to these functions.
+/// </summary>
 public class ApplicationMainScript : MonoBehaviour {
 
 	public PlayerPanelScript PlayerPanel;
@@ -25,8 +31,8 @@ public class ApplicationMainScript : MonoBehaviour {
 	public int IndexInPlaylist { get; private set; }
 
 	void Awake() {
-		//contentLink = "track/10287076"; // FIXME: choose your content here
-		//contentLink = "album/607845"; // FIXME: choose your content here
+		//contentLink = "track/10287076";
+		//contentLink = "album/607845";
 		contentLink = "playlist/1363560485"; // FIXME: choose your content here
 		dzmediaLink = "dzmedia:///" + contentLink;
 		string userAccessToken = "fr49mph7tV4KY3ukISkFHQysRpdCEbzb958dB320pM15OpFsQs";
@@ -61,7 +67,7 @@ public class ApplicationMainScript : MonoBehaviour {
 	}
 
 	void Start () {
-		TrackListPanel.LoadtrackList("https://api.deezer.com/" + contentLink);
+		TrackListPanel.LoadTrackList("https://api.deezer.com/" + contentLink);
 	}
 
 	void DispatchEvent (DZPlayerEvent value, System.Object eventData) {
@@ -77,7 +83,7 @@ public class ApplicationMainScript : MonoBehaviour {
 		if (Player.Handle.ToInt64() != 0)
 			Player.Shutdown (PlayerOnDeactivateCallback, SelfPtr);
 		else if (Connection.Handle.ToInt64() != 0)
-			Connection.shutdown (ConnectionOnDeactivateCallback, SelfPtr);
+			Connection.Shutdown (ConnectionOnDeactivateCallback, SelfPtr);
 	}
 
 	public void Stop() {
@@ -101,27 +107,27 @@ public class ApplicationMainScript : MonoBehaviour {
 		}
 	}
 
-	public void Next() {
+	public void PlayNextTrack() {
 		isPaused = false;
 		isStopped = false;
 		Int64 index = Marshal.SizeOf (IntPtr.Zero) == 4 ? DZPlayerIndex32.NEXT : DZPlayerIndex64.NEXT;
 		Player.Play (command: DZPlayerCommand.NEXT, index: index);
 	}
 
-	public void LoadIndex(int index) {
+	public void PlayTrackAtIndex(int index) {
 		isPaused = false;
 		isStopped = false;
 		Player.Play (command: DZPlayerCommand.JUMP_IN_TRACKLIST, index: index);
 	}
 
-	public void Previous() {
+	public void PlayPreviousTrack() {
 		isPaused = false;
 		isStopped = false;
 		Int64 index = Marshal.SizeOf (IntPtr.Zero) == 4 ? DZPlayerIndex32.PREVIOUS : DZPlayerIndex64.PREVIOUS;
 		Player.Play (command: DZPlayerCommand.PREV, index: index);
 	}
 
-	public void ToggleRepeat() {
+	public void ToggleRepeatMode() {
 		if (RepeatMode == DZPlayerRepeatMode.OFF)
 			RepeatMode = DZPlayerRepeatMode.ALL;
 		else if (RepeatMode == DZPlayerRepeatMode.ON)
@@ -131,7 +137,7 @@ public class ApplicationMainScript : MonoBehaviour {
 		Player.UpdateRepeatMode (RepeatMode);
 	}
 
-	public void ToggleRandom() {
+	public void ToggleRandomMode() {
 		isShuffleMode = !isShuffleMode;
 		Player.EnableShuffleMode(isShuffleMode);
 	}
@@ -140,13 +146,22 @@ public class ApplicationMainScript : MonoBehaviour {
 		Player.Load (content);
 	}
 
-	public void Seek(int seconds) {
+	public void PlaySongAtTimestamp(int seconds) {
 		Player.Seek (seconds * 1000000);
 	}
 
+	/// <summary>
+	/// Is called after a player event is thrown by the SDK. Is used to wait for and manage
+	/// asynchronous events.
+	/// </summary>
+	/// <param name="handle">The player handle. See DZPlayer.</param>
+	/// <param name="eventHandle">A pointer to a structure representing the event.</param>
+	/// <param name="userData">A pointer to the context given when initializing the DZPlayer.</param>
 	public static void PlayerOnEventCallback(IntPtr handle, IntPtr eventHandle, IntPtr userData) {
+		// We get the object that was given as context from the IntPtr (in that case the ApplicationMainScript itself)
 		GCHandle selfHandle = GCHandle.FromIntPtr(userData);
 		ApplicationMainScript app = (ApplicationMainScript)selfHandle.Target;
+
 		DZPlayerEvent playerEvent = DZPlayer.GetEventFromHandle (eventHandle);
 		Debug.Log (playerEvent);
 		if (playerEvent == DZPlayerEvent.QUEUELIST_LOADED)
@@ -159,9 +174,18 @@ public class ApplicationMainScript : MonoBehaviour {
 		}
 	}
 
+	/// <summary>
+	/// Is called after a connection event is thrown by the SDK. Is used to wait for and manage
+	/// asynchronous events.
+	/// </summary>
+	/// <param name="handle">The connection handle. See DZConnection.</param>
+	/// <param name="eventHandle">A pointer to a structure representing the event.</param>
+	/// <param name="userData">A pointer to the context given when initializing the DZConnection.</param>
 	public static void ConnectionOnEventCallback(IntPtr handle, IntPtr eventHandle, IntPtr userData) {
+		// We get the object that was given as context from the IntPtr (in that case the ApplicationMainScript itself)
 		GCHandle selfHandle = GCHandle.FromIntPtr(userData);
 		ApplicationMainScript app = (ApplicationMainScript)(selfHandle.Target);
+
 		DZConnectionEvent connectionEvent = DZConnection.GetEventFromHandle (eventHandle);
 		if (connectionEvent == DZConnectionEvent.USER_LOGIN_OK)
 			app.Player.Load (app.dzmediaLink);
@@ -169,11 +193,11 @@ public class ApplicationMainScript : MonoBehaviour {
 			if (app.Player.Handle.ToInt64 () != 0)
 				app.Player.Shutdown (PlayerOnDeactivateCallback, app.SelfPtr);
 			else if (app.Connection.Handle.ToInt64 () != 0)
-				app.Connection.shutdown (ConnectionOnDeactivateCallback, app.SelfPtr);
+				app.Connection.Shutdown (ConnectionOnDeactivateCallback, app.SelfPtr);
 		}
 	}
 
-	public static string getContentJson (string content) {
+	public static string GetContentJson (string content) {
 		UnityWebRequest www = UnityWebRequest.Get (content);
 		www.Send ();
 		while (!www.isDone) {}
@@ -191,7 +215,7 @@ public class ApplicationMainScript : MonoBehaviour {
 		app.Player.Active = false;
 		app.Player.Handle = IntPtr.Zero;
 		if (app.Connection.Handle.ToInt64() != 0)
-			app.Connection.shutdown (ApplicationMainScript.ConnectionOnDeactivateCallback, operationUserData);
+			app.Connection.Shutdown (ApplicationMainScript.ConnectionOnDeactivateCallback, operationUserData);
 	}
 
 	public static void ConnectionOnDeactivateCallback(IntPtr delegateFunc, IntPtr operationUserData, int status, int result) {

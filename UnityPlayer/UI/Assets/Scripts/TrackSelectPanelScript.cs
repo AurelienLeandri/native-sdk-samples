@@ -12,7 +12,6 @@ public class TrackSelectPanelScript : ApplicationElement {
 	public TrackInfo TrackInfo { get; private set; }
 	private int index = 0;
 
-	// Use this for initialization
 	void Awake () {
 		selected = false;
 		PlayingTrack = GameObject.Find ("Canvas/TracklistPanel/PlayingTrackContainer").GetComponent<PlayingTrackScript> ();
@@ -21,18 +20,17 @@ public class TrackSelectPanelScript : ApplicationElement {
 	void Start() {
 	}
 	
-	// Update is called once per frame
 	void Update () {
 	}
 
-	public void OnHover() {
+	public void OnCursorOver() {
 		Image image = GetComponent<Image> ();
 		Color color = image.color;
 		color.a = 255;
 		image.color = color;
 	}
 
-	public void OnHout() {
+	public void OnCursorOut() {
 		if (!selected) {
 			Image image = GetComponent<Image> ();
 			Color color = image.color;
@@ -43,7 +41,7 @@ public class TrackSelectPanelScript : ApplicationElement {
 
 	public void OnClick() {
 		SetSelected ();
-		MainView.LoadIndex (index);
+		MainView.PlayTrackAtIndex (index);
 	}
 	
 	public void SetSelected() {
@@ -70,7 +68,7 @@ public class TrackSelectPanelScript : ApplicationElement {
 			new Vector2 (0.5f, 0.5f), 100);
 	}
 
-	public void SetInfo(int index, TrackInfo info) {
+	public void SetTrackInfo(int index, TrackInfo info) {
 		this.index = index;
 		trackName = transform.Find ("TrackSelect/TrackSelectInfo/TrackName").gameObject.GetComponent<Text> ();
 		artistName = transform.Find ("TrackSelect/TrackSelectInfo/ArtistName").gameObject.GetComponent<Text> ();

@@ -118,7 +118,7 @@ public class DZConnection {
 			throw new ConnectionRequestFailedException ("Failed to set offline mode.");
 	}
 
-	public void shutdown(dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
+	public void Shutdown(dz_activity_operation_callback cb = null, IntPtr operationUserData = default(IntPtr)) {
 		if (Handle.ToInt64() != 0) {
 			dz_connect_deactivate (Handle, cb, operationUserData);
 			Active = false;
