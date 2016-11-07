@@ -96,7 +96,6 @@ public class ApplicationMainScript : MonoBehaviour {
 		} else if (isPaused) {
 			Player.Resume ();
 			isPaused = false;
-			;
 		} else {
 			Player.Pause ();
 			isPaused = true;
@@ -163,10 +162,9 @@ public class ApplicationMainScript : MonoBehaviour {
 			app.Player.Play ();
 		if (playerEvent == DZPlayerEvent.QUEUELIST_TRACK_RIGHTS_AFTER_AUDIOADS)
 			app.Player.PlayAudioAds ();
-		if (playerEvent == DZPlayerEvent.RENDER_TRACK_START) {
+		if (playerEvent == DZPlayerEvent.RENDER_TRACK_START)
 			app.IndexInPlaylist = app.Player.GetIndexInQueulist (eventHandle);
-			app.DispatchEvent (playerEvent, app.IndexInPlaylist);	
-		}
+		app.DispatchEvent (playerEvent, app.IndexInPlaylist);	
 	}
 
 	/// <summary>
