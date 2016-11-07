@@ -8,9 +8,12 @@ public class TrackSelectPanelScript : ApplicationElement {
 	private PlayingTrackScript PlayingTrack;
 	public Text trackName;
 	public Text artistName;
-	public Image albumCover;
+	public Image albumThumbnail;
+	public Sprite albumCoverBig;
 	public TrackInfo TrackInfo { get; private set; }
 	private int index = 0;
+	private bool coverToLoad = false;
+	private bool indexToLoad = false;
 
 	void Awake () {
 		selected = false;
@@ -21,6 +24,14 @@ public class TrackSelectPanelScript : ApplicationElement {
 	}
 	
 	void Update () {
+		if (coverToLoad) {
+			MainView.PlayerPanel.cover.overrideSprite = albumCoverBig;
+			coverToLoad = false;
+		}
+		if (indexToLoad) {
+			PlayingTrack.UpdateInfo (trackName.text, artistName.text, albumThumbnail.sprite.texture);
+			indexToLoad = false;
+		}
 	}
 
 	public void OnCursorOver() {
@@ -51,31 +62,40 @@ public class TrackSelectPanelScript : ApplicationElement {
 		}
 		selected = true;
 		GetComponent<Image> ().color = new Color32(83, 255, 248, 255);
-		StartCoroutine (UpdatePlayingTrack ());
+		if (albumThumbnail.sprite)
+			PlayingTrack.UpdateInfo (trackName.text, artistName.text, albumThumbnail.sprite.texture);
+		if (albumCoverBig)
+			MainView.PlayerPanel.cover.overrideSprite = albumCoverBig;
 	}
 
-	private IEnumerator UpdatePlayingTrack() {
-		yield return albumCover.sprite;
-		if (albumCover.sprite)
-			PlayingTrack.UpdateInfo (trackName.text, artistName.text, albumCover.sprite.texture);
-	}
-
-	private IEnumerator LoadTexture(string textureUrl)
+	private IEnumerator LoadCovers(string coverURL)
 	{
-		WWW www = new WWW(textureUrl);
+		WWW www = new WWW(coverURL);
 		yield return www;
-		albumCover.sprite = Sprite.Create (www.texture, new Rect (0, 0, www.texture.width, www.texture.height),
+		albumThumbnail.sprite = Sprite.Create (www.texture, new Rect (0, 0, www.texture.width, www.texture.height),
 			new Vector2 (0.5f, 0.5f), 100);
+		if (index == 0)
+			indexToLoad = true;
+	}
+
+	private IEnumerator LoadAlbumSprite(string coverURL) {
+		WWW www2 = new WWW(coverURL);
+		yield return www2;
+		albumCoverBig = Sprite.Create (www2.texture, new Rect (0, 0, www2.texture.width, www2.texture.height),
+			new Vector2 (0.5f, 0.5f), 100);
+		if (index == 0)
+			coverToLoad = true;
 	}
 
 	public void SetTrackInfo(int index, TrackInfo info) {
 		this.index = index;
 		trackName = transform.Find ("TrackSelect/TrackSelectInfo/TrackName").gameObject.GetComponent<Text> ();
 		artistName = transform.Find ("TrackSelect/TrackSelectInfo/ArtistName").gameObject.GetComponent<Text> ();
-		albumCover = transform.Find ("TrackSelect/TrackSelectImage").gameObject.GetComponent<Image> ();
+		albumThumbnail = transform.Find ("TrackSelect/TrackSelectImage").gameObject.GetComponent<Image> ();
 		TrackInfo = info;
 		trackName.text = info.title;
 		artistName.text = info.artist.name;
-		StartCoroutine(LoadTexture (info.album.cover_small));
+		StartCoroutine(LoadCovers (info.album.cover_small));
+		StartCoroutine(LoadAlbumSprite (info.album.cover_medium));
 	}
 }

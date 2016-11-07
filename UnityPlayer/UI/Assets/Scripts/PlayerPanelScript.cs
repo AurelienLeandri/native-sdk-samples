@@ -10,6 +10,9 @@ public class PlayerPanelScript : ApplicationElement {
 	public Button NextButton;
 	public Button PreviousButton;
 	public Button StopButton;
+	public Sprite playSprite;
+	public Sprite pauseSprite;
+	public Image cover;
 	public TimeSliderScript TimeSlider;
 
 	void Start() {
@@ -19,18 +22,25 @@ public class PlayerPanelScript : ApplicationElement {
 	}
 
 	public void StopButtonOnClick() {
+		PlayPauseButton.image.overrideSprite = playSprite;
 		MainView.Stop ();
 	}
 
 	public void PlayPauseButtonOnClick() {
+		if (MainView.isPaused)
+			PlayPauseButton.image.overrideSprite = playSprite;
+		else
+			PlayPauseButton.image.overrideSprite = pauseSprite;
 		MainView.PlayPause ();
 	}
 
 	public void NextbuttonOnClick() {
+		PlayPauseButton.image.overrideSprite = playSprite;
 		MainView.PlayNextTrack ();
 	}
 
 	public void PreviousButtonOnClick() {
+		PlayPauseButton.image.overrideSprite = playSprite;
 		MainView.PlayPreviousTrack ();
 	}
 
