@@ -72,7 +72,6 @@ public class TrackListScript : ApplicationElement, Listener {
 			for (int i = 0; i < tracks.Length; i++) {
 				AddTrackToList (tracks [i]);
 			}
-			PlayingTrack.UpdateInfo(tracks[0].title, tracks[0].artist.name, tracks[0].album.cover_small);
 		}
 		Tracks [0].SetSelected ();
 	}
