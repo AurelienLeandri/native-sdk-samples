@@ -13,6 +13,7 @@ public class TimeSliderScript : ApplicationElement, Listener {
 	void Awake () {
 		ignoreValueChange = false;
 		SliderComponent = transform.GetComponent<Slider> ();
+		MainView.Listeners.Add (this);
 	}
 
 	public void Notify(DZPlayerEvent playerEvent, System.Object data) {
@@ -20,7 +21,6 @@ public class TimeSliderScript : ApplicationElement, Listener {
 	}
 
 	void Start() {
-		MainView.Listeners.Add (this);
 	}
 
 	public void OnValueChanged() {
@@ -47,14 +47,19 @@ public class TimeSliderScript : ApplicationElement, Listener {
 		}
 	}
 
-	// Update is called once per frame
 	void Update () {
 		PollEvents ();
-		timeCounter += Time.deltaTime;
-		if (timeCounter > 1) {
-			timeCounter -= 1;
+		if (!MainView.isPaused && !MainView.isStopped)
+			timeCounter += Time.deltaTime;
+			if (timeCounter > 1) {
+				timeCounter -= 1;
+				ignoreValueChange = true;
+				SliderComponent.value++;
+				ignoreValueChange = false;
+			}
+		if (MainView.isStopped) {
 			ignoreValueChange = true;
-			SliderComponent.value++;
+			SliderComponent.value = 0;
 			ignoreValueChange = false;
 		}
 	}
