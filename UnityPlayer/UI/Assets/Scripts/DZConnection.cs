@@ -99,10 +99,6 @@ public class DZConnection {
 		return dz_connect_get_device_id (Handle).ToInt64();
 	}
 
-	public void DebugLogDisable() {
-		// TODO: dz_connect_debug_log_disable
-	}
-
 	public void CachePathSet(string path, dz_activity_operation_callback cb = null, IntPtr operationUserdata = default(IntPtr)) {
 		if (dz_connect_cache_path_set (Handle, cb, operationUserdata, path) != 0)
 			throw new ConnectionRequestFailedException ("Cache path was not set. Check connection.");
