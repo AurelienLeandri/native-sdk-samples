@@ -20,11 +20,10 @@ public class ApplicationMainScript : MonoBehaviour {
 	private string contentLink;
 	private string dzmediaLink;
 	private IntPtr SelfPtr;
-	private bool debugMode = false;
 	public DZConnection Connection { get; private set; }
 	public DZPlayer Player { get; private set; }
-	private bool isPaused;
-	private bool isStopped;
+	public bool isPaused { get; private set; }
+	public bool isStopped { get; private set; }
 	public DZPlayerRepeatMode RepeatMode { get; private set; }
 	public bool isShuffleMode { get; private set; }
 	public List<Listener> Listeners = new List<Listener> ();
@@ -51,10 +50,7 @@ public class ApplicationMainScript : MonoBehaviour {
 			null
 		);
 		IndexInPlaylist = 0;
-		this.debugMode = true;
 		Connection = new DZConnection (config);
-		if (!debugMode)
-			Connection.DebugLogDisable ();
 		GCHandle selfHandle = GCHandle.Alloc (this);
 		SelfPtr = GCHandle.ToIntPtr(selfHandle);
 		Player = new DZPlayer (Connection.Handle);
@@ -163,7 +159,6 @@ public class ApplicationMainScript : MonoBehaviour {
 		ApplicationMainScript app = (ApplicationMainScript)selfHandle.Target;
 
 		DZPlayerEvent playerEvent = DZPlayer.GetEventFromHandle (eventHandle);
-		Debug.Log (playerEvent);
 		if (playerEvent == DZPlayerEvent.QUEUELIST_LOADED)
 			app.Player.Play ();
 		if (playerEvent == DZPlayerEvent.QUEUELIST_TRACK_RIGHTS_AFTER_AUDIOADS)
@@ -202,7 +197,6 @@ public class ApplicationMainScript : MonoBehaviour {
 		www.Send ();
 		while (!www.isDone) {}
 		if (www.isError) {
-			Debug.Log (www.error);
 			www.Dispose ();
 			return "error";
 		}
