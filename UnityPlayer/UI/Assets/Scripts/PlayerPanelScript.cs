@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
-public class PlayerPanelScript : ApplicationElement {
+public class PlayerPanelScript : ApplicationElement, Listener {
 	public Button RepeatButton;
 	private Image RepeatButtonOneImage;
 	public Button ShuffleButton;
@@ -13,12 +14,49 @@ public class PlayerPanelScript : ApplicationElement {
 	public Sprite playSprite;
 	public Sprite pauseSprite;
 	public Image cover;
+	public Queue<Tuple<DZPlayerEvent, System.Object>> eventQueue;
 	public TimeSliderScript TimeSlider;
+
+	void Awake() {
+		eventQueue = new Queue<Tuple<DZPlayerEvent, System.Object>> ();
+		MainView.Listeners.Add (this);
+	}
 
 	void Start() {
 		Color temp = new Color (1.0f, 1.0f, 1.0f, 0.0f);
 		RepeatButtonOneImage = transform.Find ("OneImage").GetComponent<Image> ();
 		RepeatButtonOneImage.color = temp;
+	}
+
+	void Update() {
+		PollEvents ();
+	}
+
+	private void PollEvents() {
+		while (eventQueue.Count > 0) {
+			Tuple<DZPlayerEvent, System.Object> eventTuple = eventQueue.Dequeue ();
+			Debug.Log (eventTuple.first);
+			switch (eventTuple.first) {
+			case DZPlayerEvent.RENDER_TRACK_START:
+				PlayPauseButton.image.overrideSprite = pauseSprite;
+				break;
+			case DZPlayerEvent.RENDER_TRACK_PAUSED:
+				PlayPauseButton.image.overrideSprite = playSprite;
+				break;
+			case DZPlayerEvent.RENDER_TRACK_REMOVED:
+				PlayPauseButton.image.overrideSprite = playSprite;
+				break;
+			case DZPlayerEvent.RENDER_TRACK_RESUMED:
+				PlayPauseButton.image.overrideSprite = pauseSprite;
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	public void Notify (DZPlayerEvent playerEvent, System.Object eventData) {
+		eventQueue.Enqueue (new Tuple<DZPlayerEvent, System.Object> (playerEvent, eventData));
 	}
 
 	public void StopButtonOnClick() {
@@ -27,10 +65,6 @@ public class PlayerPanelScript : ApplicationElement {
 	}
 
 	public void PlayPauseButtonOnClick() {
-		if (MainView.isPaused)
-			PlayPauseButton.image.overrideSprite = playSprite;
-		else
-			PlayPauseButton.image.overrideSprite = pauseSprite;
 		MainView.PlayPause ();
 	}
 
