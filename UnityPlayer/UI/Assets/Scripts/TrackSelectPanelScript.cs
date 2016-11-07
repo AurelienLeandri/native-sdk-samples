@@ -70,8 +70,13 @@ public class TrackSelectPanelScript : ApplicationElement {
 
 	private IEnumerator LoadCovers(string coverURL)
 	{
-		WWW www = new WWW(coverURL);
-		yield return www;
+		WWW www;
+		do {
+			www = new WWW (coverURL);
+			yield return www;
+			if (!string.IsNullOrEmpty (www.error))
+				yield return new WaitForSeconds(1);
+		} while (!string.IsNullOrEmpty (www.error));
 		albumThumbnail.sprite = Sprite.Create (www.texture, new Rect (0, 0, www.texture.width, www.texture.height),
 			new Vector2 (0.5f, 0.5f), 100);
 		if (index == 0)
@@ -79,9 +84,14 @@ public class TrackSelectPanelScript : ApplicationElement {
 	}
 
 	private IEnumerator LoadAlbumSprite(string coverURL) {
-		WWW www2 = new WWW(coverURL);
-		yield return www2;
-		albumCoverBig = Sprite.Create (www2.texture, new Rect (0, 0, www2.texture.width, www2.texture.height),
+		WWW www;
+		do {
+			www = new WWW (coverURL);
+			yield return www;
+			if (!string.IsNullOrEmpty (www.error))
+				yield return new WaitForSeconds(1);
+		} while (!string.IsNullOrEmpty (www.error));
+		albumCoverBig = Sprite.Create (www.texture, new Rect (0, 0, www.texture.width, www.texture.height),
 			new Vector2 (0.5f, 0.5f), 100);
 		if (index == 0)
 			coverToLoad = true;
