@@ -17,8 +17,6 @@ public class ApplicationMainScript : MonoBehaviour {
 
 	public PlayerPanelScript PlayerPanel;
 	public TrackListScript TrackListPanel;
-	private string contentLink;
-	private string dzmediaLink;
 	private IntPtr SelfPtr;
 	public DZConnection Connection { get; private set; }
 	public DZPlayer Player { get; private set; }
@@ -32,8 +30,7 @@ public class ApplicationMainScript : MonoBehaviour {
 	void Awake() {
 		//contentLink = "track/10287076";
 		//contentLink = "album/607845";
-		contentLink = "playlist/1363560485"; // FIXME: choose your content here
-		dzmediaLink = "dzmedia:///" + contentLink;
+		// contentLink = "playlist/1363560485"; // FIXME: choose your content here
 		string userAccessToken = "fr49mph7tV4KY3ukISkFHQysRpdCEbzb958dB320pM15OpFsQs";
 		string userApplicationid = "190262";
 		string userApplicationName = "UnityPlayer";
@@ -63,7 +60,6 @@ public class ApplicationMainScript : MonoBehaviour {
 	}
 
 	void Start () {
-		TrackListPanel.LoadTrackList("https://api.deezer.com/" + contentLink);
 	}
 
 	void DispatchEvent (DZPlayerEvent value, System.Object eventData) {
@@ -138,6 +134,9 @@ public class ApplicationMainScript : MonoBehaviour {
 	}
 
 	public void LoadContent(string content) {
+		if (content == null || content.Length == 0)
+			return;
+		content = "dzmedia:///" + content;
 		Player.Load (content);
 	}
 
@@ -158,12 +157,20 @@ public class ApplicationMainScript : MonoBehaviour {
 		ApplicationMainScript app = (ApplicationMainScript)selfHandle.Target;
 
 		DZPlayerEvent playerEvent = DZPlayer.GetEventFromHandle (eventHandle);
-		if (playerEvent == DZPlayerEvent.QUEUELIST_LOADED)
+		app.IndexInPlaylist = app.Player.GetIndexInQueulist (eventHandle);
+		switch (playerEvent) {
+		case DZPlayerEvent.QUEUELIST_LOADED:
 			app.Player.Play ();
-		if (playerEvent == DZPlayerEvent.QUEUELIST_TRACK_RIGHTS_AFTER_AUDIOADS)
+			break;
+		case DZPlayerEvent.QUEUELIST_TRACK_RIGHTS_AFTER_AUDIOADS:
 			app.Player.PlayAudioAds ();
-		if (playerEvent == DZPlayerEvent.RENDER_TRACK_START)
-			app.IndexInPlaylist = app.Player.GetIndexInQueulist (eventHandle);
+			break;
+		case DZPlayerEvent.RENDER_TRACK_END:
+			app.isStopped = true;
+			if (app.IndexInPlaylist == -1)
+				app.PlayPause ();
+			break;
+		}
 		app.DispatchEvent (playerEvent, app.IndexInPlaylist);	
 	}
 
@@ -180,8 +187,7 @@ public class ApplicationMainScript : MonoBehaviour {
 		ApplicationMainScript app = (ApplicationMainScript)(selfHandle.Target);
 
 		DZConnectionEvent connectionEvent = DZConnection.GetEventFromHandle (eventHandle);
-		if (connectionEvent == DZConnectionEvent.USER_LOGIN_OK)
-			app.Player.Load (app.dzmediaLink);
+		//if (connectionEvent == DZConnectionEvent.USER_LOGIN_OK)
 		if (connectionEvent == DZConnectionEvent.USER_LOGIN_FAIL_USER_INFO) {
 			if (app.Player.Handle.ToInt64 () != 0)
 				app.Player.Shutdown (PlayerOnDeactivateCallback, app.SelfPtr);

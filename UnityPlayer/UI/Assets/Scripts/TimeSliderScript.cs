@@ -21,6 +21,7 @@ public class TimeSliderScript : ApplicationElement, Listener {
 	}
 
 	void Start() {
+		SliderComponent.value = SliderComponent.maxValue;
 	}
 
 	public void OnValueChanged() {
@@ -33,12 +34,19 @@ public class TimeSliderScript : ApplicationElement, Listener {
 	private void PollEvents() {
 		while (eventQueue.Count > 0) {
 			Tuple<DZPlayerEvent, System.Object> eventTuple = eventQueue.Dequeue ();
+			if (eventTuple.first == DZPlayerEvent.QUEUELIST_TRACK_RIGHTS_AFTER_AUDIOADS)
+				SliderComponent.gameObject.SetActive (false);
+			else
+				SliderComponent.gameObject.SetActive (true);
 			switch (eventTuple.first) {
 			case DZPlayerEvent.RENDER_TRACK_START:
 				int index = Convert.ToInt32 (eventTuple.second);
 				ignoreValueChange = true;
-				SliderComponent.maxValue = MainView.TrackListPanel.Tracks [index].TrackInfo.duration;
-				SliderComponent.value = 0;
+					SliderComponent.value = 0;
+				if (index >= 0)
+					SliderComponent.maxValue = MainView.TrackListPanel.Tracks [index].TrackInfo.duration;
+				else
+					SliderComponent.maxValue = 0;
 				ignoreValueChange = false;
 				break;
 			default:

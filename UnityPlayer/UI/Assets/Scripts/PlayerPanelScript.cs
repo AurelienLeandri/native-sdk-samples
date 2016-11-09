@@ -35,7 +35,6 @@ public class PlayerPanelScript : ApplicationElement, Listener {
 	private void PollEvents() {
 		while (eventQueue.Count > 0) {
 			Tuple<DZPlayerEvent, System.Object> eventTuple = eventQueue.Dequeue ();
-			Debug.Log (eventTuple.first);
 			switch (eventTuple.first) {
 			case DZPlayerEvent.RENDER_TRACK_START:
 				PlayPauseButton.image.overrideSprite = pauseSprite;
@@ -82,8 +81,8 @@ public class PlayerPanelScript : ApplicationElement, Listener {
 		MainView.ToggleRepeatMode ();
 		Color temp;
 		Color temp2;
-		temp2 = new Color (43f/255f, 216f/255f, 208f/255f, 0f);
 		temp = new Color (43f/255f, 216f/255f, 208f/255f, 1.0f);
+		temp2 = new Color (43f/255f, 216f/255f, 208f/255f, 0f);
 		if (MainView.RepeatMode == DZPlayerRepeatMode.ON)
 			temp2 = new Color (43f/255f, 216f/255f, 208f/255f, 1.0f);
 		else if (MainView.RepeatMode == DZPlayerRepeatMode.OFF)
