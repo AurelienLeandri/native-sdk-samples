@@ -121,10 +121,10 @@ public class ApplicationMainScript : MonoBehaviour {
 	public void ToggleRepeatMode() {
 		if (RepeatMode == DZPlayerRepeatMode.OFF)
 			RepeatMode = DZPlayerRepeatMode.ALL;
-		else if (RepeatMode == DZPlayerRepeatMode.ON)
+		else if (RepeatMode == DZPlayerRepeatMode.ONE)
 			RepeatMode = DZPlayerRepeatMode.OFF;
 		else
-			RepeatMode = DZPlayerRepeatMode.ON;
+			RepeatMode = DZPlayerRepeatMode.ONE;
 		Player.UpdateRepeatMode (RepeatMode);
 	}
 

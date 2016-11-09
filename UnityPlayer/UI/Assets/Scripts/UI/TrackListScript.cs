@@ -19,7 +19,12 @@ public class TrackListScript : ApplicationElement, Listener {
 
 	void Start () {
 		lastTrackOffset = 0;
+		ContentField.text = "playlist/1363560485";
 		MainView.Listeners.Add (this);
+		// We load a default content at startup
+		LoadTrackList(ContentField.text);
+		if (Tracks.Count != 0)
+			MainView.LoadContent (ContentField.text);
 	}
 
 	public void Notify(DZPlayerEvent playerEvent, System.Object data) {
