@@ -33,12 +33,24 @@ PythonSample is a python application which uses Deezer's Native SDK to play a so
 
 ### Features
 
+ - Python Wrapper to create your own python app using Native SDK
  - User authentication
  - Playing a Deezer content (track, album or playlist).
+
+## [UnityPlayer][6]
+
+A small app using Unity engine and a C# wrapper. Can be used as a base for a Unity app or any C# project using the Native SDK.
+
+### Features
+
+ - C# Wrapper to create your own C# project using Native SDK
+ - User authentication
+ - Playing a Deezer content (track, album or playlist)
+ - Nice UI using Unity engine.
 
  [1]: http://developers.deezer.com/sdk/native
  [2]: https://github.com/deezer/native-sdk-samples/tree/master/NanoPlayer
  [3]: https://github.com/deezer/native-sdk-samples/tree/master/OfflineModePlayer
  [4]: http://developers.deezer.com/sdk/native/releasenotes/rss
  [5]: https://github.com/deezer/native-sdk-samples/tree/master/PythonSample
-
+ [6]: https://github.com/deezer/native-sdk-samples/tree/master/UnityPlayer
