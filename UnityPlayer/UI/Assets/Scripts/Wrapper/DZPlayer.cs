@@ -38,7 +38,7 @@ public enum DZPlayerCommand {
 
 public enum DZPlayerRepeatMode {
 	OFF,
-	ON,
+	ONE,
 	ALL
 };
 
