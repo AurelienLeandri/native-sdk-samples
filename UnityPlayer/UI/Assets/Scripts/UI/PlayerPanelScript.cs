@@ -83,7 +83,7 @@ public class PlayerPanelScript : ApplicationElement, Listener {
 		Color temp2;
 		temp = new Color (43f/255f, 216f/255f, 208f/255f, 1.0f);
 		temp2 = new Color (43f/255f, 216f/255f, 208f/255f, 0f);
-		if (MainView.RepeatMode == DZPlayerRepeatMode.ON)
+		if (MainView.RepeatMode == DZPlayerRepeatMode.ONE)
 			temp2 = new Color (43f/255f, 216f/255f, 208f/255f, 1.0f);
 		else if (MainView.RepeatMode == DZPlayerRepeatMode.OFF)
 			temp = Color.white;
