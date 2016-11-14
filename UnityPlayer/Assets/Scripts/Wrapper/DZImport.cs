@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 
 public static class DZImport {
 #if UNITY_STANDALONE_WIN
-	public static string LibPath = "..\\\\NativeSDK\\\\Bins\\\\Platforms\\\\Windows\\\\DLLs\\\\libdeezer.x64.dll";
+	public const string LibPath = "..\\NativeSDK\\Bins\\Platforms\\Windows\\DLLs\\libdeezer.x64.dll";
 #elif UNITY_STANDALONE_OSX
 	public const string LibPath = "../NativeSDK/Bins/Platforms/MacOSX/libdeezer.framework/Versions/Current/libdeezer";
 #elif UNITY_STANDALONE_LINUX
-	public static string LibPath = "../NativeSDK/Bins/Platforms/Linux/x86_64/libdeezer.so";
+	public const string LibPath = "../NativeSDK/Bins/Platforms/Linux/x86_64/libdeezer.so";
 #else
 	#error "Architecture not detected"
 #endif
