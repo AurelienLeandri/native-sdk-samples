@@ -128,13 +128,13 @@ public class DZConnection {
 	public bool Active { get; set; }
 	public IntPtr Handle { get; set; }
 
-	[DllImport("libdeezer")] public static extern void dz_object_release(IntPtr objectHandle);
-	[DllImport("libdeezer")] public static extern IntPtr dz_connect_new(ref dz_connect_configuration config);
-	[DllImport("libdeezer")] public static extern IntPtr dz_connect_get_device_id(IntPtr self);
-	[DllImport("libdeezer")] public static extern int dz_connect_activate(IntPtr self, IntPtr userdata);
-	[DllImport("libdeezer")] public static extern int dz_connect_cache_path_set(IntPtr self, dz_activity_operation_callback cb, IntPtr data, [MarshalAs(UnmanagedType.LPStr)]string local_path);
-	[DllImport("libdeezer")] public static extern int dz_connect_set_access_token(IntPtr self, dz_activity_operation_callback cb, IntPtr data, [MarshalAs(UnmanagedType.LPStr)]string token);
-	[DllImport("libdeezer")] public static extern int dz_connect_offline_mode(IntPtr self, dz_activity_operation_callback cb, IntPtr data, bool offline_mode_forced);
-	[DllImport("libdeezer")] public static extern int dz_connect_event_get_type(IntPtr eventHandle);
-	[DllImport("libdeezer")] public static extern int dz_connect_deactivate(IntPtr connectHandle, dz_activity_operation_callback cb, IntPtr data);
+	[DllImport(DZImport.LibPath)] public static extern void dz_object_release(IntPtr objectHandle);
+	[DllImport(DZImport.LibPath)] public static extern IntPtr dz_connect_new(ref dz_connect_configuration config);
+	[DllImport(DZImport.LibPath)] public static extern IntPtr dz_connect_get_device_id(IntPtr self);
+	[DllImport(DZImport.LibPath)] public static extern int dz_connect_activate(IntPtr self, IntPtr userdata);
+	[DllImport(DZImport.LibPath)] public static extern int dz_connect_cache_path_set(IntPtr self, dz_activity_operation_callback cb, IntPtr data, [MarshalAs(UnmanagedType.LPStr)]string local_path);
+	[DllImport(DZImport.LibPath)] public static extern int dz_connect_set_access_token(IntPtr self, dz_activity_operation_callback cb, IntPtr data, [MarshalAs(UnmanagedType.LPStr)]string token);
+	[DllImport(DZImport.LibPath)] public static extern int dz_connect_offline_mode(IntPtr self, dz_activity_operation_callback cb, IntPtr data, bool offline_mode_forced);
+	[DllImport(DZImport.LibPath)] public static extern int dz_connect_event_get_type(IntPtr eventHandle);
+	[DllImport(DZImport.LibPath)] public static extern int dz_connect_deactivate(IntPtr connectHandle, dz_activity_operation_callback cb, IntPtr data);
 }

@@ -167,40 +167,40 @@ public class DZPlayer {
 	private string currentContent = "";
 	private int nbTracksPlayed;
 
-	[DllImport("libdeezer")] private static extern IntPtr dz_player_new(IntPtr self);
-	[DllImport("libdeezer")] private static extern int dz_player_activate(IntPtr player, IntPtr supervisor);
-	[DllImport("libdeezer")] private static extern int dz_player_deactivate(IntPtr playerHandle,
+	[DllImport(DZImport.LibPath)] private static extern IntPtr dz_player_new(IntPtr self);
+	[DllImport(DZImport.LibPath)] private static extern int dz_player_activate(IntPtr player, IntPtr supervisor);
+	[DllImport(DZImport.LibPath)] private static extern int dz_player_deactivate(IntPtr playerHandle,
 		dz_activity_operation_callback cb, IntPtr data);
-	[DllImport("libdeezer")] private static extern int dz_player_cache_next(IntPtr playerHandle,
+	[DllImport(DZImport.LibPath)] private static extern int dz_player_cache_next(IntPtr playerHandle,
 		dz_activity_operation_callback cb, IntPtr data, [MarshalAs(UnmanagedType.LPStr)]string trackUrl);
-	[DllImport("libdeezer")] private static extern int dz_player_load(IntPtr playerHandle,
+	[DllImport(DZImport.LibPath)] private static extern int dz_player_load(IntPtr playerHandle,
 		dz_activity_operation_callback cb, IntPtr data, [MarshalAs(UnmanagedType.LPStr)]string tracklistData);
-	[DllImport("libdeezer")] private static extern int dz_player_pause(IntPtr playerHandle,
+	[DllImport(DZImport.LibPath)] private static extern int dz_player_pause(IntPtr playerHandle,
 		dz_activity_operation_callback cb, IntPtr data);
-	[DllImport("libdeezer")] private static extern int dz_player_play(IntPtr playerHandle,
+	[DllImport(DZImport.LibPath)] private static extern int dz_player_play(IntPtr playerHandle,
 		dz_activity_operation_callback cb, IntPtr data, int command, uint idx);
-	[DllImport("libdeezer")] private static extern int dz_player_play_audioads(IntPtr playerHandle,
+	[DllImport(DZImport.LibPath)] private static extern int dz_player_play_audioads(IntPtr playerHandle,
 		dz_activity_operation_callback cb, IntPtr data);
-	[DllImport("libdeezer")] private static extern int dz_player_stop(IntPtr playerHandle,
+	[DllImport(DZImport.LibPath)] private static extern int dz_player_stop(IntPtr playerHandle,
 		dz_activity_operation_callback cb, IntPtr data);
-	[DllImport("libdeezer")] private static extern int dz_player_resume(IntPtr playerHandle,
+	[DllImport(DZImport.LibPath)] private static extern int dz_player_resume(IntPtr playerHandle,
 		dz_activity_operation_callback cb, IntPtr data);
-	[DllImport("libdeezer")] private static extern int dz_player_seek(IntPtr playerHandle,
+	[DllImport(DZImport.LibPath)] private static extern int dz_player_seek(IntPtr playerHandle,
 		dz_activity_operation_callback cb, IntPtr data, uint pos);
-	[DllImport("libdeezer")] private static extern int dz_player_set_index_progress_cb(IntPtr player,
+	[DllImport(DZImport.LibPath)] private static extern int dz_player_set_index_progress_cb(IntPtr player,
 		dz_player_onindexprogress_cb cb, uint refreshTime);
-	[DllImport("libdeezer")] private static extern int dz_player_set_event_cb(IntPtr player, dz_player_onevent_cb cb);
-	[DllImport("libdeezer")] private static extern int dz_player_set_repeat_mode(IntPtr playerHandle,
+	[DllImport(DZImport.LibPath)] private static extern int dz_player_set_event_cb(IntPtr player, dz_player_onevent_cb cb);
+	[DllImport(DZImport.LibPath)] private static extern int dz_player_set_repeat_mode(IntPtr playerHandle,
 		dz_activity_operation_callback cb, IntPtr data, int mode);
-	[DllImport("libdeezer")] private static extern int dz_player_enable_shuffle_mode(IntPtr playerHandle,
+	[DllImport(DZImport.LibPath)] private static extern int dz_player_enable_shuffle_mode(IntPtr playerHandle,
 		dz_activity_operation_callback cb, IntPtr data, bool shuffle_mode);
-	[DllImport("libdeezer")] private static extern int dz_player_event_get_type(IntPtr eventHandle);
-	[DllImport("libdeezer")] private static extern int dz_player_seek(IntPtr playerHandle,
+	[DllImport(DZImport.LibPath)] private static extern int dz_player_event_get_type(IntPtr eventHandle);
+	[DllImport(DZImport.LibPath)] private static extern int dz_player_seek(IntPtr playerHandle,
 		dz_activity_operation_callback cb, IntPtr data, int microseconds);
-	[DllImport("libdeezer")] private static extern IntPtr dz_player_event_track_selected_dzapiinfo(IntPtr eventHandle);
-	[DllImport("libdeezer")] private static extern IntPtr dz_player_event_track_selected_next_track_dzapiinfo(
+	[DllImport(DZImport.LibPath)] private static extern IntPtr dz_player_event_track_selected_dzapiinfo(IntPtr eventHandle);
+	[DllImport(DZImport.LibPath)] private static extern IntPtr dz_player_event_track_selected_next_track_dzapiinfo(
 		IntPtr eventHandle);
-	[DllImport("libdeezer")] private static extern bool dz_player_event_track_selected_is_preview(IntPtr eventHandle);
-	[DllImport("libdeezer")] private static extern bool dz_player_event_get_queuelist_context(IntPtr playerEventHandle,
+	[DllImport(DZImport.LibPath)] private static extern bool dz_player_event_track_selected_is_preview(IntPtr eventHandle);
+	[DllImport(DZImport.LibPath)] private static extern bool dz_player_event_get_queuelist_context(IntPtr playerEventHandle,
 		ref int out_streaming_mode, ref int index); 
 }
