@@ -57,6 +57,12 @@ public enum DZConnectionEvent {
 	ADVERTISEMENT_STOP
 };
 
+public enum DZConnectStreamingMode {
+	UNKNOWN,
+	ONEDEMAND,
+	RADIO
+};
+
 public delegate void dz_activity_operation_callback(IntPtr d, IntPtr data, int status, int result);
 public delegate void dz_connect_onevent_cb(IntPtr connectHandle, IntPtr eventHandle, IntPtr data);
 public delegate bool dz_connect_crash_reporting_delegate();

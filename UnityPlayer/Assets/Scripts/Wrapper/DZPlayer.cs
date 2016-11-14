@@ -153,7 +153,7 @@ public class DZPlayer {
 
 	public int GetIndexInQueulist (IntPtr playerEventHandle) {
 		int index = -1;
-		int streaming_mode = 1; // TODO: streaming mode enum ?
+		int streaming_mode = (int)DZConnectStreamingMode.ONEDEMAND;
 		dz_player_event_get_queuelist_context (playerEventHandle, ref streaming_mode, ref index);
 		return index;
 	}

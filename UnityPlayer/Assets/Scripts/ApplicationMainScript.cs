@@ -28,6 +28,7 @@ public class ApplicationMainScript : MonoBehaviour {
 	public int IndexInPlaylist { get; private set; }
 
 	void Awake() {
+		Debug.Log (Screen.currentResolution.width + "x" + Screen.currentResolution.height);
 		//contentLink = "track/10287076";
 		//contentLink = "album/607845";
 		// contentLink = "playlist/1363560485"; // FIXME: choose your content here
@@ -36,7 +37,11 @@ public class ApplicationMainScript : MonoBehaviour {
 		string userApplicationName = "UnityPlayer";
 		string userApplicationVersion = "00001";
 		// TODO: system-wise cache path
+		#if UNITY_STANDALONE_WIN
+			string userCachePath = "c:\\dzr\\dzrcache_NDK_SAMPLE";
+		#else
 			string userCachePath = "/var/tmp/dzrcache_NDK_SAMPLE";
+		#endif
 		dz_connect_configuration config = new dz_connect_configuration (
 			userApplicationid,
 			userApplicationName,
