@@ -73,6 +73,11 @@ playlist/CODE
 track/CODE
 ```
 
-If no track is loaded, that means that either the tracklist is unavailable or only for premium users.
+If no track is loaded, that means the tracklist is unavailable.
+
+### Limitations
+
+This sample is available only for 64-bits platforms.
+It is currently not possible to load and play a mix (user mix and radio).
 
  [1]: http://developers.deezer.com/sdk/native
