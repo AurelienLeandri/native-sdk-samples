@@ -18,11 +18,79 @@ UnityPlayer is a C# application using Native SDK. It displays a player UI and al
 ```
 <native-sdk-samples>
 ├── NativeSDK
-│      ├── Bins
-│      └── Include
+│       ├── Bins
+│       │      └── Platforms
+│       ├── Linux
+│       │   ├── arm
+│       │   │   └── libdeezer.so
+│       │   ├── i386
+│       │   │   └── libdeezer.so
+│       │   └── x86_64
+│       │       └── libdeezer.so
+│       ├── MacOSX
+│       │   └── libdeezer.framework
+│       │       └── Versions
+│       │           	└── Current
+│       │               	└── libdeezer
+│       └── Windows
+│           └── DLLs
+│               ├── libdeezer.x64.dll
+│               └── libdeezer.x86.dll
 ├── UnityPlayer
 └── README.md
 ```
+
+* This folder contains the Bins of the library depending on the platform:
+
+```
+<NativeSDK>
+└── Bins
+      └── Platforms
+	       ├── Linux
+	       │   ├── arm
+	       │   │   └── libdeezer.so
+	       │   ├── i386
+	       │   │   └── libdeezer.so
+	       │   └── x86_64
+	       │       └── libdeezer.so
+	       ├── MacOSX
+	       │   └── libdeezer.framework
+	       │       └── Versions
+	       │           	└── Current
+	       │               	└── libdeezer
+	       └── Windows
+	           └── DLLs
+	               ├── libdeezer.x64.dll
+	               └── libdeezer.x86.dll
+```
+
+* Copy the library corresponding to your architecture into the UnityPlayer/Assets folder. If you are running on MacOSX, rename it "libdeezer.bundle" and on Windows "libdeezer.dll".
+* Open Unity
+* Go to File > Open Project
+* Select the folder UnityPlayer
+* After the project is loaded, go to the Project panel
+* Got into the folder Scenes and click Interface.scene
+* Click Play
+
+
+### Run this sample
+
+
+In the application, a playlist is loaded by default. You can change the content in the input text field and load it by clicking on the "Go" button.
+
+You can load 3 types of content:
+
+```
+album/CODE
+playlist/CODE
+track/CODE
+```
+
+If no track is loaded, that means that either the tracklist is unavailable or only for premium users.
+
+### Limitations
+
+* More development is necessary to display a track mix like a user mix or a radio since the tracks are known on-the-go.
 
 ### Project structure
 
@@ -53,31 +121,5 @@ UnityPlayer is a C# application using Native SDK. It displays a player UI and al
 └── README.md
 ```
 
-
-### Run this sample
-
-- Open Unity
-- Go to File > Open Project
-- Select the folder UnityPlayer
-- After the project is loaded, go to the Project panel
-- Got into the folder Scenes and click Interface.scene
-- Click Play
-
-In the application, a playlist is loaded by default. You can change the content in the input text field and load it by clicking on the "Go" button.
-
-You can load 3 types of content:
-
-```
-album/CODE
-playlist/CODE
-track/CODE
-```
-
-If no track is loaded, that means the tracklist is unavailable.
-
-### Limitations
-
-This sample is available only for 64-bits platforms.
-It is currently not possible to load and play a mix (user mix and radio).
 
  [1]: http://developers.deezer.com/sdk/native
