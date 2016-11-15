@@ -74,6 +74,7 @@ public class ApplicationMainScript : MonoBehaviour {
 
 	void OnApplicationQuit() {
 		Shutdown();
+		System.Diagnostics.Process.GetCurrentProcess ().Kill ();
 	}
 
 	public void Shutdown() {
